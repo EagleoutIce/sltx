@@ -1,0 +1,9 @@
+target: Example-Project
+dependencies:
+    random-intropoem:
+      url: https://github.com/EagleoutIce/random-intropoem
+      driver: git
+      grab-files: ["*.sty"]
+    color-palettes:
+      url: https://github.com/EagleoutIce/color-palettes
+      grab-files: ["*.sty"]

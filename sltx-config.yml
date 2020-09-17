@@ -1,0 +1,3 @@
+# Simple config file
+tex_home: ~/texmf/tex/latex/sltxinst
+working_dir: ~/.sltxinst/
