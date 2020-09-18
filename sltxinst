@@ -188,7 +188,9 @@ def use_driver(data: dict, dep_name: str, driver: str, url: str):
         print(" ! Driver failed with code", feedback, "exiting.")
         sys.exit(returnCode)
 
-    if not grab_files_from(target_dir, data) and not grab_dirs_from(target_dir, data):
+    got_files = grab_files_from(target_dir, data)
+    got_dirs = grab_dirs_from(target_dir, data)
+    if not got_files and not got_dirs:
         print(" ! No grabs performed!")
         write_to_log("No grabs performed for: " + dep_name)
     # TODO: grab dirs
