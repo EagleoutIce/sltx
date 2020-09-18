@@ -126,11 +126,8 @@ def grab_files_from(path: str, data: dict):
         # maybe forbid level up?
         files.extend(glob.glob(os.path.join(
             path, grab_pattern), recursive=True))
-
     # extra so i can setup installer afterwards more easily
-    print(" > Grabbing the follwing files for installation:",
-          [os.path.basename(f) for f in files])
-    # TODO: overwrite protection?
+    print(" > Grabbing the follwing files for installation:", [os.path.relpath(f, path) for f in files])
     for file in files:
         shutil.copy2(file, configuration[C_TEX_HOME])
     return True
@@ -152,7 +149,7 @@ def grab_dirs_from(path: str, data: dict):
     print(" > Grabbing the follwing dirs for installation:", dirs)
     for dir in dirs:
         # if fails rethrow :D
-        shutil.copytree(dir, configuration[C_TEX_HOME])
+        shutil.copytree(dir, os.path.join(configuration[C_TEX_HOME], os.path.relpath(dir, path)))
 
     return True
 
