@@ -3,6 +3,7 @@
 # Simple LaTeX INSTaller
 # sltxinst
 
+# TODO: setup other projects with this
 # TODO: check versioning
 # TODO: do not install if already done
 # TODO: symlink options?
@@ -11,24 +12,32 @@ import glob  # glob :P
 import os  # list directory
 import re  # matching files
 import shutil  # clean working dir
-import subprocess  # execution
+from subprocess import Popen, PIPE  # execution
 import sys  # cmd line args
 import zipfile  # extracting zips
 
 import yaml  # Parse config file
 
 DEFAULT_CONFIG = "./sltx-config.yml"
+C_DRIVER_LOG = "driver_log"
+C_TEX_HOME = "tex_home"
+C_WORKING_DIR = "working_dir"
+C_CREATE_DIRS = "create_dirs"
+C_CLEANUP = "cleanup"
+C_AUTODETECT_DRIVERS = "autodetect_drivers"
+C_DRIVERS = "drivers"
+C_DRIVER_PATTERNS = "driver_patterns"
 
 configuration = {
-    "tex_home": "~/texmf/tex/latex/sltxinst",
-    "working_dir": "~/.sltxinst",
-    "driver_log": "sltx-drivers.log",
-    "create_dirs": True,
-    "cleanup": True,  # TODO: implement; TODO: only grab interesting files if not already there
+    C_TEX_HOME: "~/texmf/tex/latex/sltxinst",
+    C_WORKING_DIR: "~/.sltxinst",
+    C_DRIVER_LOG: "sltx-drivers.log",
+    C_CREATE_DIRS: True,
+    C_CLEANUP: True,  # TODO: implement; TODO: only grab interesting files if not already there
     # "recursive": True, TODO: recursive
-    "autodetect_drivers": True,
+    C_AUTODETECT_DRIVERS: True,
     # TODO maybe specific install routine instead of plain copy
-    "drivers": {
+    C_DRIVERS: {
         "git": {
             "command": "git clone --depth 1 {args} \"{url}\" \"{working_dir}/{dep_name}\"",
             "target-dir": "{working_dir}/{dep_name}",
@@ -37,7 +46,7 @@ configuration = {
         }
         # TODO: other
     },
-    "driver-patterns": {
+    C_DRIVER_PATTERNS: {
         "git": ["github", "gitlab"]
     }
 }
@@ -45,10 +54,12 @@ configuration = {
 dependencies = {}
 loaded = []
 
-def write_to_log(data : str):
-    if configuration["driver_log"].strip():
-        with open(configuration["driver_log"], 'ab') as f:
+
+def write_to_log(data: str):
+    if configuration[C_DRIVER_LOG].strip():
+        with open(configuration[C_DRIVER_LOG], 'a') as f:
             f.write(data)
+
 
 def load_configuration(file: str):
     global configuration
@@ -73,8 +84,8 @@ def load_dependencies_config(file: str):
 
 
 def assure_dirs():
-    target_path: str = os.path.expanduser(configuration["tex_home"])
-    create: bool = configuration["create_dirs"]
+    target_path = os.path.expanduser(configuration[C_TEX_HOME])
+    create = configuration[C_CREATE_DIRS]
     if not os.path.isdir(target_path):
         if create:
             print("> Tex-Home-Dir", target_path, "not found. Creating...")
@@ -82,8 +93,8 @@ def assure_dirs():
         else:
             print("! Not allowed to create texhome. Exit")
             sys.exit(1)
-    configuration["tex_home"] = target_path  # expansion
-    target_path: str = os.path.expanduser(configuration["working_dir"])
+    configuration[C_TEX_HOME] = target_path  # expansion
+    target_path = os.path.expanduser(configuration[C_WORKING_DIR])
     if not os.path.isdir(target_path):
         if create:
             print("> Working-Dir", target_path, "not found. Creating...")
@@ -91,12 +102,12 @@ def assure_dirs():
         else:
             print("! Not allowed to create working-dir. Exit")
             sys.exit(1)
-    configuration["working_dir"] = target_path  # expansion
+    configuration[C_WORKING_DIR] = target_path  # expansion
 
 
 def detect_driver(url: str):
     print(" - Autodetecting driver...")
-    for key, patterns in configuration["driver-patterns"].items():
+    for key, patterns in configuration[C_DRIVER_PATTERNS].items():
         for pattern in patterns:
             if re.search(pattern, url):
                 return key
@@ -112,14 +123,18 @@ def grab_files_from(path: str, data: dict):
 
     files = []
     for grab_pattern in data["grab-files"]:
-        ## maybe forbid level up?
-        files.extend(glob.glob(os.path.join(path,grab_pattern), recursive=True))
+        # maybe forbid level up?
+        files.extend(glob.glob(os.path.join(
+            path, grab_pattern), recursive=True))
 
     # extra so i can setup installer afterwards more easily
-    print(" > Grabbing the follwing files for installation:", [os.path.basename(f) for f in files])
+    print(" > Grabbing the follwing files for installation:",
+          [os.path.basename(f) for f in files])
+    # TODO: overwrite protection?
     for file in files:
-        shutil.copy2(file, configuration["tex_home"])
+        shutil.copy2(file, configuration[C_TEX_HOME])
     return True
+
 
 def grab_dirs_from(path: str, data: dict):
     print(" - Grabby-Grab-Grab dirs from \"" + path + "\"...")
@@ -129,41 +144,53 @@ def grab_dirs_from(path: str, data: dict):
 
     dirs = []
     for grab_pattern in data["grab-dirs"]:
-        ## maybe forbid level up?
-        dirs.extend(glob.glob(os.path.join(path,grab_pattern), recursive=True))
+        # maybe forbid level up?
+        dirs.extend(glob.glob(os.path.join(
+            path, grab_pattern), recursive=True))
 
     # extra so i can setup installer afterwards more easily
-    print(" > Grabbing the follwing dirs for installation:", [os.path.basename(f) for f in files])
+    print(" > Grabbing the follwing dirs for installation:", dirs)
     for dir in dirs:
-        ## if fails rethrow :D
-        shutil.copytree(dir, configuration["tex_home"])
+        # if fails rethrow :D
+        shutil.copytree(dir, configuration[C_TEX_HOME])
 
     return True
+
+
+def write_proc_to_log(stream):
+    while True:
+        line = stream.readline()
+        if not line:
+            break
+        write_to_log(line.decode('utf-8'))
+
 
 def use_driver(data: dict, dep_name: str, driver: str, url: str):
     # default no arguments
     if "args" not in data:
         data["args"] = ""
-    driver_data = configuration["drivers"][driver]
-    command: str = driver_data["command"].format(
+    driver_data = configuration[C_DRIVERS][driver]
+    command = driver_data["command"].format(
         **data, **configuration, dep_name=dep_name)
-    target_dir: str = driver_data["target-dir"].format(
+    target_dir = driver_data["target-dir"].format(
         **data, **configuration, dep_name=dep_name)
     if os.path.isdir(target_dir) and driver_data["needs-delete"]:
         print(" - Target folder", target_dir,
               "exists. Will be deleted as the driver needs this")
         shutil.rmtree(target_dir)
     print(" > Executing:", command)
-    feedback = subprocess.run(command, capture_output=True, shell=True)
-    write_to_log(feedback.stdout)
-    write_to_log(feedback.stderr)
-    if feedback.returncode != 0:
+    feedback = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
+    returnCode = feedback.wait()
+    write_proc_to_log(feedback.stdout)
+    write_proc_to_log(feedback.stderr)
+
+    if returnCode != 0:
         print(" ! Driver failed with code", feedback, "exiting.")
-        sys.exit(feedback.returncode)
+        sys.exit(returnCode)
 
     if not grab_files_from(target_dir, data) and not grab_dirs_from(target_dir, data):
         print(" ! No grabs performed!")
-        write_to_log(("No grabs performed for: " + dep_name).encode('utf-8'))
+        write_to_log("No grabs performed for: " + dep_name)
     # TODO: grab dirs
     # TODO: error if not files and not dir
 
@@ -176,19 +203,19 @@ def install_dependency(name: str):
     print("Loading \"" + name + "\"")
     if "url" not in data:
         print(" ! The dependency did not have an url-tag attached")
-    url: str = data["url"]
+    url = data["url"]
     print(" - Loading from: \"" + url + "\"")
     if "driver" not in data:
-        if not configuration["autodetect_drivers"]:
+        if not configuration[C_AUTODETECT_DRIVERS]:
             print(" ! No driver given and autodetection disabled!")
         else:
             data["driver"] = detect_driver(url)
-    driver: str = data["driver"]
+    driver = data["driver"]
     print(" - Using driver: \"" + driver + "\"")
 
-    if driver not in configuration["drivers"]:
+    if driver not in configuration[C_DRIVERS]:
         print(" ! The selected driver is unknown. Loaded:",
-              configuration["drivers"])
+              configuration[C_DRIVERS])
         sys.exit(2)
     use_driver(data, name, driver, url)
 
@@ -213,14 +240,15 @@ if __name__ == "__main__":
         print("The dependency-file must supply a 'target' and an 'dependencies' key!")
         sys.exit(1)
 
-    write_to_log(("====Dependencies for:" + dependencies["target"]).encode('utf-8'))
+    write_to_log("====Dependencies for:" + dependencies["target"]+"\n")
     print("Dependencies for:", dependencies["target"])
-    print("Installing to:", configuration["tex_home"])
+    print("Installing to:", configuration[C_TEX_HOME])
     for dep in dependencies["dependencies"]:
         install_dependency(dep)
-    
+
     # all installed
-    if configuration["cleanup"]:
+    if configuration[C_CLEANUP]:
         print("> Cleaning up the working directory, as set.")
-        shutil.rmtree(configuration["working_dir"])
-    print("Dependency installation for",dependencies["target"],"completed. WARNING: NO RECURSION FOR NOW")
+        shutil.rmtree(configuration[C_WORKING_DIR])
+    print("Dependency installation for",
+          dependencies["target"], "completed. WARNING: NO RECURSION FOR NOW")
