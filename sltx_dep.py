@@ -3,12 +3,12 @@ import os
 import shutil
 import sys
 from subprocess import Popen, PIPE  # execution
+import re
 
 from sltx_config import write_to_log
 from sltx_globals import DEFAULT_CONFIG, C_DRIVER_LOG, C_TEX_HOME, C_WORKING_DIR, C_CREATE_DIRS, C_CLEANUP, C_AUTODETECT_DRIVERS, C_DRIVERS, C_DRIVER_PATTERNS
 import sltx_globals as sg
 
-import re
 
 loaded = []
 
@@ -104,7 +104,8 @@ def use_driver(data: dict, dep_name: str, driver: str, url: str):
     # TODO: error if not files and not dir
 
 
-def install_dependency(name: str):
+def install_dependency(name: str, idx):
+    print()
     if name in loaded:
         print("Skipping", name, " as it was already loaded by another dep.")
         return

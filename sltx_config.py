@@ -4,6 +4,7 @@ import sys
 from sltx_globals import DEFAULT_CONFIG, C_DRIVER_LOG, C_TEX_HOME, C_WORKING_DIR, C_CREATE_DIRS, C_CLEANUP, C_AUTODETECT_DRIVERS, C_DRIVERS, C_DRIVER_PATTERNS
 import sltx_globals as sg
 
+
 def write_to_log(data: str):
     if sg.configuration[C_DRIVER_LOG].strip():
         with open(sg.configuration[C_DRIVER_LOG], 'a') as f:
@@ -28,7 +29,6 @@ def load_dependencies_config(file: str):
         else:
             y_dep = yaml.load(yaml_file)
         sg.dependencies = {**sg.dependencies, **y_dep}
-    print("Loaded dependencies:", sg.dependencies)
 
 
 def assure_dirs():

@@ -11,6 +11,7 @@
 import os  # list directory
 import shutil  # clean working dir
 import sys  # cmd line args
+from concurrent import futures
 
 from sltx_globals import DEFAULT_CONFIG, C_DRIVER_LOG, C_TEX_HOME, C_WORKING_DIR, C_CREATE_DIRS, C_CLEANUP, C_AUTODETECT_DRIVERS, C_DRIVERS, C_DRIVER_PATTERNS
 import sltx_globals as sg
@@ -19,37 +20,54 @@ from sltx_config import write_to_log, load_configuration, load_dependencies_conf
 from sltx_dep import install_dependency
 
 import argparse
+import pathlib
 
-if __name__ == "__main__":
-    if os.path.isfile(DEFAULT_CONFIG):
-        print("Automatically loading '{DEFAULT_CONFIG}'".format(**locals()))
-        load_configuration(DEFAULT_CONFIG)
+def valid_file(arg : str):
+    if arg is None or arg.strip() == "":
+        raise ValueError("arg vas none or empty")
+    if not os.path.isfile(arg):
+        raise FileNotFoundError("\"" + arg + "\" must be an existing file")
 
-    if len(sys.argv) == 2:  # 1 arg given
-        load_dependencies_config(sys.argv[1])
-    elif len(sys.argv) == 3:  # 2 arg given
-        load_configuration(sys.argv[1])
-        load_dependencies_config(sys.argv[2])
-    else:
-        print("Usage: {prg} [config.yml] dep.yml".format(prg=sys.argv[0]))
-        sys.exit(1)
+    return arg
 
-    assure_dirs()
-    print("Loaded dependencies:", sg.dependencies)
+parser = argparse.ArgumentParser(
+    description="sltxinst, a Simple LaTeX-INSTaller")
+parser.add_argument('config',metavar='config.yml', nargs='?', type=valid_file,
+                    help="The file to load the configuration from.")
+parser.add_argument('dep',metavar='dep.yml', nargs=1, type=valid_file,
+                    help="The file to load the dependencies from.")
 
-    if "target" not in sg.dependencies or "dependencies" not in sg.dependencies:
-        print("The dependency-file must supply a 'target' and an 'dependencies' key!")
-        sys.exit(1)
+args = parser.parse_args()
 
-    write_to_log("====Dependencies for:" + sg.dependencies["target"]+"\n")
-    print("Dependencies for:", sg.dependencies["target"])
-    print("Installing to:", sg.configuration[C_TEX_HOME])
-    for dep in sg.dependencies["dependencies"]:
-        install_dependency(dep)
+if os.path.isfile(DEFAULT_CONFIG):
+    print("Automatically loading '{DEFAULT_CONFIG}'".format(**locals()))
+    load_configuration(DEFAULT_CONFIG)
 
-    # all installed
-    if sg.configuration[C_CLEANUP]:
-        print("> Cleaning up the working directory, as set.")
-        shutil.rmtree(sg.configuration[C_WORKING_DIR])
-    print("Dependency installation for",
-          sg.dependencies["target"], "completed. WARNING: NO RECURSION FOR NOW")
+
+if args.config is not None:
+    load_configuration(args.config)
+load_dependencies_config(args.dep[0])
+
+assure_dirs()
+
+if "target" not in sg.dependencies or "dependencies" not in sg.dependencies:
+    print("The dependency-file must supply a 'target' and an 'dependencies' key!")
+    sys.exit(1)
+
+write_to_log("====Dependencies for:" + sg.dependencies["target"]+"\n")
+print()
+print("Dependencies for:", sg.dependencies["target"])
+print("Installing to:", sg.configuration[C_TEX_HOME])
+print()
+
+# TODO: multithreading
+with futures.ThreadPoolExecutor(max_workers=1) as pool:
+    for i, dep in enumerate(sg.dependencies["dependencies"]):
+        pool.submit(install_dependency, dep, i)
+
+# all installed
+if sg.configuration[C_CLEANUP]:
+    print("> Cleaning up the working directory, as set.")
+    shutil.rmtree(sg.configuration[C_WORKING_DIR])
+print("Dependency installation for",
+      sg.dependencies["target"], "completed. WARNING: NO RECURSION FOR NOW")
