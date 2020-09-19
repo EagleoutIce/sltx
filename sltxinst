@@ -17,31 +17,39 @@ from sltx_globals import DEFAULT_CONFIG, C_DRIVER_LOG, C_TEX_HOME, C_WORKING_DIR
 import sltx_globals as sg
 
 from sltx_config import write_to_log, load_configuration, load_dependencies_config, assure_dirs
+import sltx_dep
 from sltx_dep import install_dependency
 
 import argparse
 import pathlib
 
-def valid_file(arg : str):
+
+def valid_file(arg: str):
     if arg is None or arg.strip() == "":
         raise ValueError("arg vas none or empty")
     if not os.path.isfile(arg):
         raise FileNotFoundError("\"" + arg + "\" must be an existing file")
-
     return arg
+
 
 parser = argparse.ArgumentParser(
     description="sltxinst, a Simple LaTeX-INSTaller")
-parser.add_argument('config',metavar='config.yml', nargs='?', type=valid_file,
-                    help="The file to load the configuration from.")
-parser.add_argument('dep',metavar='dep.yml', nargs='?', type=valid_file,
-                    help="The file to load the dependencies from.")
+parser.add_argument('-c, --config', dest='config', metavar='config.yml', 
+                    required=False, type=valid_file,
+                    help="the file to load the configuration from.")
+parser.add_argument('-d, --dependencies', dest='dep', metavar='dep.yml', 
+                    required=False, type=valid_file,
+                    help="the file to load the dependencies from.")
+parser.add_argument('-t, --threads', metavar='N', dest='threads', type=int, 
+                    help="number of threads to run the installation. Default is 1.",
+                    default=1)
 
 if(len(sys.argv) == 1):
     parser.parse_args(['-h'])
 
 args = parser.parse_args()
 
+# TODO: if no deps or no generate call
 if os.path.isfile(DEFAULT_CONFIG):
     print("Automatically loading '{DEFAULT_CONFIG}'".format(**locals()))
     load_configuration(DEFAULT_CONFIG)
@@ -64,14 +72,19 @@ print("Dependencies for:", sg.dependencies["target"])
 print("Installing to:", sg.configuration[C_TEX_HOME])
 print()
 
-# TODO: multithreading
-with futures.ThreadPoolExecutor(max_workers=1) as pool:
+with futures.ThreadPoolExecutor(max_workers=args.threads) as pool:
+    runners = []
     for i, dep in enumerate(sg.dependencies["dependencies"]):
-        pool.submit(install_dependency, dep, i)
+        runners.append(pool.submit(install_dependency, dep, i))
+    futures.wait(runners)
+    for runner in runners:
+        if runner.result() is not None:
+            print(runner.result())
 
 # all installed
 if sg.configuration[C_CLEANUP]:
     print("> Cleaning up the working directory, as set.")
     shutil.rmtree(sg.configuration[C_WORKING_DIR])
+print("Loaded:", sltx_dep.loaded)
 print("Dependency installation for",
       sg.dependencies["target"], "completed. WARNING: NO RECURSION FOR NOW")

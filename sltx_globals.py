@@ -1,3 +1,5 @@
+import sys
+
 DEFAULT_CONFIG = "./sltx-config.yml"
 C_DRIVER_LOG = "driver_log"
 C_TEX_HOME = "tex_home"
@@ -32,3 +34,6 @@ configuration = {
 }
 
 dependencies = {}
+
+def print_idx(idx : int, *objects, sep=' ', end='\n', file=sys.stdout, flush=False):
+    print("[ID " + str(idx) + "]", *objects, sep=sep, end=end, file=file, flush=flush)
