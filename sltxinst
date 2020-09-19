@@ -34,8 +34,11 @@ parser = argparse.ArgumentParser(
     description="sltxinst, a Simple LaTeX-INSTaller")
 parser.add_argument('config',metavar='config.yml', nargs='?', type=valid_file,
                     help="The file to load the configuration from.")
-parser.add_argument('dep',metavar='dep.yml', nargs=1, type=valid_file,
+parser.add_argument('dep',metavar='dep.yml', nargs='?', type=valid_file,
                     help="The file to load the dependencies from.")
+
+if(len(sys.argv) == 1):
+    parser.parse_args(['-h'])
 
 args = parser.parse_args()
 
@@ -46,7 +49,8 @@ if os.path.isfile(DEFAULT_CONFIG):
 
 if args.config is not None:
     load_configuration(args.config)
-load_dependencies_config(args.dep[0])
+if args.dep is not None:
+    load_dependencies_config(args.dep)
 
 assure_dirs()
 
