@@ -170,6 +170,7 @@ def install_dependency(name: str, idx: str, data: dict):
                   " as it was already loaded by another dep.")
         grab_stuff(idx, name, get_target_dir(data, name, driver), data)
         return
+    loaded.append(name)
 
     if driver not in sg.configuration[C_DRIVERS]:
         print_idx(idx, " ! The selected driver is unknown. Loaded:",
@@ -177,7 +178,6 @@ def install_dependency(name: str, idx: str, data: dict):
         sys.exit(2)
 
     use_driver(idx, data, name, driver, url)
-    loaded.append(name)
 
 
 def install_dependencies(idx: int, dep_dict: dict, first: bool = False):
