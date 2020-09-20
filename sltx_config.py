@@ -21,14 +21,14 @@ def load_configuration(file: str):
         sg.configuration = {**sg.configuration, **y_conf}
 
 
-def load_dependencies_config(file: str):
+def load_dependencies_config(file: str, target: dict):
     with open(file, 'r') as yaml_file:
         # FullLoader only available for 5.1 and above:
         if float(yaml.__version__[:yaml.__version__.rfind(".")]) >= 5.1:
             y_dep = yaml.load(yaml_file, Loader=yaml.FullLoader)
         else:
             y_dep = yaml.load(yaml_file)
-        sg.dependencies = {**sg.dependencies, **y_dep}
+    return {**target, **y_dep}
 
 
 def assure_dirs():

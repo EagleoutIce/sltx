@@ -2,8 +2,13 @@ target: Example-Project
 dependencies:
     random-intropoem:
       url: https://github.com/EagleoutIce/random-intropoem
-      driver: git |
+      driver: git
       grab-files: ["*.sty"]
     color-palettes:
       url: https://github.com/EagleoutIce/color-palettes
       grab-files: ["*.sty"]
+    sopra-collection:
+      url: https://github.com/EagleoutIce/sopra-collection
+      grab-files: ["**/*.sty"]
+      grab-dirs: ["sopra-listings/Languages"]
+      dep: sltx-dep.yml

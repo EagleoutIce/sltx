@@ -8,19 +8,21 @@
 # TODO: do not install if already done
 # TODO: symlink options?
 
+import argparse
 import os  # list directory
 import shutil  # clean working dir
 import sys  # cmd line args
 from concurrent import futures
-import argparse
 
-from sltx_globals import DEFAULT_CONFIG, C_DRIVER_LOG, C_TEX_HOME, C_WORKING_DIR, C_CREATE_DIRS, C_CLEANUP, C_AUTODETECT_DRIVERS, C_DRIVERS, C_DRIVER_PATTERNS
-import sltx_globals as sg
-
-from sltx_config import write_to_log, load_configuration, load_dependencies_config, assure_dirs
 import sltx_dep
-from sltx_dep import install_dependency
 import sltx_generate
+import sltx_globals as sg
+from sltx_config import (assure_dirs, load_configuration,
+                         load_dependencies_config, write_to_log)
+from sltx_dep import install_dependencies
+from sltx_globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
+                          C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
+                          C_TEX_HOME, C_WORKING_DIR, DEFAULT_CONFIG, C_RECURSIVE)
 
 
 def valid_file(arg: str):
@@ -48,9 +50,9 @@ parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
 if(len(sys.argv) <= 1):
     parser.parse_args(['-h'])
 
-args = parser.parse_args()
+sg.args = parser.parse_args()
 
-if args.gen:
+if sg.args.gen:
     sltx_generate.generate()
     exit(0)
 
@@ -60,10 +62,10 @@ if os.path.isfile(DEFAULT_CONFIG):
     load_configuration(DEFAULT_CONFIG)
 
 
-if args.config is not None:
-    load_configuration(args.config)
-if args.dep is not None:
-    load_dependencies_config(args.dep)
+if sg.args.config is not None:
+    load_configuration(sg.args.config)
+if sg.args.dep is not None:
+    sg.dependencies = load_dependencies_config(sg.args.dep, sg.dependencies)
 
 assure_dirs()
 
@@ -77,19 +79,14 @@ print("Dependencies for:", sg.dependencies["target"])
 print("Installing to:", sg.configuration[C_TEX_HOME])
 print()
 
-with futures.ThreadPoolExecutor(max_workers=args.threads) as pool:
-    runners = []
-    for i, dep in enumerate(sg.dependencies["dependencies"]):
-        runners.append(pool.submit(install_dependency, dep, i))
-    futures.wait(runners)
-    for runner in runners:
-        if runner.result() is not None:
-            print(runner.result())
+install_dependencies(0, sg.dependencies)
 
 # all installed
 if sg.configuration[C_CLEANUP]:
     print("> Cleaning up the working directory, as set.")
     shutil.rmtree(sg.configuration[C_WORKING_DIR])
 print("Loaded:", sltx_dep.loaded)
+if not sg.configuration[C_RECURSIVE]:
+      print("Recursion was disabled.")
 print("Dependency installation for",
-      sg.dependencies["target"], "completed. WARNING: NO RECURSION FOR NOW")
+      sg.dependencies["target"], "completed.")
