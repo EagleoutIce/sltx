@@ -77,12 +77,16 @@ def grab_dirs_from(idx: str, path: str, data: dict):
     return True
 
 
-def write_proc_to_log(stream):
+def write_proc_to_log(idx : int, stream, mirror: bool):
     while True:
         line = stream.readline()
         if not line:
             break
-        write_to_log(line.decode('utf-8'))
+        line_utf8 = line.decode('utf-8')
+        write_to_log(line_utf8)
+        if mirror:
+            print_idx(idx, line_utf8)
+
 
 
 def grab_stuff(idx: str, dep_name: str, target_dir: str, data: dict):
@@ -133,8 +137,10 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str):
     print_idx(idx, " > Executing:", command)
     feedback = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
     return_code = feedback.wait()
-    write_proc_to_log(feedback.stdout)
-    write_proc_to_log(feedback.stderr)
+    write_proc_to_log(idx, feedback.stdout, False)
+    if return_code != 0:
+        print_idx(idx, " - Error-Log of Driver:")
+    write_proc_to_log(idx, feedback.stderr, return_code != 0)
 
     if(sg.configuration[C_RECURSIVE]):
         recursive_dependencies(idx, target_dir, data, dep_name)
