@@ -87,6 +87,6 @@ if sg.configuration[C_CLEANUP]:
     shutil.rmtree(sg.configuration[C_WORKING_DIR])
 print("Loaded:", sltx_dep.loaded)
 if not sg.configuration[C_RECURSIVE]:
-      print("Recursion was disabled.")
+    print("Recursion was disabled.")
 print("Dependency installation for",
       sg.dependencies["target"], "completed.")
