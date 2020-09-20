@@ -125,7 +125,7 @@ def step_setup_sltx(document: dict):
     # dirdie-murdie
     setup_lines = ""
     if submodule_sltx:
-        sltx_path = get_dir(
+        sltx_path = get_from_user(
             "Relative path to sltx [{default}]", default=sltx_path)
     else:
         print("Ok, the workflow file will pull sltx then")
