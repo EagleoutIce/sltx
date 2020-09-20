@@ -33,15 +33,15 @@ def valid_file(arg: str):
 
 parser = argparse.ArgumentParser(
     description="sltxinst, a Simple LaTeX-INSTaller")
-parser.add_argument('-g, --generate', dest='gen', action='store_true',
+parser.add_argument('-g', '--generate', dest='gen', action='store_true',
                     help="generate a github action file for automated installation.")
-parser.add_argument('-c, --config', dest='config', metavar='config.yml',
+parser.add_argument('-c', '--config', dest='config', metavar='config.yml',
                     required=False, type=valid_file,
                     help="the file to load the configuration from.")
-parser.add_argument('-d, --dependencies', dest='dep', metavar='dep.yml',
+parser.add_argument('-d', '--dependencies', dest='dep', metavar='dep.yml',
                     required=False, type=valid_file,
                     help="the file to load the dependencies from.")
-parser.add_argument('-t, --threads', metavar='N', dest='threads', type=int,
+parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
                     help="number of threads to run the installation. Default is 1.",
                     default=1)
 
