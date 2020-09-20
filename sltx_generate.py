@@ -172,7 +172,7 @@ def step_compile(document: dict):
 
     add_step(document,
              "Setup Texlive and compile the documents",
-             uses=" xu-cheng/texlive-action/full@v1",
+             uses="xu-cheng/texlive-action/full@v1",
              _with={
                  'run': YamlBlock(exec_lines)
              })
@@ -220,7 +220,7 @@ def generate():
 
     print("We will now generate a GitHub-Action workflow")
     target_path = get_from_user(
-        "Workflow-Path [{default}]", default=".github/compile.yaml")
+        "Workflow-Path [{default}]", default=".github/workflows/compile.yaml")
     assure_workflow_target(target_path)
 
     document['name'] = get_from_user("Workflow name")
