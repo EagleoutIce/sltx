@@ -71,6 +71,17 @@ def write_proc_to_log(stream):
             break
         write_to_log(line.decode('utf-8'))
 
+def grab_stuff(idx: int, dep_name: str, target_dir: str, data: dict):
+    print_idx(idx, "Grabbing dependencies for " + dep_name)
+    got_files = grab_files_from(idx, target_dir, data)
+    got_dirs = grab_dirs_from(idx, target_dir, data)
+    if not got_files and not got_dirs:
+        print_idx(idx, " ! No grabs performed!")
+        write_to_log("No grabs performed for: " + dep_name)
+
+def get_target_dir(data: dict, dep_name: str, driver: str):
+    return sg.configuration[C_DRIVERS][driver]["target-dir"].format(
+        **data, **sg.configuration, dep_name=dep_name)
 
 def use_driver(idx: int, data: dict, dep_name: str, driver: str, url: str):
     # default no arguments
@@ -79,37 +90,27 @@ def use_driver(idx: int, data: dict, dep_name: str, driver: str, url: str):
     driver_data = sg.configuration[C_DRIVERS][driver]
     command = driver_data["command"].format(
         **data, **sg.configuration, dep_name=dep_name)
-    target_dir = driver_data["target-dir"].format(
-        **data, **sg.configuration, dep_name=dep_name)
+    target_dir = get_target_dir(data, dep_name, driver)
     if os.path.isdir(target_dir) and driver_data["needs-delete"]:
         print_idx(idx, " - Target folder", target_dir,
               "exists. Will be deleted as the driver needs this")
         shutil.rmtree(target_dir)
     print_idx(idx, " > Executing:", command)
     feedback = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
-    returnCode = feedback.wait()
+    return_code = feedback.wait()
     write_proc_to_log(feedback.stdout)
     write_proc_to_log(feedback.stderr)
 
-    if returnCode != 0:
+    if return_code != 0:
         print_idx(idx, " ! Driver failed with code", feedback, "exiting.")
-        sys.exit(returnCode)
+        sys.exit(return_code)
 
-    got_files = grab_files_from(idx, target_dir, data)
-    got_dirs = grab_dirs_from(idx, target_dir, data)
-    if not got_files and not got_dirs:
-        print_idx(idx, " ! No grabs performed!")
-        write_to_log("No grabs performed for: " + dep_name)
-    # TODO: grab dirs
-    # TODO: error if not files and not dir
+    grab_stuff(data, dep_name, target_dir, data)
 
 
 def install_dependency(name: str, idx : int):
-    if name in loaded:
-        print_idx(idx, "Skipping", name, " as it was already loaded by another dep.")
-        return
-    data = sg.dependencies["dependencies"][name]
     print_idx(idx, "Loading \"" + name + "\"")
+    data = sg.dependencies["dependencies"][name]
     if "url" not in data:
         print_idx(idx, " ! The dependency did not have an url-tag attached")
     url = data["url"]
@@ -121,6 +122,11 @@ def install_dependency(name: str, idx : int):
             data["driver"] = detect_driver(idx, url)
     driver = data["driver"]
     print_idx(idx, " - Using driver: \"" + driver + "\"")
+
+    if name in loaded:
+        print_idx(idx, "Skipping retrieval", name, " as it was already loaded by another dep.")
+        grab_stuff(idx, name, get_target_dir(data, name, driver), data)
+        return
 
     if driver not in sg.configuration[C_DRIVERS]:
         print_idx(idx, " ! The selected driver is unknown. Loaded:",
