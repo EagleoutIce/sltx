@@ -77,7 +77,7 @@ def grab_dirs_from(idx: str, path: str, data: dict):
     return True
 
 
-def write_proc_to_log(idx : int, stream, mirror: bool):
+def write_proc_to_log(idx: int, stream, mirror: bool):
     while True:
         line = stream.readline()
         if not line:
@@ -86,7 +86,6 @@ def write_proc_to_log(idx : int, stream, mirror: bool):
         write_to_log(line_utf8)
         if mirror:
             print_idx(idx, line_utf8)
-
 
 
 def grab_stuff(idx: str, dep_name: str, target_dir: str, data: dict):
@@ -181,12 +180,12 @@ def install_dependency(name: str, idx: str, data: dict):
     loaded.append(name)
 
 
-def install_dependencies(idx: int, dep_dict: dict):
+def install_dependencies(idx: int, dep_dict: dict, first: bool = False):
     with futures.ThreadPoolExecutor(max_workers=sg.args.threads) as pool:
         runners = []
         for i, dep in enumerate(dep_dict['dependencies']):
-            runners.append(pool.submit(install_dependency, dep, str(i) if int(
-                idx) <= 0 else str(idx) + "." + str(i), dep_dict['dependencies'][dep]))
+            runners.append(pool.submit(install_dependency, dep, str(
+                i) if first else str(idx) + "." + str(i), dep_dict['dependencies'][dep]))
         futures.wait(runners)
         for runner in runners:
             if runner.result() is not None:

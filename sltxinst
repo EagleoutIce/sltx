@@ -79,7 +79,7 @@ print("Dependencies for:", sg.dependencies["target"])
 print("Installing to:", sg.configuration[C_TEX_HOME])
 print()
 
-install_dependencies(0, sg.dependencies)
+install_dependencies(0, sg.dependencies, first=True)
 
 # all installed
 if sg.configuration[C_CLEANUP]:
