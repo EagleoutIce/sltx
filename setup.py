@@ -14,12 +14,16 @@ setuptools.setup(
     description="sltx-utility",
     long_description=long_description,
     long_description_content_type="text/markdown",
+    install_requires=['PyYAML'],
+    scripts=['sltx'],
     url="https://github.com/EagleoutIce/sltx",
     packages=setuptools.find_packages(),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        'Intended Audience :: Developers',
+        'Environment :: Console'
     ],
     python_requires='>=3.5',
 )

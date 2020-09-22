@@ -1,5 +1,4 @@
 import argparse
-import argcomplete
 import os  # list directory
 import shutil  # clean working dir
 import sys  # cmd line args
@@ -35,8 +34,6 @@ parser.add_argument('-d', '--dependencies', dest='dep', metavar='dep.yml',
 parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
                     help="number of threads to run the installation. Default is 1.",
                     default=1)
-
-argcomplete.autocomplete(parser)
 
 if(len(sys.argv) <= 1):
     parser.parse_args(['-h'])

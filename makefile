@@ -15,6 +15,7 @@ publish: version
 		echo "ERROR: You must change the 'VERSION' (${VERSION}) to publish";\
 		exit 1; fi
 	echo ${VERSION} > version.info
+	pip3 freeze > requirements.txt
 	git add .
 	git commit -s
 	git tag -a v${VERSION} -m 'Tag for version v${VERSION}'
