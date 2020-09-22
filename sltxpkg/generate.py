@@ -1,7 +1,9 @@
+import os
+
 import yaml
 from yaml.representer import SafeRepresenter
-import os
-from sltx_globals import C_TEX_HOME
+
+from sltxpkg.globals import C_TEX_HOME
 
 # https://stackoverflow.com/a/20863889
 

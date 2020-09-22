@@ -14,13 +14,11 @@ import shutil  # clean working dir
 import sys  # cmd line args
 from concurrent import futures
 
-import sltx_dep
-import sltx_generate
-import sltx_globals as sg
-from sltx_config import (assure_dirs, load_configuration,
+from sltxpkg import dep, generate, globals as sg
+from sltxpkg.config import (assure_dirs, load_configuration,
                          load_dependencies_config, write_to_log)
-from sltx_dep import install_dependencies
-from sltx_globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
+from sltxpkg.dep import install_dependencies
+from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                           C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                           C_TEX_HOME, C_WORKING_DIR, DEFAULT_CONFIG, C_RECURSIVE)
 
@@ -53,7 +51,7 @@ if(len(sys.argv) <= 1):
 sg.args = parser.parse_args()
 
 if sg.args.gen:
-    sltx_generate.generate()
+    generate.generate()
     exit(0)
 
 # TODO: if no deps or no generate call
@@ -85,7 +83,7 @@ install_dependencies(0, sg.dependencies, first=True)
 if sg.configuration[C_CLEANUP]:
     print("> Cleaning up the working directory, as set.")
     shutil.rmtree(sg.configuration[C_WORKING_DIR])
-print("Loaded:", sltx_dep.loaded)
+print("Loaded:", dep.loaded)
 if not sg.configuration[C_RECURSIVE]:
     print("Recursion was disabled.")
 print("Dependency installation for",

@@ -6,12 +6,12 @@ import sys
 from concurrent import futures
 from subprocess import PIPE, Popen  # execution
 
-import sltx_globals as sg
-from sltx_config import write_to_log, load_dependencies_config
-from sltx_globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
-                          C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
-                          C_RECURSIVE, C_TEX_HOME, C_WORKING_DIR,
-                          DEFAULT_CONFIG, print_idx)
+import sltxpkg.globals as sg
+from sltxpkg.config import load_dependencies_config, write_to_log
+from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
+                             C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
+                             C_RECURSIVE, C_TEX_HOME, C_WORKING_DIR,
+                             DEFAULT_CONFIG, print_idx)
 
 if sys.version_info < (3, 8, 0):
     print("Python version below 3.8, falling back with distutils!")

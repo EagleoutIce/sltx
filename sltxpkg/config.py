@@ -1,10 +1,8 @@
 import yaml
 import os
 import sys
-from sltx_globals import DEFAULT_CONFIG, C_DRIVER_LOG, C_TEX_HOME, C_WORKING_DIR, C_CREATE_DIRS, C_CLEANUP, C_AUTODETECT_DRIVERS, C_DRIVERS, C_DRIVER_PATTERNS
-import sltx_globals as sg
-import sltx_util as su
-
+from sltxpkg import globals as sg, util as su
+from sltxpkg.globals import DEFAULT_CONFIG, C_DRIVER_LOG, C_TEX_HOME, C_WORKING_DIR, C_CREATE_DIRS, C_CLEANUP, C_AUTODETECT_DRIVERS, C_DRIVERS, C_DRIVER_PATTERNS
 
 def write_to_log(data: str):
     if sg.configuration[C_DRIVER_LOG].strip():
@@ -33,8 +31,8 @@ def load_dependencies_config(file: str, target: dict):
 
 
 def assure_dirs():
-    target_path = os.path.expanduser(sg.configuration[C_TEX_HOME]).format(
-        **sg.configuration, os_default_texmf=su.default_texmf())
+    target_path = os.path.expanduser(sg.configuration[C_TEX_HOME].format(
+        **sg.configuration, os_default_texmf=su.default_texmf()))
     create = sg.configuration[C_CREATE_DIRS]
     if not os.path.isdir(target_path):
         if create:
