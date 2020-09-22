@@ -1,0 +1,25 @@
+name: Publish to Test-PyPI
+on: push
+
+jobs:
+    build-n-publish:
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@master
+          with:
+            lfs: false
+            submodules: true
+
+        - name: Set up Python 3.5
+          uses: actions/setup-python@v2
+          with:
+            python-version: 3.5
+
+        - name: Build wheel and tarball
+          run: python3 setup.py sdist bdist_wheel
+
+        - name: Publish to Test-PyPI
+          uses: pypa/gh-action-pypi-publish@master
+          with:
+            password: ${{ secrets.test_pypi_token }}
+            repository_url: https://test.pypi.org/legacy/
