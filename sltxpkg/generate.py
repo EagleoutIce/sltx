@@ -156,6 +156,7 @@ def step_compile(document: dict):
 
     args = "-pdf -file-line-error -halt-on-error -interaction=nonstopmode"
 
+    # TODO: fail as soon as one fails
     for file in files:
         exec_lines += "latexmk " + args + " \"" + file + "\"\n"
 
