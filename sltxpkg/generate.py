@@ -157,8 +157,8 @@ def step_compile(document: dict):
     args = "-pdf -file-line-error -halt-on-error -interaction=nonstopmode"
 
     for file in files:
-        exec_lines += "latexmk " + args + " \"" + file + "\" && "
-    exec_lines += "\n"
+        exec_lines += "latexmk " + args + " \"" + file + "\"\n"
+
     add_step(document,
              "Setup Texlive and compile the documents",
              uses="xu-cheng/texlive-action/full@v1",
