@@ -1,11 +1,14 @@
 import setuptools
 
-with open("README.md", "r") as readme:
+with open('README.md', 'r') as readme:
     long_description = readme.read()
+
+with open('version.info', 'r') as fv:
+    version = fv.readline()
 
 setuptools.setup(
     name="sltx",
-    version="0.0.1",
+    version=version,
     author="Florian Sihler",
     author_email="florian.sihler@uni-ulm.de",
     description="sltx-utility",
