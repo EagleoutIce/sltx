@@ -120,25 +120,12 @@ def step_setup_python(document: dict):
 
 
 def step_setup_sltx(document: dict):
-    print("Is sltx included as a submodule?")
-    submodule_sltx = get_bool(default=False)
-    sltx_path = "./sltx-install/"
-
-    # dirdie-murdie
-    setup_lines = ""
-    if submodule_sltx:
-        sltx_path = get_from_user(
-            "Relative path to sltx [{default}]", default=sltx_path)
-    else:
-        print("Ok, the workflow file will pull sltx then")
-        setup_lines = "git clone --depth 1 \"https://github.com/EagleoutIce/sltx-inst\" \"" + \
-            sltx_path + "\"\n"
-
-    print("Do you need your own config file?")
+    print("Do you need your own config file for sltx?")
     own_config = get_bool(default=False)
     config_file = ".sltx-gh-conf.yaml"
     texmf_home = "./texmf/tex/latex/sltx"
     dep_file = "sltx-dep.yml"
+    setup_lines = ""
 
     if own_config:
         config_file = get_file("Path to config-file")
@@ -150,13 +137,13 @@ def step_setup_sltx(document: dict):
 
     dep_file = get_file("Path to dep-file [{default}]", default=dep_file)
 
-    exec_line = "python3 {sltx_path}/sltx --config \"{config_file}\" --dependencies \"{dep_file}\"".format(
+    exec_line = "sltx --config \"{config_file}\" --dependencies \"{dep_file}\"".format(
         **locals())
 
     add_step(document,
              "Setup and run sltx-install",
-             _run=YamlBlock("pip install pyyaml\n" +
-                            setup_lines + exec_line + "\n")
+             _run=YamlBlock("pip install sltx\n" +
+                            setup_lines + "\n")
              )
 
 
