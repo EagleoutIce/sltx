@@ -143,7 +143,7 @@ def step_setup_sltx(document: dict):
     add_step(document,
              "Setup and run sltx-install",
              _run=YamlBlock("pip install sltx\n" +
-                            setup_lines + "\n")
+                            setup_lines + exec_line + "\n")
              )
 
 
@@ -157,8 +157,8 @@ def step_compile(document: dict):
     args = "-pdf -file-line-error -halt-on-error -interaction=nonstopmode"
 
     for file in files:
-        exec_lines += "latexmk " + args + " \"" + file + "\"\n"
-
+        exec_lines += "latexmk " + args + " \"" + file + "\" && "
+    exec_lines += "\n"
     add_step(document,
              "Setup Texlive and compile the documents",
              uses="xu-cheng/texlive-action/full@v1",

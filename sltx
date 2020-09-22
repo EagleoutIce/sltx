@@ -7,6 +7,7 @@
 # TODO: check versioning
 # TODO: do not install if already done
 # TODO: symlink options?
+# TODO: maybe add version?
 
 import argparse
 import os  # list directory
