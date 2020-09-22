@@ -137,7 +137,7 @@ def step_setup_sltx(document: dict):
     print("Do you need your own config file?")
     own_config = get_bool(default=False)
     config_file = ".sltx-gh-conf.yaml"
-    texmf_home = "./texmf/tex/latex/sltxinst"
+    texmf_home = "./texmf/tex/latex/sltx"
     dep_file = "sltx-dep.yml"
 
     if own_config:
@@ -150,7 +150,7 @@ def step_setup_sltx(document: dict):
 
     dep_file = get_file("Path to dep-file [{default}]", default=dep_file)
 
-    exec_line = "python3 {sltx_path}/sltxinst --config \"{config_file}\" --dependencies \"{dep_file}\"".format(
+    exec_line = "python3 {sltx_path}/sltx --config \"{config_file}\" --dependencies \"{dep_file}\"".format(
         **locals())
 
     add_step(document,

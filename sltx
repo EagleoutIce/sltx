@@ -32,7 +32,7 @@ def valid_file(arg: str):
 
 
 parser = argparse.ArgumentParser(
-    description="sltxinst, a Simple LaTeX-INSTaller")
+    description="sltx, a Simple LaTeX-INSTaller utility")
 parser.add_argument('-g', '--generate', dest='gen', action='store_true',
                     help="generate a github action file for automated installation.")
 parser.add_argument('-c', '--config', dest='config', metavar='config.yml',
