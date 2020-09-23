@@ -1,1 +1,3 @@
 include sltx-config.yml
+graft recipes
+includes recipes/*.recipe
