@@ -6,8 +6,6 @@ from yaml.representer import SafeRepresenter
 from sltxpkg.globals import C_TEX_HOME
 
 # https://stackoverflow.com/a/20863889
-
-
 def change_style(style, representer):
     def new_representer(dumper, data):
         scalar = representer(dumper, data)
@@ -22,55 +20,12 @@ class YamlBlock(str):
 
 represent_literal_str = change_style('|', SafeRepresenter.represent_str)
 yaml.add_representer(YamlBlock, represent_literal_str)
-
-
-def valid_default(inp: str):
-    return inp is not None and inp.strip() != ""
-
-
-def valid_dir(inp: str):
-    return valid_default(inp) and os.path.isdir(inp)
-
-
-def valid_file(inp: str):
-    return valid_default(inp) and os.path.isfile(inp)
-
-
-def get_from_user(prompt: str, valid_input=valid_default, type=str, default=None):
-    got = None
-    prompt = "\033[36m" + prompt.format(**locals()) + ">\033[m "
-    if default is None:
-        while not valid_input(got):
-            got = input(prompt)
-    else:
-        got = input(prompt)
-    ret = type(default if not valid_input(got) else got)
-    return ret
-
-
-def get_bool(pre="", default=None):
-    if default is None:
-        prompt = "[true/false]"
-    elif default:
-        prompt = "[TRUE/false]"
-    else:
-        prompt = "[True/FALSE]"
-
-    return get_from_user(pre + prompt, type=bool, default=default)
-
-
-def get_dir(prompt: str, default=None):
-    return get_from_user(prompt, valid_input=valid_dir, type=str, default=default)
-
-
-def get_file(prompt: str, default=None):
-    return get_from_user(prompt, valid_input=valid_file, type=str, default=default)
-
+import sltxpkg.prompt as prompt
 
 def assure_workflow_target(path: str):
     if os.path.isfile(path):
         print("A workflow-file with the given name does already exist!")
-        overwrite = get_bool(default=False)
+        overwrite = prompt.get_bool(default=False)
         if not overwrite:
             print("Aborting...")
             exit(1)
@@ -80,7 +35,7 @@ def assure_workflow_target(path: str):
 
     if not os.path.isdir(basepath):
         print("The directory", basepath, "does not exist. should it be created?")
-        create = get_bool(default=True)
+        create = prompt.get_bool(default=True)
         if not create:
             print("Aborting...")
             exit(1)
@@ -99,8 +54,8 @@ def add_step(document: dict, name: str, uses: str = None, _with: dict = None, _r
 
 
 def step_checkout(document: dict):
-    lfs = get_bool("Checkout lfs ", default=True)
-    submodules = get_bool("Checkout submodules ", default=True)
+    lfs = prompt.get_bool("Checkout lfs ", default=True)
+    submodules = prompt.get_bool("Checkout submodules ", default=True)
     add_step(document,
              "Checkout git repository",
              uses="actions/checkout@v2",
@@ -121,21 +76,21 @@ def step_setup_python(document: dict):
 
 def step_setup_sltx(document: dict):
     print("Do you need your own config file for sltx?")
-    own_config = get_bool(default=False)
+    own_config = prompt.get_bool(default=False)
     config_file = ".sltx-gh-conf.yaml"
     texmf_home = "./texmf/tex/latex/sltx"
     dep_file = "sltx-dep.yml"
     setup_lines = ""
 
     if own_config:
-        config_file = get_file("Path to config-file")
+        config_file = prompt.get_file("Path to config-file")
         print("Make sure you have set {C_TEX_HOME} to {texmf_home}".format(
             **globals(), **locals()))
     else:
         setup_lines += "echo \"{C_TEX_HOME}: {texmf_home}\" > \"{config_file}\"\n".format(
             **globals(), **locals())
 
-    dep_file = get_file("Path to dep-file [{default}]", default=dep_file)
+    dep_file = prompt.get_file("Path to dep-file [{default}]", default=dep_file)
 
     exec_line = "sltx --config \"{config_file}\" --dependencies \"{dep_file}\"".format(
         **locals())
@@ -149,7 +104,7 @@ def step_setup_sltx(document: dict):
 
 def step_compile(document: dict):
     print("Which documents do you want to have compiled? You may separate multiple ones by comma.")
-    file_list = get_from_user("File(s)")
+    file_list = prompt.get("File(s)")
     files = file_list.split(',')
 
     exec_lines = "tlmgr conf texmf TEXMFHOME \"~/Library/texmf:./texmf\"\n"
@@ -171,7 +126,7 @@ def step_compile(document: dict):
 
 def step_commit_and_push(document: dict, files: list):
     print("Do you want the resulting pdf(s) to be pushed?")
-    do_push = get_bool(default=True)
+    do_push = prompt.get_bool(default=True)
 
     if not do_push:
         return
@@ -180,7 +135,7 @@ def step_commit_and_push(document: dict, files: list):
 
     print("Which documents do you want to have pushed? You may separate multiple ones by comma.")
     print("Default:", files)
-    push_file_list = get_from_user("Doc(s)", default="")
+    push_file_list = prompt.get("Doc(s)", default="")
     if push_file_list.strip() != "":
         files = push_file_list.split(',')
 
@@ -194,7 +149,7 @@ def step_commit_and_push(document: dict, files: list):
                  add_line + "git commit -m \"Newly compiled data\"\n"))
 
     # push
-    branch = get_from_user("Push-Branch [{default}]", default="gh-pages")
+    branch = prompt.get("Push-Branch [{default}]", default="gh-pages")
     add_step(document,
              "Push changes",
              uses="ad-m/github-push-action@master",
@@ -209,11 +164,11 @@ def generate():
     document = {}
 
     print("We will now generate a GitHub-Action workflow")
-    target_path = get_from_user(
+    target_path = prompt.get(
         "Workflow-Path [{default}]", default=".github/workflows/compile.yaml")
     assure_workflow_target(target_path)
 
-    document['name'] = get_from_user("Workflow name")
+    document['name'] = prompt.get("Workflow name")
     document['on'] = {'push': {'branches': ['master']}}
     document['jobs'] = {
         'build': {

@@ -13,11 +13,6 @@ from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_RECURSIVE, C_TEX_HOME, C_WORKING_DIR,
                              DEFAULT_CONFIG, print_idx)
 
-if sys.version_info < (3, 8, 0):
-    print("Python version below 3.8, falling back with distutils!")
-    import distutils.dir_util as du
-
-
 loaded = []
 
 
@@ -73,6 +68,8 @@ def grab_dirs_from(idx: str, path: str, data: dict):
             shutil.copytree(dir, dir_target, dirs_exist_ok=True)
         else:
             # we use distutils
+            print("Python version below 3.8, falling back with distutils!")
+            import distutils.dir_util as du
             du.copy_tree(dir, dir_target)
     return True
 

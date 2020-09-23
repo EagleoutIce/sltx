@@ -11,6 +11,10 @@ C_DRIVERS = "drivers"
 C_DRIVER_PATTERNS = "driver_patterns"
 C_RECURSIVE = "recursive"
 
+C_USE_DOCKER = "use_docker"
+
+DOCKER_URL = "eagleoutice/lithie-{profile}"
+
 configuration = {
     C_TEX_HOME: "~/texmf/tex/latex/sltxinst",
     C_WORKING_DIR: "~/.sltxinst",
@@ -18,6 +22,7 @@ configuration = {
     C_CREATE_DIRS: True,
     C_CLEANUP: True,
     C_RECURSIVE: True,
+    C_USE_DOCKER: True,
     C_AUTODETECT_DRIVERS: True,
     # TODO maybe specific install routine instead of plain copy
     C_DRIVERS: {
