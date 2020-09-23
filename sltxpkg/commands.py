@@ -10,6 +10,7 @@ from sltxpkg.dep import install_dependencies
 from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_TEX_HOME, C_WORKING_DIR, DEFAULT_CONFIG, C_RECURSIVE, C_USE_DOCKER)
+import sltxpkg.lithie.compile.cooker as cooker
 
 from sltxpkg.lithie import commands as lithiecmd
 
@@ -66,9 +67,18 @@ def cmd_docker():
     lithiecmd.install()
 
 
+def cmd_raw_compile():
+    cooker.cook()
+
 def cmd_compile():
     if(sg.configuration[C_USE_DOCKER]):
         print("Using docker to compile")
+        lithiecmd.compile()
+    else:
+        print("Docker was disabled, using local compilation.")
+        cmd_raw_compile()
+        # TODO: cleanup afterwards to avoid pollution of other ns
+        # TODO: compile in another dir to avoid pollution and only return files based on a filter to the main directory
 
 
 def cmd_gen_gha():

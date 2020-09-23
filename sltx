@@ -14,7 +14,8 @@ import sys  # cmd line args
 
 from sltxpkg import globals as sg
 import sltxpkg.util as su
-from sltxpkg.commands import cmd_compile, cmd_dependency, cmd_gen_gha, cmd_docker, cmd_version
+from sltxpkg.commands import cmd_compile, cmd_raw_compile, cmd_dependency, cmd_gen_gha, cmd_docker, cmd_version
+
 
 def valid_file(arg: str):
     if arg is None or arg.strip() == "":
@@ -23,17 +24,17 @@ def valid_file(arg: str):
         raise FileNotFoundError("\"" + arg + "\" must be an existing file")
     return arg
 
-# TODO: cleanup arguments
 
-
+# TODO: cleanup arguments and automatically generate the stuff
 commands = {
-    'dependency': (cmd_dependency, ('dep')), 'docker': (cmd_docker, ('do')), 'compile': (cmd_compile, ('cmp')), 'gen-gha': (cmd_gen_gha, ('gen')), 'version': (cmd_version, ())}
+    'dependency': (cmd_dependency, ('dep')), 'docker': (cmd_docker, ('do')), 'compile': (cmd_compile, ('cmp')), 'raw-compile': (cmd_raw_compile, ('raw-cmp')), 'gen-gha': (cmd_gen_gha, ('gen')), 'version': (cmd_version, ())}
 
 
 parser = argparse.ArgumentParser(
     description="sltx, a Simple LaTeX utility", epilog="sltx Version: " + su.get_version())
 cmd_parser = parser.add_subparsers(
-    title='command', description="Select the command for sltx", help="Help for the specific command",
+    title='command', description="Select the command for sltx", metavar=set(commands.keys()), 
+    help="Help for the specific command. You may use shortcuts for them: " + str([k[1] for k in commands.values() if len(k[1]) is not 0]),
     dest='command')
 
 p_docker = cmd_parser.add_parser(
@@ -42,12 +43,31 @@ p_docker = cmd_parser.add_parser(
 p_dependency = cmd_parser.add_parser(
     'dependency', description='Install dependencies on the host system.', aliases=['dep'])
 p_dependency.add_argument('dep', metavar='dep.yml', type=valid_file,
-                          help="the file to load the dependencies from. Only valid with 'dependency'.")
+                          help="the file to load the dependencies from.")
+
+p_raw_compile = cmd_parser.add_parser(
+    'raw_compile', description="Compile documents using a recipe. This will not start any docker container but will be executed inside one as well.", aliases=['raw-cmp'])
+
+p_raw_compile.add_argument('-r', '--recipe', dest='recipe', help='The recipe to instruct the main compile routine.', required=False, default=None)
+p_raw_compile.add_argument('file', metavar='file.tex', type=valid_file,
+                       help="the file to load; it will be processed.")
 
 p_compile = cmd_parser.add_parser(
-    'compile', description='Compile documents with previously installed containers.', aliases=['cmp'])
+    'compile', description="Compile documents with previously installed containers. If docker was disabled this will default to the same behavior as \"raw-compile\" passing on the recipe.", aliases=['cmp'])
+# TODO:
+# p_compile.add_argument('-d', '--dependency', nargs='1', metavar="dep.yml", dest='dep', )
+# TODO: glossary etc.
+p_compile.add_argument('-p', '--profile', dest='profile',
+                       help="allows to override the configured docker profile. This will enable docker automatically.")
+p_compile.add_argument('-r', '--recipe', dest='recipe', help='The recipe to instruct the main compile routine.', required=False, default=None)
+
+# TODO: filters:
+# p_compile.add_argument('-i', '--isolate', action='store_true', dest='isolate', help="disables mounting the current fs. This will pass the file only. Has no effect if not using docker. Note that in isolation only the *.pdf will be returned")
+p_compile.add_argument('file', metavar='file.tex', type=valid_file,
+                       help="the file to load; it will be processed.")
+
 p_generate = cmd_parser.add_parser(
-    'gen-gha', description='Generate a GitHub workflow To automate compilation.', aliases='gen')
+    'gen-gha', description='Generate a GitHub workflow To automate compilation.', aliases=['gen'])
 
 # commands, parser.add_mutually_exclusive_group()
 parser.add_argument('-c', '--config', dest='config', metavar='config.yml',
@@ -58,6 +78,8 @@ parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
                     help="number of threads to run the installation. Default is 1. This number will only affect some routines.",
                     default=1)
 
+p_version = cmd_parser.add_parser(
+    'version', description='Show the version-info for sltx.')
 
 if(len(sys.argv) <= 1):
     parser.parse_args(['-h'])
@@ -68,7 +90,8 @@ try:
     tc = sg.args.command.lower()
     # This is ugly, but it basically checks if tc is in the commands and if so, use that commands
     # if not it searches through the list of aliasses and if it finds one it will use this
-    cmd = commands[tc] if tc in commands else commands[[alias[0] for alias in commands.items() if tc in alias[1][1]][0]][0]
+    cmd = commands[tc][0] if tc in commands else commands[[alias[0]
+                                                        for alias in commands.items() if tc in alias[1][1]][0]][0]
 except KeyError:
     print("The supplied command:", sg.args.command,
           "is unknown. Choose one of:", list(commands.keys()))
