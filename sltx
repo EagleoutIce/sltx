@@ -13,7 +13,7 @@ import os  # list directory
 import sys  # cmd line args
 
 from sltxpkg import globals as sg
-
+import sltxpkg.util as su
 from sltxpkg.commands import cmd_compile, cmd_dependency, cmd_gen_gha, cmd_docker, cmd_version
 
 def valid_file(arg: str):
@@ -25,25 +25,39 @@ def valid_file(arg: str):
 
 # TODO: cleanup arguments
 
+
 commands = {
-    'dependency': cmd_dependency, 'docker': cmd_docker, 'compile': cmd_compile, 'gen-gha': cmd_gen_gha, 'version': cmd_version}
+    'dependency': (cmd_dependency, ('dep')), 'docker': (cmd_docker, ('do')), 'compile': (cmd_compile, ('cmp')), 'gen-gha': (cmd_gen_gha, ('gen')), 'version': (cmd_version, ())}
+
 
 parser = argparse.ArgumentParser(
-    description="sltx, a Simple LaTeX-INSTaller utility")
+    description="sltx, a Simple LaTeX utility", epilog="sltx Version: " + su.get_version())
+cmd_parser = parser.add_subparsers(
+    title='command', description="Select the command for sltx", help="Help for the specific command",
+    dest='command')
+
+p_docker = cmd_parser.add_parser(
+    'docker', description='Manage the containers to compile with sltx.', aliases=['do'])
+
+p_dependency = cmd_parser.add_parser(
+    'dependency', description='Install dependencies on the host system.', aliases=['dep'])
+p_dependency.add_argument('dep', metavar='dep.yml', type=valid_file,
+                          help="the file to load the dependencies from. Only valid with 'dependency'.")
+
+p_compile = cmd_parser.add_parser(
+    'compile', description='Compile documents with previously installed containers.', aliases=['cmp'])
+p_generate = cmd_parser.add_parser(
+    'gen-gha', description='Generate a GitHub workflow To automate compilation.', aliases='gen')
 
 # commands, parser.add_mutually_exclusive_group()
-parser.add_argument('command', nargs='?',
-                    help="Command to be used. Defaults to 'dependency'. Possible values are " + str(list(commands.keys())),
-                    default='dependency')
 parser.add_argument('-c', '--config', dest='config', metavar='config.yml',
                     required=False, type=valid_file,
-                    help="the file to load the configuration from. Only valid with 'dependency'.")
-parser.add_argument('-d', '--dependencies', dest='dep', metavar='dep.yml',
-                    required=False, type=valid_file,
-                    help="the file to load the dependencies from. Only valid with 'dependency'.")
+                    help="the file to load the configuration from.")
+
 parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
                     help="number of threads to run the installation. Default is 1. This number will only affect some routines.",
                     default=1)
+
 
 if(len(sys.argv) <= 1):
     parser.parse_args(['-h'])
@@ -51,9 +65,14 @@ if(len(sys.argv) <= 1):
 sg.args = parser.parse_args()
 
 try:
-    cmd = commands[sg.args.command]
+    tc = sg.args.command.lower()
+    # This is ugly, but it basically checks if tc is in the commands and if so, use that commands
+    # if not it searches through the list of aliasses and if it finds one it will use this
+    cmd = commands[tc] if tc in commands else commands[[alias[0] for alias in commands.items() if tc in alias[1][1]][0]][0]
 except KeyError:
-    print("The supplied command:",sg.args.command,"is unknown. Choose one of:",list(commands.keys()))
+    print("The supplied command:", sg.args.command,
+          "is unknown. Choose one of:", list(commands.keys()))
+    exit(1)
 
 cmd()
 

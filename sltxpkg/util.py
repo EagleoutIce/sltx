@@ -8,3 +8,8 @@ def default_texmf():
         return "~/Library/texmf"
     elif platform == "win32":
         return "~/texmf"
+
+
+def get_version():
+    with open('version.info', 'r') as vi:
+        return vi.readline()

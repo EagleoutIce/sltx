@@ -2,6 +2,7 @@ import os  # list directory
 import shutil  # clean working dir
 import sys
 
+import sltxpkg.util as su
 from sltxpkg import dep, generate, globals as sg
 from sltxpkg.config import (assure_dirs, load_configuration,
                             load_dependencies_config, write_to_log)
@@ -17,7 +18,7 @@ from concurrent import futures
 
 def cmd_dependency():
     if sg.args.dep is None or sg.args.dep == "":
-        print("You must suplly a dependency file with the '-d' option")
+        print("You must suplly a dependency 'file'.")
         exit(1)
 
     if os.path.isfile(DEFAULT_CONFIG):
@@ -58,8 +59,7 @@ def cmd_dependency():
 
 def cmd_version():
     print("This is sltx, a simple latex helper-utility")
-    with open('version.info', 'r') as vi:
-        print("Version: ", vi.readline())
+    print("Version: ", su.get_version())
 
 
 def cmd_docker():
