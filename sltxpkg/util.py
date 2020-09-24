@@ -1,7 +1,12 @@
+import mmap
 from sys import platform
-from importlib_resources import files, as_file
-import sltxpkg.data
+from time import localtime, strftime
+
 import yaml
+from importlib_resources import as_file, files
+
+import sltxpkg.data
+
 
 def default_texmf():
     if platform == "linux" or platform == "linux2":
@@ -15,10 +20,21 @@ def default_texmf():
 def get_version():
     return files(sltxpkg.data).joinpath('version.info').read_text()
 
-def load_yaml(file_path : str):
+
+def load_yaml(file_path: str):
     with open(file_path, 'r') as yaml_file:
-            # FullLoader only available for 5.1 and above:
+        # FullLoader only available for 5.1 and above:
         if float(yaml.__version__[:yaml.__version__.rfind(".")]) >= 5.1:
             return yaml.load(yaml_file, Loader=yaml.FullLoader)
         else:
             return yaml.load(yaml_file)
+
+
+def file_contains(path: str, txt: str):
+    with open(path, 'rb', 0) as file, \
+            mmap.mmap(file.fileno(), 0, access=mmap.ACCESS_READ) as s:
+        return s.find(txt.encode('utf-8')) != -1
+
+
+def get_now():
+    return strftime("%Y-%m-%d__%H-%M-%S", localtime())

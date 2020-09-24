@@ -1,13 +1,14 @@
 name: Default recipe (latexmk!)
 author: Florian Sihler
-use-cases: []
 hooks: 
-    - pre: []
-    - post: []
+    pre: []
+    in: []
+    post: []
 
-# Will add a hook to cleanup files
-cleanup: True
-args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir {working_dir}"
+cleanup_cmds: 
+    - "{executable} -c"
+
+args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=\"{working_dir}\""
 eargs: 
   - '-f'
 
@@ -17,10 +18,9 @@ eargs:
 tools: 
   - glossary
 
-variables: 
-    # Variables will be used for expansion in other strings
-    - working_dir: "{tmp}/sltx/compile"
-    - filter: "{file}.pdf"
+# May contain 'glob'-Patterns
+wanted_files: 
+  - "{file}.pdf"
 
 executable: latexmk
 

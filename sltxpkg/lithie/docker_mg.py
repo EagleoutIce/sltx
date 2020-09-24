@@ -24,6 +24,7 @@ class DockerCtrl:
 
     def run_in_container(self, profile: str, command: str):
         target = DOCKER_URL.format(**locals())
+        print("Launching container",target)
         run = self.client.containers.run(
             target, command=command, detach=True, remove=True, working_dir='/home',
             volumes={
@@ -34,3 +35,4 @@ class DockerCtrl:
             })
         for l in run.logs(stdout=True, stderr=True, stream=True, timestamps=True):
             print(l.decode('utf-8'), end='')
+        print("Container completed.")

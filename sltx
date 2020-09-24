@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# Simple LaTeX INSTaller
-# sltxinst
+# Simple LaTeX Utility
+# sltx
 
 # TODO: check versioning
 # TODO: do not install if already done
@@ -14,7 +14,7 @@ import sys  # cmd line args
 
 from sltxpkg import globals as sg
 import sltxpkg.util as su
-from sltxpkg.commands import cmd_compile, cmd_raw_compile, cmd_dependency, cmd_gen_gha, cmd_docker, cmd_version
+from sltxpkg.commands import cmd_compile, cmd_raw_compile, cmd_dependency, cmd_gen_gha, cmd_docker, cmd_version, cmd_cleanse
 
 
 def valid_file(arg: str) -> str:
@@ -32,6 +32,7 @@ commands = {
     'compile': (cmd_compile, ('cmp')),
     'raw-compile': (cmd_raw_compile, ('raw-cmp')),
     'gen-gha': (cmd_gen_gha, ('gen')),
+    'cleanse': (cmd_cleanse, ('cls')),
     'version': (cmd_version, ())}
 
 
@@ -43,6 +44,16 @@ cmd_parser = parser.add_subparsers(
     help="Help for the specific command. You may use shortcuts for them: " +
     str([k[1] for k in commands.values() if len(k[1]) != 0]),
     dest='command')
+
+p_cleanse = cmd_parser.add_parser(
+    'cleanse', description="This will clean all additional sltx-files in the current directory (like \"sltx-log-*\" files). It may clean more, if you pass the corresponding flags. Please note, that cleanse will only read the current config. If you've changed some configurations they will be used.", aliases=['cls'])
+
+# TODO: clean more?
+p_cleanse.add_argument('--all', dest='cleanse_all', action='store_true',
+                    help="If set, sltx will clean the texmf-tree (sltx) as-well.")
+
+p_cleanse.add_argument('-e', '--exclude', action='append', metavar='pattern', dest='exclude_patterns', 
+                    help="Exclude all files/directories matching this pattern. May be supplied multiple times.")
 
 p_docker = cmd_parser.add_parser(
     'docker', description='Manage the containers to compile with sltx.', aliases=['do'])
@@ -86,6 +97,9 @@ parser.add_argument('-c', '--config', dest='config', metavar='config.yml',
 parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
                     help="number of threads to run the installation. Default is 1. This number will only affect some routines.",
                     default=1)
+
+# parser.add_argument('-n', '--no-archive', dest='no_archive', action='store_true',
+#                     help="If set, sltx won't create tar-balls in case of critical failures.")
 
 p_version = cmd_parser.add_parser(
     'version', description='Show the version-info for sltx.')

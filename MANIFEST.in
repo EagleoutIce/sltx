@@ -1,3 +1,4 @@
 include sltx-config.yml
 include sltxpkg/data/recipes/*.recipe
+include sltxpkg/data/latexmk/configs/*.mkrc
 include sltxpkg/data/version.info

@@ -1,13 +1,16 @@
 import os  # list directory
 import shutil  # clean working dir
 import sys
+import re
+
+from pathlib import Path
 
 import sltxpkg.util as su
 from sltxpkg import dep, generate, globals as sg
 from sltxpkg.config import (assure_dirs, load_configuration,
                             load_dependencies_config, write_to_log)
 from sltxpkg.dep import install_dependencies
-from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
+from sltxpkg.globals import (C_DRIVER_LOG, C_CLEANUP, C_CREATE_DIRS,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_TEX_HOME, C_WORKING_DIR, DEFAULT_CONFIG, C_RECURSIVE, C_USE_DOCKER)
 import sltxpkg.lithie.compile.cooker as cooker
@@ -60,7 +63,8 @@ def cmd_dependency():
 
 def cmd_version():
     print("This is sltx, a simple latex helper-utility")
-    print("Version: ", su.get_version())
+    print("Tex-Home",sg.configuration[sg.C_TEX_HOME].format(os_default_texmf=su.default_texmf()))
+    print("Version:", su.get_version())
 
 
 def cmd_docker():
@@ -83,3 +87,22 @@ def cmd_compile():
 
 def cmd_gen_gha():
     generate.generate()
+
+def should_be_excluded(file : str):
+    if sg.args.exclude_patterns is None:
+        return False
+
+    for exclude_pattern in sg.args.exclude_patterns:
+        if re.match(exclude_pattern, file):
+            return True
+    return False
+
+def cmd_cleanse():
+    # Delete all current log files
+    # TODO: make this dry. avoid specifying the log files multiple times (see Recipe)
+    clean_pattern = 'sltx-log-*.tar.gz'
+    for f in Path(".").glob(clean_pattern):
+        if should_be_excluded(str(f)):
+            print("File", f, "excluded.")
+        else:   
+            f.unlink()

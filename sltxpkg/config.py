@@ -2,12 +2,14 @@ import yaml
 import os
 import sys
 from sltxpkg import globals as sg, util as su
-from sltxpkg.globals import DEFAULT_CONFIG, C_DRIVER_LOG, C_TEX_HOME, C_WORKING_DIR, C_CREATE_DIRS, C_CLEANUP, C_AUTODETECT_DRIVERS, C_DRIVERS, C_DRIVER_PATTERNS
+from sltxpkg.globals import DEFAULT_CONFIG, C_AUTODETECT_DRIVERS, C_TEX_HOME, C_WORKING_DIR, C_CREATE_DIRS, C_CLEANUP, C_DRIVER_LOG, C_DRIVERS, C_DRIVER_PATTERNS
 
 def write_to_log(data: str):
     if sg.configuration[C_DRIVER_LOG].strip():
         with open(sg.configuration[C_DRIVER_LOG], 'a') as f:
             f.write(data)
+            if not data.endswith('\n'):
+                f.write("\n")
 
 
 def load_configuration(file: str):
