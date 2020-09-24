@@ -1,3 +1,6 @@
+from importlib_resources import files
+import sltxpkg.recipes
+import os
 
 class Recipe():
     
@@ -27,5 +30,5 @@ class Recipe():
 
     @staticmethod
     def get_default_recipes() -> [str]:
-        RECIPE_PATH = pkg_resources.resource_dir('')
+        print([f for f in os.listdir(files(sltxpkg.recipes)) if f.endswith(".recipe")])
         pass # return [f for f in listdir()]

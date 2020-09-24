@@ -4,4 +4,5 @@ from sltxpkg.lithie.compile.recipe import Recipe
 
 
 def cook():
-    recipe = Recipe()
+    Recipe.get_default_recipes()
+    # recipe = Recipe("")
