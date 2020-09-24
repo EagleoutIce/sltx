@@ -23,8 +23,7 @@ def load_dependencies_config(file: str, target: dict):
 
 
 def assure_dirs():
-    target_path = os.path.expanduser(sg.configuration[C_TEX_HOME].format(
-        **sg.configuration, os_default_texmf=su.default_texmf()))
+    target_path = su.get_tex_home()
     create = sg.configuration[C_CREATE_DIRS]
     if not os.path.isdir(target_path):
         if create:

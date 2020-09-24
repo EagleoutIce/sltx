@@ -17,4 +17,17 @@ def install():
 def compile():
     docker_ctrl = DockerCtrl()
     profile = sg.configuration[sg.C_DOCKER_PROFILE] if sg.args.profile is None else sg.args.profile
-    docker_ctrl.run_in_container(profile, "touch 123.txt")
+    sltx_command = "sltx -t " + str(sg.args.threads) + " "
+
+    if sg.args.config is not None:
+        sltx_command += "--config \"" + sg.args.config + "\" "
+    
+    sltx_command += "raw-compile "
+
+    if sg.args.recipe is not None:
+        sltx_command += "--recipe \"" + sg.args.recipe + "\" "
+
+    sltx_command += "\"" + sg.args.file + "\""
+
+    print("Running command in docker: " + sltx_command)
+    docker_ctrl.run_in_container(profile, sltx_command)

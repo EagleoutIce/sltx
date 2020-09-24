@@ -45,7 +45,7 @@ def cmd_dependency():
     write_to_log("====Dependencies for:" + sg.dependencies["target"]+"\n")
     print()
     print("Dependencies for:", sg.dependencies["target"])
-    print("Installing to:", sg.configuration[C_TEX_HOME])
+    print("Installing to:", su.get_tex_home())
     print()
 
     install_dependencies(0, sg.dependencies, first=True)
@@ -63,7 +63,7 @@ def cmd_dependency():
 
 def cmd_version():
     print("This is sltx, a simple latex helper-utility")
-    print("Tex-Home",sg.configuration[sg.C_TEX_HOME].format(os_default_texmf=su.default_texmf()))
+    print("Tex-Home", su.get_tex_home())
     print("Version:", su.get_version())
 
 
@@ -81,8 +81,6 @@ def cmd_compile():
     else:
         print("Docker was disabled, using local compilation.")
         cmd_raw_compile()
-        # TODO: cleanup afterwards to avoid pollution of other ns
-        # TODO: compile in another dir to avoid pollution and only return files based on a filter to the main directory
 
 
 def cmd_gen_gha():
@@ -100,9 +98,17 @@ def should_be_excluded(file : str):
 def cmd_cleanse():
     # Delete all current log files
     # TODO: make this dry. avoid specifying the log files multiple times (see Recipe)
+    print("Cleaning local logs...")
     clean_pattern = 'sltx-log-*.tar.gz'
     for f in Path(".").glob(clean_pattern):
         if should_be_excluded(str(f)):
             print("File", f, "excluded.")
         else:   
             f.unlink()
+    if sg.args.cleanse_all: 
+        thome = su.get_tex_home()
+        if os.path.isdir(thome):
+            print("Cleaning sltx-texmf-tree... (" + thome + ")")
+            shutil.rmtree(thome)
+        else:
+            print("The local sltx-texmf tree in \"" + thome + "\" was not found. Skipping...")

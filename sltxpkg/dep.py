@@ -12,6 +12,7 @@ from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_RECURSIVE, C_TEX_HOME, C_WORKING_DIR,
                              DEFAULT_CONFIG, print_idx)
+import sltxpkg.util as su
 
 loaded = []
 
@@ -41,7 +42,7 @@ def grab_files_from(idx: str, path: str, data: dict):
     print_idx(idx, " > Grabbing the follwing files for installation:",
               [os.path.relpath(f, path) for f in files])
     for file in files:
-        shutil.copy2(file, sg.configuration[C_TEX_HOME])
+        shutil.copy2(file, su.get_tex_home())
     return True
 
 
@@ -62,7 +63,7 @@ def grab_dirs_from(idx: str, path: str, data: dict):
     for dir in dirs:
         # if fails rethrow :D
         dir_target = os.path.join(
-            sg.configuration[C_TEX_HOME], os.path.relpath(dir, path))
+            su.get_tex_home(), os.path.relpath(dir, path))
         if sys.version_info >= (3, 8, 0):
             # we have exist is ok
             shutil.copytree(dir, dir_target, dirs_exist_ok=True)

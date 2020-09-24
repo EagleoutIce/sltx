@@ -1,4 +1,5 @@
 import mmap
+import os
 from sys import platform
 from time import localtime, strftime
 
@@ -6,6 +7,7 @@ import yaml
 from importlib_resources import as_file, files
 
 import sltxpkg.data
+import sltxpkg.globals as sg
 
 
 def default_texmf():
@@ -38,3 +40,8 @@ def file_contains(path: str, txt: str):
 
 def get_now():
     return strftime("%Y-%m-%d__%H-%M-%S", localtime())
+
+
+def get_tex_home() -> str:
+    return os.path.expanduser(sg.configuration[sg.C_TEX_HOME].format(
+        **sg.configuration, os_default_texmf=default_texmf()))
