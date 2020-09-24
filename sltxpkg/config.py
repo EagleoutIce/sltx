@@ -11,22 +11,12 @@ def write_to_log(data: str):
 
 
 def load_configuration(file: str):
-    with open(file, 'r') as yaml_file:
-        # FullLoader only available for 5.1 and above:
-        if float(yaml.__version__[:yaml.__version__.rfind(".")]) >= 5.1:
-            y_conf = yaml.load(yaml_file, Loader=yaml.FullLoader)
-        else:
-            y_conf = yaml.load(yaml_file)
-        sg.configuration = {**sg.configuration, **y_conf}
+    y_conf = su.load_yaml(file)
+    sg.configuration = {**sg.configuration, **y_conf}
 
 
 def load_dependencies_config(file: str, target: dict):
-    with open(file, 'r') as yaml_file:
-        # FullLoader only available for 5.1 and above:
-        if float(yaml.__version__[:yaml.__version__.rfind(".")]) >= 5.1:
-            y_dep = yaml.load(yaml_file, Loader=yaml.FullLoader)
-        else:
-            y_dep = yaml.load(yaml_file)
+    y_dep = su.load_yaml(file)
     return {**target, **y_dep}
 
 

@@ -46,7 +46,7 @@ p_dependency.add_argument('dep', metavar='dep.yml', type=valid_file,
                           help="the file to load the dependencies from.")
 
 p_raw_compile = cmd_parser.add_parser(
-    'raw_compile', description="Compile documents using a recipe. This will not start any docker container but will be executed inside one as well.", aliases=['raw-cmp'])
+    'raw-compile', description="Compile documents using a recipe. This will not start any docker container but will be executed inside one as well.", aliases=['raw-cmp'])
 
 p_raw_compile.add_argument('-r', '--recipe', dest='recipe', help='The recipe to instruct the main compile routine.', required=False, default=None)
 p_raw_compile.add_argument('file', metavar='file.tex', type=valid_file,

@@ -1,8 +1,9 @@
 # cookes the recipe :D
 
 from sltxpkg.lithie.compile.recipe import Recipe
-
+import sltxpkg.globals as sg
 
 def cook():
-    Recipe.get_default_recipes()
-    # recipe = Recipe("")
+
+    recipe = Recipe('default-latexmk.recipe' if sg.args.recipe is None else sg.args.recipe)
+    

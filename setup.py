@@ -3,7 +3,7 @@ import setuptools
 with open('README.md', 'r') as readme:
     long_description = readme.read()
 
-with open('version.info', 'r') as fv:
+with open('sltxpkg/data/version.info', 'r') as fv:
     version = fv.readline()
 
 setuptools.setup(
@@ -18,6 +18,11 @@ setuptools.setup(
     scripts=['sltx'],
     url="https://github.com/EagleoutIce/sltx",
     packages=setuptools.find_packages(),
+    package_data={
+        'data': ['sltxpkg/data/version.info'],
+        'data/recipes': ['sltxpkg/data/recipes/default-latexmk.recipe']
+    },
+    include_package_data=True,
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",

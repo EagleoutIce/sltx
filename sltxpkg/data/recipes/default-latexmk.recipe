@@ -16,15 +16,16 @@ eargs:
 # They extend the hooks and can use ifs
 # They will extend eargs as well (bib for example will add -bibtex?)
 tools: 
-  - bibliography
   - glossary
-  - index
 
 variables: 
     # Variables will be used for expansion in other strings
     - working_dir: "{tmp}/sltx/compile"
     - filter: "{file}.pdf"
 
+executable: latexmk
+
 # TODO: latexmk pretex
 # TODO latexmkrc if no ile is needd?
-command: "latexmk {args} {eargs} {file}"
+run: 
+    - "{executable} {args} {eargs} {file}"
