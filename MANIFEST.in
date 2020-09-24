@@ -1,0 +1,3 @@
+include sltx-config.yml
+include sltxpkg/data/recipes/*.recipe
+include sltxpkg/data/version.info

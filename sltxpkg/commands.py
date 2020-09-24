@@ -19,7 +19,7 @@ from concurrent import futures
 
 def cmd_dependency():
     if sg.args.dep is None or sg.args.dep == "":
-        print("You must suplly a dependency 'file'.")
+        print("You must supply a dependency 'file'.")
         exit(1)
 
     if os.path.isfile(DEFAULT_CONFIG):

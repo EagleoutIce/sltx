@@ -17,7 +17,7 @@ C_DOCKER_PROFILE = "docker_profile"
 DOCKER_URL = "eagleoutice/lithie-{profile}"
 
 configuration = {
-    C_TEX_HOME: "~/texmf/tex/latex/sltxinst",
+    C_TEX_HOME: "{os_default_texmf}/tex/latex/sltxinst",
     C_WORKING_DIR: "~/.sltxinst",
     C_DRIVER_LOG: "sltx-drivers.log",
     C_CREATE_DIRS: True,

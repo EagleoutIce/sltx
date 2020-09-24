@@ -36,7 +36,7 @@ class Recipe():
             recipe_full_path = str(
                 files(sltxpkg.data.recipes).joinpath(recipe_path))
         if not os.path.isfile(recipe_full_path):
-            print("Recipe",recipe_full_path,"was not found. Exiting.")
+            print("Recipe", recipe_full_path, "was not found. Exiting.")
             exit(1)
         print("Loading recipe:", recipe_full_path)
         y_conf = su.load_yaml(recipe_full_path)

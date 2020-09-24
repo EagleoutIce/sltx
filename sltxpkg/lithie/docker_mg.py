@@ -25,7 +25,7 @@ class DockerCtrl:
     def run_in_container(self, profile: str, command: str):
         target = DOCKER_URL.format(**locals())
         run = self.client.containers.run(
-            'tx-full', command=command, detach=True, remove=True, working_dir='/home',
+            target, command=command, detach=True, remove=True, working_dir='/home',
             volumes={
                 os.getcwd(): {
                     'bind': '/home',

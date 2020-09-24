@@ -1,4 +1,3 @@
- 
 name: Default recipe (latexmk!)
 author: Florian Sihler
 use-cases: []
@@ -7,7 +6,7 @@ hooks:
     - post: []
 
 # Will add a hook to cleanup files
-'cleanup': True
+cleanup: True
 args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir {working_dir}"
 eargs: 
   - '-f'
