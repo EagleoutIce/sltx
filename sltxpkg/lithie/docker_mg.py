@@ -27,12 +27,13 @@ class DockerCtrl:
             target = profile[1:]
         else:
             target = DOCKER_URL.format(**locals())
-        print("Launching container",target)
+        print("Launching container", target)
         run = self.client.containers.run(
-            target, command=command, detach=True, remove=True, working_dir='/home',
+            target, command=command, detach=True, remove=True, working_dir='/home/lithie-user/data',
+            user='lithie-user', privileged=True, network_mode='bridge',
             volumes={
                 os.getcwd(): {
-                    'bind': '/home',
+                    'bind': '/home/lithie-user/data',
                     'mount': 'rw'
                 }
             })

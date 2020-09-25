@@ -22,17 +22,15 @@ def get_config(name : str) -> str:
 def append_local2global_config(name : str):
     append_to_global_config(get_config(name), name)
 
-# TODO: overwrite
+# TODO: what if nonglobal? what if more deps?
 def append_to_global_config(text : str, guard : str):
     file = get_root()
     START_GUARD = "# sltx START " + guard
     mode = 'a'
-    if os.path.isfile(file):
-        if su.file_contains(file, START_GUARD):
+
+    if os.path.isfile(file) and su.file_contains(file, START_GUARD):
             print("Global latexmk config already contains config for",guard + ". Skipping.")
             return
-    else:
-        mode = 'w'
 
     with open(file, mode) as f:
         f.write(START_GUARD + "\n")

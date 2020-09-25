@@ -66,7 +66,7 @@ class Recipe():
     def __f(self, t : str) -> str:
         for _ in range(sg.configuration[sg.C_FORMAT_MAX]):
             t = t.format(**self.settings, **sg.configuration, file=sg.args.file,
-                            filename=os.path.basename(sg.args.file),
+                            filenoext=os.path.splitext(sg.args.file)[0],
                             tmp=tempfile.gettempdir())
         return t
 
