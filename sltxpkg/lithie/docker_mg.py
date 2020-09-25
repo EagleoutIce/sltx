@@ -23,7 +23,10 @@ class DockerCtrl:
             print("   {status} {progress} {id}".format(**d))
 
     def run_in_container(self, profile: str, command: str):
-        target = DOCKER_URL.format(**locals())
+        if profile.startswith(":"):
+            target = profile[1:]
+        else:
+            target = DOCKER_URL.format(**locals())
         print("Launching container",target)
         run = self.client.containers.run(
             target, command=command, detach=True, remove=True, working_dir='/home',

@@ -6,7 +6,8 @@
 # TODO: check versioning
 # TODO: do not install if already done
 # TODO: symlink options?
-# TODO: maybe add version to output?
+# TODO: add 'auto'/'noob' modus which will install lithie util (default-full dependencies) to the docker/whatever container (easier install/in docker too)
+# TODO: dig mode given detailed informations about errors
 
 import argparse
 import os  # list directory
@@ -68,7 +69,7 @@ p_raw_compile = cmd_parser.add_parser(
 
 p_raw_compile.add_argument('-r', '--recipe', dest='recipe',
                            help='The recipe to instruct the main compile routine.', required=False, default=None)
-p_raw_compile.add_argument('file', metavar='file.tex', type=valid_file,
+p_raw_compile.add_argument('file', metavar='file.tex', type=str,
                            help="the file to load; it will be processed.")
 
 p_compile = cmd_parser.add_parser(
@@ -83,7 +84,7 @@ p_compile.add_argument('-r', '--recipe', dest='recipe',
 
 # TODO: filters:
 # p_compile.add_argument('-i', '--isolate', action='store_true', dest='isolate', help="disables mounting the current fs. This will pass the file only. Has no effect if not using docker. Note that in isolation only the *.pdf will be returned")
-p_compile.add_argument('file', metavar='file.tex', type=valid_file,
+p_compile.add_argument('file', metavar='file.tex', type=str,
                        help="the file to load; it will be processed.")
 
 p_generate = cmd_parser.add_parser(
