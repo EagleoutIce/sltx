@@ -7,7 +7,9 @@
 1. [Short overview](#short-overview)
 2. [How tos'](#how-tos)
    1. [How to get](#how-to-get)
-   2. [How to run](#how-to-run)
+   2. [How to setup](#how-to-setup)
+   3. [How to compile](#how-to-compile)
+   4. [How to run](#how-to-run)
 3. [Todos](#todos)
 
 ## Short overview
@@ -30,6 +32,34 @@ pip3 install sltx
 
 Afterwards `sltx` should be available as a normal script! Afterwards you can
 updates with `pip3` and the `--upgrade`-flag.
+
+### How to setup
+
+If you just want the auto configuration, type
+
+```bash
+sltx auto-setup
+```
+
+Please note, that this command requires docker to be installed.
+If you have texlive or an comparable variant (having a *texmf-home*) installed on your local machine
+you may use the `-d` flag to download the LaTeX-libraries shipped with the container(s).
+
+### How to compile
+
+If you just want to compile a document and have any docker container installed, use:
+
+```bash
+sltx compile <document>
+```
+
+If you do not want to compile in the docker-container (or if you have none), please use the following instead.
+
+```bash
+sltx raw-compile <document>
+```
+
+For further help add `-h` to the commands to get more information about arguments.
 
 ### How to run
 
