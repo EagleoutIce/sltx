@@ -119,7 +119,7 @@ class Recipe():
                 sg.configuration[sg.C_WORKING_DIR], wf))
             for f in wanted:
                 print("Saving \"" + f + "\" ")
-                shutil.copy(f, our_dir)
+                shutil.copy2(f, our_dir)
 
         self.__runhooks('post')
         if sg.configuration['cleanup']:
