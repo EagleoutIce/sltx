@@ -14,6 +14,10 @@ def install():
     docker_ctrl = DockerCtrl()
     docker_ctrl.update_img(target)
 
+# TODO: clarify time in docker container as it is utc it must be the same as host!!!!
+# TODO: keep container running to avoid full recompilations each time? (this should be the optimum!!)
+# TODO: optimal would be to mount the working dir to the real world outside working dir to have it detached but saved
+# TODO: in this case cleaning would not be needed!
 def compile():
     docker_ctrl = DockerCtrl()
     profile = sg.configuration[sg.C_DOCKER_PROFILE] if sg.args.profile is None else sg.args.profile

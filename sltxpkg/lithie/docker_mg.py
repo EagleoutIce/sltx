@@ -5,8 +5,6 @@ import os
 import docker
 from sltxpkg.globals import DOCKER_URL
 
-# TODO for now we need a reading PAT?
-
 
 class DockerCtrl:
     def __init__(self):
