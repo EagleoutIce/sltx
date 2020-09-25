@@ -26,10 +26,15 @@ def append_local2global_config(name : str):
 def append_to_global_config(text : str, guard : str):
     file = get_root()
     START_GUARD = "# sltx START " + guard
-    if os.path.isfile(file) and su.file_contains(file, START_GUARD):
-        print("Global latexmk config already contains config for",guard + ". Skipping.")
-        return
-    with open(file, 'a') as f:
+    mode = 'a'
+    if os.path.isfile(file):
+        if su.file_contains(file, START_GUARD):
+            print("Global latexmk config already contains config for",guard + ". Skipping.")
+            return
+    else:
+        mode = 'w'
+
+    with open(file, mode) as f:
         f.write(START_GUARD + "\n")
         f.writelines(text)
         f.write("# sltx END " + guard + "\n")
