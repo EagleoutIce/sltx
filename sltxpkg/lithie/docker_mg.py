@@ -32,12 +32,14 @@ class DockerCtrl:
         else:
             target = DOCKER_URL.format(**locals())
         print("Launching container", target)
+        if root:
+            print("Using root configuration. This might lead to permission errors in the future.", target)
         # TODO: this must be expanded better and safer, this way only '~' might be used which is bad
         wd = sg.configuration[sg.C_WORKING_DIR].replace(os.path.expanduser('~'), '/root')
         print("  - Note: Working-Dir bound to:", wd,"for",sg.configuration[sg.C_WORKING_DIR])
         run = self.client.containers.run(
             target, command=command, detach=True, remove=True, working_dir='/root/data',
-            network_mode='bridge',
+            network_mode='bridge',user='root' if root else 'lithie-user',
             volumes={
                 os.getcwd(): {
                     'bind': '/root/data',

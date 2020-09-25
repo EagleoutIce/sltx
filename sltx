@@ -94,6 +94,9 @@ p_compile.add_argument('-p', '--profile', dest='profile',
                        help="allows to override the configured docker profile. This will enable docker automatically.")
 p_compile.add_argument('-r', '--recipe', dest='recipe',
                        help='The recipe to instruct the main compile routine.', required=False, default=None)
+# TODO: use namespaces in the future
+p_compile.add_argument('--root', dest='dock_as_root',
+                       help='Run the docker container with the lithie-root setup. This may lead to permission errors when you want to delete the caches.', required=False, action='store_true')
 
 # TODO: filters:
 # p_compile.add_argument('-i', '--isolate', action='store_true', dest='isolate', help="disables mounting the current fs. This will pass the file only. Has no effect if not using docker. Note that in isolation only the *.pdf will be returned")

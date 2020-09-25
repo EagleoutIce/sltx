@@ -40,4 +40,4 @@ def compile():
     sltx_command += "\"" + sg.args.file + "\""
 
     print("Running command in docker: " + sltx_command)
-    docker_ctrl.run_in_container(profile, sltx_command)
+    docker_ctrl.run_in_container(sg.args.dock_as_root, profile, sltx_command)
