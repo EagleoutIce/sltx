@@ -37,6 +37,7 @@ class DockerCtrl:
         # TODO: this must be expanded better and safer, this way only '~' might be used which is bad
         wd = sg.configuration[sg.C_WORKING_DIR].replace(os.path.expanduser('~'), '/root')
         print("  - Note: Working-Dir bound to:", wd,"for",sg.configuration[sg.C_WORKING_DIR])
+        print("  - Note: Main-Dir bound to: /root/data for",os.getcwd())
         run = self.client.containers.run(
             target, command=command, detach=True, remove=True, working_dir='/root/data',
             network_mode='bridge',user='root' if root else 'lithie-user',

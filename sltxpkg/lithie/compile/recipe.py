@@ -3,6 +3,8 @@ import os
 import shutil
 import tempfile
 
+from os.path import abspath, splitext, basename
+
 import sltxpkg.config as sc
 import sltxpkg.data.recipes
 import sltxpkg.globals as sg
@@ -66,9 +68,10 @@ class Recipe():
     def __f(self, t: str) -> str:
         for _ in range(sg.configuration[sg.C_FORMAT_MAX]):
             t = t.format(**self.settings, **sg.configuration, file=sg.args.file,
-                         filenoext=os.path.splitext(sg.args.file)[0],
+                         filenoext=splitext(sg.args.file)[0],
+                         file_base_noext=splitext(basename(sg.args.file))[0],
                          tmp=tempfile.gettempdir(),
-                         out_dir=os.path.join("{cache_dir}", su.sanitize_filename(os.path.abspath(sg.args.file))))
+                         out_dir=os.path.join("{cache_dir}", su.sanitize_filename(abspath(sg.args.file))))
         return t
 
     def __runcmds(self, cmds: [str]):

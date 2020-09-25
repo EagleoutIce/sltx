@@ -41,6 +41,7 @@ commands = {
     'auto-setup': (cmd_auto_setup, ()),
     'version': (cmd_version, ())}
 
+# TODO quiet mode latex/docker output written to log but not to stdout
 
 parser = argparse.ArgumentParser(
     description="sltx, a Simple LaTeX utility", epilog="sltx Version: " + su.get_version())
