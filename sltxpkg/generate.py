@@ -1,11 +1,15 @@
+import sltxpkg.prompt as prompt
 import os
 
 import yaml
 from yaml.representer import SafeRepresenter
 
+import sltxpkg.globals as sg
 from sltxpkg.globals import C_TEX_HOME
 
 # https://stackoverflow.com/a/20863889
+
+
 def change_style(style, representer):
     def new_representer(dumper, data):
         scalar = representer(dumper, data)
@@ -20,7 +24,7 @@ class YamlBlock(str):
 
 represent_literal_str = change_style('|', SafeRepresenter.represent_str)
 yaml.add_representer(YamlBlock, represent_literal_str)
-import sltxpkg.prompt as prompt
+
 
 def assure_workflow_target(path: str):
     if os.path.isfile(path):
@@ -74,53 +78,50 @@ def step_setup_python(document: dict):
              })
 
 
-def step_setup_sltx(document: dict):
-    print("Do you need your own config file for sltx?")
-    own_config = prompt.get_bool(default=False)
-    config_file = ".sltx-gh-conf.yaml"
-    texmf_home = "./texmf/tex/latex/sltx"
-    dep_file = "sltx-dep.yml"
-    setup_lines = ""
+def step_setup_sltx(document: dict) -> str:
+    # tODO get them with 'docker search' # TODO dry
+    valid_profiles = ['tx-small', 'tx-default', 'tx-full']
+    print("Please enter the profile you want for sltx. Valid names are:", valid_profiles)
+    target_profile = prompt.get(
+        "Profile [{default}]", default=sg.configuration[sg.C_DOCKER_PROFILE]).lower()
 
-    if own_config:
-        config_file = prompt.get_file("Path to config-file")
-        print("Make sure you have set {C_TEX_HOME} to {texmf_home}".format(
-            **globals(), **locals()))
-    else:
-        setup_lines += "echo \"{C_TEX_HOME}: {texmf_home}\" > \"{config_file}\"\n".format(
-            **globals(), **locals())
-
-    dep_file = prompt.get_file("Path to dep-file [{default}]", default=dep_file)
-
-    exec_line = "sltx --config \"{config_file}\" --dependencies \"{dep_file}\"".format(
-        **locals())
+    # TODO: we need a option for additional dependencies
+    setup_lines = "echo \"" + target_profile + "\" | sltx docker"
 
     add_step(document,
              "Setup and run sltx-install",
              _run=YamlBlock("pip install sltx\n" +
-                            setup_lines + exec_line + "\n")
+                            setup_lines + "\n")
              )
+    return target_profile
 
 
-def step_compile(document: dict):
+def step_compile(document: dict, target_profile: str):
+    print("Do you need your own config file to compile?")
+    own_config = prompt.get_bool(default=False)
+    config_file = None
+    if own_config:
+        config_file = prompt.get_file("Path to config-file")
+
     print("Which documents do you want to have compiled? You may separate multiple ones by comma.")
     file_list = prompt.get("File(s)")
     files = file_list.split(',')
 
-    exec_lines = "tlmgr conf texmf TEXMFHOME \"~/Library/texmf:./texmf\"\n"
-
-    args = "-pdf -file-line-error -halt-on-error -interaction=nonstopmode"
+    exec_lines = ""
 
     # TODO: fail as soon as one fails
     for file in files:
-        exec_lines += "latexmk " + args + " \"" + file + "\"\n"
+        exec_lines += "sltx "
+        if own_config and config_file is not None:
+            exec_lines += "--config \"{config_file}\" ".format(**locals())
+
+        # TODO: recipe support!
+        exec_lines += "compile --profile \"" + target_profile + "\" \"" + file + "\"\n"
 
     add_step(document,
-             "Setup Texlive and compile the documents",
-             uses="xu-cheng/texlive-action/full@v1",
-             _with={
-                 'run': YamlBlock(exec_lines)
-             })
+             "Compile the Documents",
+             _run=YamlBlock(exec_lines)
+             )
     return files
 
 
@@ -139,13 +140,14 @@ def step_commit_and_push(document: dict, files: list):
     if push_file_list.strip() != "":
         files = push_file_list.split(',')
 
-    add_line = "git add -f " + " ".join(["\"" + f + "\"" for f in files]) + "\n"
+    add_line = "git add -f " + \
+        " ".join(["\"" + f + "\"" for f in files]) + "\n"
 
     # commit
     add_step(document,
              "Commit",
              _run=YamlBlock(
-                 "git config --local user.email \"action@github.com\"\ngit config --local user.name \"GitHub Action\"\n" + 
+                 "git config --local user.email \"action@github.com\"\ngit config --local user.name \"GitHub Action\"\n" +
                  add_line + "git commit -m \"Newly compiled data\"\n"))
 
     # push
@@ -154,9 +156,9 @@ def step_commit_and_push(document: dict, files: list):
              "Push changes",
              uses="ad-m/github-push-action@master",
              _with={
-                    'branch': branch,
-                    'github_token': "${{ secrets.GITHUB_TOKEN }}",
-                    'force': True
+                 'branch': branch,
+                 'github_token': "${{ secrets.GITHUB_TOKEN }}",
+                 'force': True
              })
 
 
@@ -179,8 +181,8 @@ def generate():
 
     step_checkout(document)
     step_setup_python(document)
-    step_setup_sltx(document)
-    files = step_compile(document)
+    profile = step_setup_sltx(document)
+    files = step_compile(document, profile)
     step_commit_and_push(document, files)
 
     print("Ok, I will write the file now...")

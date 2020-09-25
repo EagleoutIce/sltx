@@ -36,7 +36,7 @@ commands = {
     'docker': (cmd_docker, ('do')),
     'compile': (cmd_compile, ('cmp')),
     'raw-compile': (cmd_raw_compile, ('raw-cmp')),
-    'gen-gha': (cmd_gen_gha, ('gen')),
+    'gen-gha': (cmd_gen_gha, ('gha')),
     'cleanse': (cmd_cleanse, ('cls')),
     'auto-setup': (cmd_auto_setup, ()),
     'version': (cmd_version, ())}
@@ -101,7 +101,7 @@ p_compile.add_argument('file', metavar='file.tex', type=str,
                        help="the file to load; it will be processed.")
 
 p_generate = cmd_parser.add_parser(
-    'gen-gha', description='Generate a GitHub workflow To automate compilation.', aliases=['gen'])
+    'gen-gha', description='Generate a GitHub workflow To automate compilation.', aliases=['gha'])
 
 # commands, parser.add_mutually_exclusive_group()
 parser.add_argument('-c', '--config', dest='config', metavar='config.yml',

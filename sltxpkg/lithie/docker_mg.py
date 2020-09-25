@@ -26,7 +26,7 @@ class DockerCtrl:
                 d = {**d, **json.loads(subline)}
                 print("   {status} {progress} {id}".format(**d))
 
-    def run_in_container(self, profile: str, command: str):
+    def run_in_container(self, root: bool, profile: str, command: str):
         if profile.startswith(":"):
             target = profile[1:]
         else:
