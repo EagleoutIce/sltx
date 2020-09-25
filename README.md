@@ -24,13 +24,11 @@ The script including the Package `sltxpkg` is available with [pypi/sltx](https:/
 So simply install it like any other Python package with `sltx` with pip:
 
 ```bash
-pip install sltx
+pip3 install sltx
 ```
 
-(You can use `pip3` as well)
-
 Afterwards `sltx` should be available as a normal script! Afterwards you can
-updates with `pip` and the `--upgrade`-flag.
+updates with `pip3` and the `--upgrade`-flag.
 
 ### How to run
 
@@ -38,12 +36,12 @@ Just run `sltx` or `sltx -h` to get the help menu.
 If you want to install dependencies from a file like `dep.yml` run:
 
 ```bash
-sltx -d dep.yml
+sltx dep dep.yml
 ```
 
 If you have your own configuration, lets say it is name "config.yml" add `-c config.yml`.
 
-If you want to generate a *github workflow* just type `sltx -g`.
+If you want to generate a *github workflow* just type `sltx gen-gha`.
 
 ## Todos
 
