@@ -20,7 +20,7 @@ tools:
 
 # May contain 'glob'-Patterns
 wanted_files: 
-  - "{filenoext}.pdf"
+  - "{out_dir}/{filenoext}.pdf"
 
 executable: latexmk
 

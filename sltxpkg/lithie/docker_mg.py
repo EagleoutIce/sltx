@@ -33,11 +33,11 @@ class DockerCtrl:
             target = DOCKER_URL.format(**locals())
         print("Launching container", target)
         # TODO: this must be expanded better and safer, this way only '~' might be used which is bad
-        wd = sg.configuration[sg.C_WORKING_DIR].replace('~', '/root')
-        print("  - Note: Workin-Dir bound to:", wd,"for",sg.configuration[sg.C_WORKING_DIR])
+        wd = sg.configuration[sg.C_WORKING_DIR].replace(os.path.expanduser('~'), '/root')
+        print("  - Note: Working-Dir bound to:", wd,"for",sg.configuration[sg.C_WORKING_DIR])
         run = self.client.containers.run(
             target, command=command, detach=True, remove=True, working_dir='/root/data',
-            user='root', privileged=True, network_mode='bridge',
+            network_mode='bridge',
             volumes={
                 os.getcwd(): {
                     'bind': '/root/data',

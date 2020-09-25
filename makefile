@@ -1,8 +1,15 @@
 VERSION := $(shell cat sltxpkg/data/version.info)
 SOURCES := sltx $(wildcard sltxpkg/*.py) $(wildcard sltxpkg/data/recipes/*.recipe) requirements.txt setup.py MANIFEST.in README.md sltx-config.yml sltxpkg/data/ LICENSE
 
+.PHONY: all install_local build version publish 
+
 
 all: build version
+
+install_local: build version
+	pip3 install --upgrade "dist/sltx-${VERSION}-py3-none-any.whl"
+	@echo Please make sure to go back to the normal sltx whenever possible
+
 
 build: $(SOURCES)
 	python3 setup.py sdist bdist_wheel

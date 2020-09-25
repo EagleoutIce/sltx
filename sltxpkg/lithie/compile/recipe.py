@@ -92,6 +92,7 @@ class Recipe():
     # Run the recipe
     def run(self):
         sc.assure_dirs()  # Ensure Working diSr and texmf home
+        sc._assure_dir('file cache', self.__f("{out_dir}"), True)
         print(self.__f("> Running recipe \"{name}\" by \"{author}\"."))
         self.__runhooks('pre')
 

@@ -1,5 +1,6 @@
 [![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/) [![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/EagleoutIce/sltx/graphs/commit-activity) [![PyPI version shields.io](https://img.shields.io/pypi/v/sltx.svg)](https://pypi.python.org/pypi/sltx/)
-[![Generic badge](https://img.shields.io/badge/Status-WIP-purple.svg)](https://github.com/EagleoutIce/sltx)
+[![Generic badge](https://img.shields.io/badge/Status-WIP-purple.svg)](https://github.com/EagleoutIce/sltx)  
+![Publish to Test-PyPI](https://github.com/EagleoutIce/sltx/workflows/Publish%20to%20Test-PyPI/badge.svg)
 
 # sltx 0.1.x
 

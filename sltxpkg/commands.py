@@ -14,6 +14,7 @@ from sltxpkg.globals import (C_DRIVER_LOG, C_CLEANUP, C_CREATE_DIRS, C_DOWNLOAD_
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_TEX_HOME, C_WORKING_DIR, DEFAULT_CONFIG, C_RECURSIVE, C_USE_DOCKER)
 import sltxpkg.lithie.compile.cooker as cooker
+import sltxpkg.config as sc
 
 from sltxpkg.lithie import commands as lithiecmd
 
@@ -96,6 +97,7 @@ def should_be_excluded(file : str):
     return False
 
 def cmd_cleanse():
+    sc.assure_dirs()
     # Delete all current log files
     # TODO: make this dry. avoid specifying the log files multiple times (see Recipe)
     print("Cleaning local logs...")
@@ -112,3 +114,11 @@ def cmd_cleanse():
             shutil.rmtree(thome)
         else:
             print("The local sltx-texmf tree in \"" + thome + "\" was not found. Skipping...")
+
+    if sg.args.cleanse_all or sg.args.cleanse_cache: 
+        cache_dir = sg.configuration[sg.C_CACHE_DIR]
+        if os.path.isdir(cache_dir):
+            print("Cleaning all the caches... (" + cache_dir + ")")
+            shutil.rmtree(cache_dir)
+        else:
+            print("No caches \"" + cache_dir + "\" were found. Skipping...")

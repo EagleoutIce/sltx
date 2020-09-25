@@ -50,12 +50,16 @@ cmd_parser = parser.add_subparsers(
 p_cleanse = cmd_parser.add_parser(
     'cleanse', description="This will clean all additional sltx-files in the current directory (like \"sltx-log-*\" files). It may clean more, if you pass the corresponding flags. Please note, that cleanse will only read the current config. If you've changed some configurations they will be used.", aliases=['cls'])
 
+
+p_cleanse.add_argument('-C', '--cache', dest='cleanse_cache', action='store_true',
+                       help="If set, sltx will clean the cache.")
+
 # TODO: clean more?
 p_cleanse.add_argument('--all', dest='cleanse_all', action='store_true',
-                    help="If set, sltx will clean the texmf-tree (sltx) as-well.")
+                       help="If set, sltx will clean the texmf-tree (sltx) and the cache as-well.")
 
-p_cleanse.add_argument('-e', '--exclude', action='append', metavar='pattern', dest='exclude_patterns', 
-                    help="Exclude all files/directories matching this pattern. May be supplied multiple times.")
+p_cleanse.add_argument('-e', '--exclude', action='append', metavar='pattern', dest='exclude_patterns',
+                       help="Exclude all files/directories matching this pattern. May be supplied multiple times.")
 
 p_docker = cmd_parser.add_parser(
     'docker', description='Manage the containers to compile with sltx.', aliases=['do'])
@@ -116,7 +120,8 @@ try:
     # This is ugly, but it basically checks if tc is in the commands and if so, use that commands
     # if not it searches through the list of aliasses and if it finds one it will use this
     cmd = commands[tc][0] if tc in commands else commands[[alias[0]
-                                                           for alias in commands.items() if tc in alias[1][1]][0]][0]
+                                                           for alias in commands.items()
+                                                           if tc in alias[1][1]][0]][0]
 except KeyError:
     print("The supplied command:", sg.args.command,
           "is unknown. Choose one of:", list(commands.keys()))
