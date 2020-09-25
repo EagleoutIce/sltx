@@ -116,7 +116,9 @@ def step_compile(document: dict, target_profile: str):
             exec_lines += "--config \"{config_file}\" ".format(**locals())
 
         # TODO: recipe support!
-        exec_lines += "compile --profile \"" + target_profile + "\" \"" + file + "\"\n"
+        # NOTE: root is required for now due to permission errors in action container
+        # this is only for gha
+        exec_lines += "compile --root --profile \"" + target_profile + "\" \"" + file + "\"\n"
 
     add_step(document,
              "Compile the Documents",
