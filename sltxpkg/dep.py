@@ -10,7 +10,7 @@ import sltxpkg.globals as sg
 from sltxpkg.config import load_dependencies_config, write_to_log
 from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
-                             C_RECURSIVE, C_TEX_HOME, C_WORKING_DIR,
+                             C_RECURSIVE, C_TEX_HOME,
                              DEFAULT_CONFIG, print_idx)
 import sltxpkg.util as su
 

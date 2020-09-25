@@ -13,6 +13,9 @@ C_DRIVER_PATTERNS = "driver_patterns"
 C_RECURSIVE = "recursive"
 C_FORMAT_MAX = "format_max"
 
+C_DOWNLOAD_DIR = 'download_dir'
+C_CACHE_DIR = 'cache_dir'
+
 C_USE_DOCKER = "docker_use"
 C_DOCKER_PROFILE = "docker_profile"
 
@@ -21,6 +24,8 @@ DOCKER_URL = "eagleoutice/lithie-{profile}"
 configuration = {
     C_TEX_HOME: "{os_default_texmf}/tex/latex/sltx",
     C_WORKING_DIR: "~/.sltx",
+    C_DOWNLOAD_DIR: "~/.sltx/download",
+    C_CACHE_DIR: "~/.sltx/cache",
     C_DRIVER_LOG: "sltx-drivers.log",
     C_CREATE_DIRS: True,
     C_CLEANUP: True,
@@ -32,8 +37,8 @@ configuration = {
     # TODO maybe specific install routine instead of plain copy
     C_DRIVERS: {
         "git": {
-            "command": "git clone --depth 1 {args} \"{url}\" \"{working_dir}/{dep_name}\"",
-            "target-dir": "{working_dir}/{dep_name}",
+            "command": "git clone --depth 1 {args} \"{url}\" \"{download_dir}/{dep_name}\"",
+            "target-dir": "{download_dir}/{dep_name}",
             "needs-delete": True  # if already exists
             # TODO: maybe update routine?
         }

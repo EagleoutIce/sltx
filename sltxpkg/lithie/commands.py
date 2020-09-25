@@ -1,6 +1,7 @@
 import sltxpkg.prompt as prompt
 from sltxpkg.lithie.docker_mg import DockerCtrl
 import sltxpkg.globals as sg
+import sltxpkg.config as sc
 
 # TODO: get valid names
 def install():
@@ -19,6 +20,7 @@ def install():
 # TODO: optimal would be to mount the working dir to the real world outside working dir to have it detached but saved
 # TODO: in this case cleaning would not be needed!
 def compile():
+    sc.assure_dirs()
     docker_ctrl = DockerCtrl()
     profile = sg.configuration[sg.C_DOCKER_PROFILE] if sg.args.profile is None else sg.args.profile
     sltx_command = "sltx -t " + str(sg.args.threads) + " "

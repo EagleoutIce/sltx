@@ -10,7 +10,7 @@ from sltxpkg import dep, generate, globals as sg
 from sltxpkg.config import (assure_dirs, load_configuration,
                             load_dependencies_config, write_to_log)
 from sltxpkg.dep import install_dependencies
-from sltxpkg.globals import (C_DRIVER_LOG, C_CLEANUP, C_CREATE_DIRS,
+from sltxpkg.globals import (C_DRIVER_LOG, C_CLEANUP, C_CREATE_DIRS, C_DOWNLOAD_DIR,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_TEX_HOME, C_WORKING_DIR, DEFAULT_CONFIG, C_RECURSIVE, C_USE_DOCKER)
 import sltxpkg.lithie.compile.cooker as cooker
@@ -52,8 +52,8 @@ def cmd_dependency():
 
     # all installed
     if sg.configuration[C_CLEANUP]:
-        print("> Cleaning up the working directory, as set.")
-        shutil.rmtree(sg.configuration[C_WORKING_DIR])
+        print("> Cleaning up the download directory, as set.")
+        shutil.rmtree(sg.configuration[C_DOWNLOAD_DIR])
     print("Loaded:", dep.loaded)
     if not sg.configuration[C_RECURSIVE]:
         print("Recursion was disabled.")

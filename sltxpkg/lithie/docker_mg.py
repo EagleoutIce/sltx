@@ -3,6 +3,7 @@ import json
 import os
 
 import docker
+import sltxpkg.globals as sg
 from sltxpkg.globals import DOCKER_URL
 
 
@@ -31,12 +32,19 @@ class DockerCtrl:
         else:
             target = DOCKER_URL.format(**locals())
         print("Launching container", target)
+        # TODO: this must be expanded better and safer, this way only '~' might be used which is bad
+        wd = sg.configuration[sg.C_WORKING_DIR].replace('~', '/root')
+        print("  - Note: Workin-Dir bound to:", wd,"for",sg.configuration[sg.C_WORKING_DIR])
         run = self.client.containers.run(
             target, command=command, detach=True, remove=True, working_dir='/root/data',
             user='root', privileged=True, network_mode='bridge',
             volumes={
                 os.getcwd(): {
                     'bind': '/root/data',
+                    'mount': 'rw'
+                },
+                sg.configuration[sg.C_WORKING_DIR]: {
+                    'bind': wd,
                     'mount': 'rw'
                 }
             })

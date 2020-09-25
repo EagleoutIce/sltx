@@ -2,6 +2,7 @@ import mmap
 import os
 from sys import platform
 from time import localtime, strftime
+import re
 
 import yaml
 from importlib_resources import as_file, files
@@ -45,3 +46,7 @@ def get_now():
 def get_tex_home() -> str:
     return os.path.expanduser(sg.configuration[sg.C_TEX_HOME].format(
         **sg.configuration, os_default_texmf=default_texmf()))
+
+# For compile
+def sanitize_filename(text: str):
+    return re.sub('[^a-zA-Z0-9\-_]', '_', text)

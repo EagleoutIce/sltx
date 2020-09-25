@@ -5,10 +5,10 @@ hooks:
     in: []
     post: []
 
-cleanup_cmds: 
-    - "{executable} -c"
+cleanup_cmds: []
+# No cleanup commands!
 
-args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=\"{working_dir}\""
+args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=\"{out_dir}\""
 eargs: 
   - '-f'
 

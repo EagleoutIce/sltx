@@ -46,6 +46,7 @@ cmd_parser = parser.add_subparsers(
     str([k[1] for k in commands.values() if len(k[1]) != 0]),
     dest='command')
 
+# TODO: cleanse caches
 p_cleanse = cmd_parser.add_parser(
     'cleanse', description="This will clean all additional sltx-files in the current directory (like \"sltx-log-*\" files). It may clean more, if you pass the corresponding flags. Please note, that cleanse will only read the current config. If you've changed some configurations they will be used.", aliases=['cls'])
 
