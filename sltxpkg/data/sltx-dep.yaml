@@ -1,4 +1,4 @@
-target: Example-Project
+target: SLTX (recommended)
 dependencies:
     random-intropoem:
       url: https://github.com/EagleoutIce/random-intropoem

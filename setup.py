@@ -19,7 +19,7 @@ setuptools.setup(
     url="https://github.com/EagleoutIce/sltx",
     packages=setuptools.find_packages(),
     package_data={
-        'data': ['sltxpkg/data/version.info'],
+        'data': ['sltxpkg/data/version.info', 'sltxpkg/data/sltx-dep.yaml'],
         'data/recipes': ['sltxpkg/data/recipes/default-latexmk.recipe'],
         'data/latexmk/configs': ['data/latexmk/configs/glossary.mkrc']
     },

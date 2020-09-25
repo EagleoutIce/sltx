@@ -13,9 +13,13 @@ import argparse
 import os  # list directory
 import sys  # cmd line args
 
-from sltxpkg import globals as sg
+import sltxpkg.config as sc
 import sltxpkg.util as su
-from sltxpkg.commands import cmd_compile, cmd_raw_compile, cmd_dependency, cmd_gen_gha, cmd_docker, cmd_version, cmd_cleanse
+from sltxpkg import globals as sg
+from sltxpkg.commands import (cmd_auto_setup, cmd_cleanse, cmd_compile,
+                              cmd_dependency, cmd_docker, cmd_gen_gha,
+                              cmd_raw_compile, cmd_version)
+from sltxpkg.globals import DEFAULT_CONFIG
 
 
 def valid_file(arg: str) -> str:
@@ -34,6 +38,7 @@ commands = {
     'raw-compile': (cmd_raw_compile, ('raw-cmp')),
     'gen-gha': (cmd_gen_gha, ('gen')),
     'cleanse': (cmd_cleanse, ('cls')),
+    'auto-setup': (cmd_auto_setup, ()),
     'version': (cmd_version, ())}
 
 
@@ -46,11 +51,14 @@ cmd_parser = parser.add_subparsers(
     str([k[1] for k in commands.values() if len(k[1]) != 0]),
     dest='command')
 
-# TODO: cleanse caches
+p_auto_setup = cmd_parser.add_parser(
+    'auto-setup', description='Setup a basic version of sltx (this requires docker to be setup).')
+p_auto_setup.add_argument('-d', '--dependencies', dest='auto_deps', action='store_true',
+                          help='This will install the recommended dependencies on your host system. This is helpful if you have texlive installed and want your editor to recognize the libraries as well.')
+
+
 p_cleanse = cmd_parser.add_parser(
     'cleanse', description="This will clean all additional sltx-files in the current directory (like \"sltx-log-*\" files). It may clean more, if you pass the corresponding flags. Please note, that cleanse will only read the current config. If you've changed some configurations they will be used.", aliases=['cls'])
-
-
 p_cleanse.add_argument('-C', '--cache', dest='cleanse_cache', action='store_true',
                        help="If set, sltx will clean the cache.")
 
@@ -114,6 +122,15 @@ if(len(sys.argv) <= 1):
     parser.parse_args(['-h'])
 
 sg.args = parser.parse_args()
+
+
+if os.path.isfile(DEFAULT_CONFIG):
+    print("Automatically loading '{DEFAULT_CONFIG}'".format(**globals()))
+    sc.load_configuration(DEFAULT_CONFIG)
+
+
+if sg.args.config is not None:
+    sc.load_configuration(sg.args.config)
 
 try:
     tc = sg.args.command.lower()

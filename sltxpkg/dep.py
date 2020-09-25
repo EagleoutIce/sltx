@@ -10,9 +10,10 @@ import sltxpkg.globals as sg
 from sltxpkg.config import load_dependencies_config, write_to_log
 from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
-                             C_RECURSIVE, C_TEX_HOME,
+                             C_RECURSIVE, C_TEX_HOME, C_DOWNLOAD_DIR,
                              DEFAULT_CONFIG, print_idx)
 import sltxpkg.util as su
+from sltxpkg import dep
 
 loaded = []
 
@@ -116,7 +117,7 @@ def recursive_dependencies(idx: str, target_dir: str, data: dict, dep_name: str)
     for dep_file in dep_files:
         new_dependencies = load_dependencies_config(dep_file, new_dependencies)
 
-    install_dependencies(idx, new_dependencies)
+    _install_dependencies(idx, new_dependencies)
 
 
 def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str):
@@ -178,7 +179,7 @@ def install_dependency(name: str, idx: str, data: dict):
     use_driver(idx, data, name, driver, url)
 
 
-def install_dependencies(idx: int, dep_dict: dict, first: bool = False):
+def _install_dependencies(idx: int, dep_dict: dict, first: bool = False):
     with futures.ThreadPoolExecutor(max_workers=sg.args.threads) as pool:
         runners = []
         for i, dep in enumerate(dep_dict['dependencies']):
@@ -188,3 +189,26 @@ def install_dependencies(idx: int, dep_dict: dict, first: bool = False):
         for runner in runners:
             if runner.result() is not None:
                 print(runner.result())
+
+def install_dependencies():
+    if "target" not in sg.dependencies or "dependencies" not in sg.dependencies:
+        print("The dependency-file must supply a 'target' and an 'dependencies' key!")
+        sys.exit(1)
+
+    write_to_log("====Dependencies for:" + sg.dependencies["target"]+"\n")
+    print()
+    print("Dependencies for:", sg.dependencies["target"])
+    print("Installing to:", su.get_tex_home())
+    print()
+
+    _install_dependencies(0, sg.dependencies, first=True)
+
+    # all installed
+    if sg.configuration[C_CLEANUP]:
+        print("> Cleaning up the download directory, as set.")
+        shutil.rmtree(sg.configuration[C_DOWNLOAD_DIR])
+    print("Loaded:", dep.loaded)
+    if not sg.configuration[C_RECURSIVE]:
+        print("Recursion was disabled.")
+    print("Dependency installation for",
+          sg.dependencies["target"], "completed.")

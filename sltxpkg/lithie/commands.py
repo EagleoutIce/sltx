@@ -12,6 +12,10 @@ def install():
     if target not in valid_profiles:
         print(target, "was not found in", valid_profiles, "exiting for now")
         exit(1)
+
+    _install(target)
+
+def _install(target: str):
     docker_ctrl = DockerCtrl()
     docker_ctrl.update_img(target)
 
