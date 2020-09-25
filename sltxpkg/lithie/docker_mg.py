@@ -16,9 +16,14 @@ class DockerCtrl:
         print("Pulling image:", target, "this may take a few minutes")
         for line in self.client.api.pull(target, tag='latest', stream=True):
             # default values
-            d = {'status': 'unknown', 'progress': '', 'id': ''}
-            d = {**d, **json.loads(line)}
-            print("   {status} {progress} {id}".format(**d))
+            line = line.decode('utf-8')
+            lines = line.split('\r\n')
+            for subline in lines:
+                if subline is None or subline.strip() == "":
+                    continue
+                d = {'status': 'unknown', 'progress': '', 'id': ''}
+                d = {**d, **json.loads(subline)}
+                print("   {status} {progress} {id}".format(**d))
 
     def run_in_container(self, profile: str, command: str):
         if profile.startswith(":"):
