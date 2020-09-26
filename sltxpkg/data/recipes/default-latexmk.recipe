@@ -11,6 +11,7 @@ cleanup_cmds: []
 args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=\"{out_dir}\""
 eargs: 
   - '-f'
+  - '-shell-escape'
 
 # Tools will be used to generate files if needed or to require intermediate steps
 # They extend the hooks and can use ifs
