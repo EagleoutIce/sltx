@@ -55,7 +55,7 @@ def grab_from(idx: str, path: str, data:dict, target:str, key:str, grabber) -> b
     return True
 
 def f_grab_files(data: (str, str), target:str, path:str):
-    file_target = data[1] if data[1] != target else os.path.join(data[1], os.path.relpath(data[0], path))
+    file_target = os.path.join(target, data[1]) if data[1] != target else os.path.join(data[1], os.path.relpath(data[0], path))
     Path(file_target).parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(data[0], file_target)
 
@@ -65,7 +65,7 @@ def f_grab_dirs(data: (str, str), target:str, path:str):
         import distutils.dir_util as du
 
     # only choose relative path 
-    dir_target = data[1] if data[1] != target else os.path.join(data[1], os.path.relpath(data[0], path))
+    dir_target = os.path.join(target, data[1]) if data[1] != target else os.path.join(data[1], os.path.relpath(data[0], path))
     Path(dir_target).parent.mkdir(parents=True, exist_ok=True)
     if sys.version_info >= (3, 8, 0): # we have exist is ok
         shutil.copytree(data[0], dir_target, dirs_exist_ok=True)

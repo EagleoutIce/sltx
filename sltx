@@ -76,7 +76,7 @@ p_docker = cmd_parser.add_parser(
 
 p_dependency = cmd_parser.add_parser(
     'dependency', description='Install dependencies on the host system.', aliases=['dep'])
-p_dependency.add_argument('-l', '--local', metavar='path', dest='local_path', default='.',
+p_dependency.add_argument('-l', '--local', metavar='path', dest='local_path', default=None,
                     help="This will install the dependency file into the given directory. This might be useful if the compilation should be handled by an online editor. Use '.' to use the current directory.")
 p_dependency.add_argument('dep', metavar='dep.yml', type=valid_file,
                           help="the file to load the dependencies from.")

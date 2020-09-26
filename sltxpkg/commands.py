@@ -45,7 +45,7 @@ def cmd_dependency():
             sg.args.dep, sg.dependencies)
 
     assure_dirs()
-
+    print(sg.args)
     target = su.get_tex_home() if sg.args.local_path is None else sg.args.local_path
     install_dependencies(target=target)
 
