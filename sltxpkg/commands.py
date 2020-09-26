@@ -46,8 +46,8 @@ def cmd_dependency():
 
     assure_dirs()
 
-    install_dependencies()
-
+    target = su.get_tex_home() if sg.args.local_path is None else sg.args.local_path
+    install_dependencies(target=target)
 
 def cmd_version():
     print("This is sltx, a simple latex helper-utility")

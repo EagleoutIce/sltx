@@ -28,7 +28,7 @@ def detect_driver(idx: str, url: str):
     sys.exit(1)
 
 
-def grab_files_from(idx: str, path: str, data: dict):
+def grab_files_from(idx: str, path: str, data: dict, target: str):
     print_idx(idx, " - Grabby-Grab-Grab files from \"" + path + "\"...")
     if "grab-files" not in data:
         print_idx(idx, " ! Key 'grab-files' not found. Won't grab any files")
@@ -43,11 +43,11 @@ def grab_files_from(idx: str, path: str, data: dict):
     print_idx(idx, " > Grabbing the follwing files for installation:",
               [os.path.relpath(f, path) for f in files])
     for file in files:
-        shutil.copy2(file, su.get_tex_home())
+        shutil.copy2(file, target)
     return True
 
 
-def grab_dirs_from(idx: str, path: str, data: dict):
+def grab_dirs_from(idx: str, path: str, data: dict, target: str):
     print_idx(idx, " - Grabby-Grab-Grab dirs from \"" + path + "\"...")
     if "grab-dirs" not in data:
         print_idx(idx, " ! Key 'grab-dirs' not found. Won't grab any directories")
@@ -63,8 +63,7 @@ def grab_dirs_from(idx: str, path: str, data: dict):
     print_idx(idx, " > Grabbing the follwing dirs for installation:", dirs)
     for dir in dirs:
         # if fails rethrow :D
-        dir_target = os.path.join(
-            su.get_tex_home(), os.path.relpath(dir, path))
+        dir_target = os.path.join(target, os.path.relpath(dir, path))
         if sys.version_info >= (3, 8, 0):
             # we have exist is ok
             shutil.copytree(dir, dir_target, dirs_exist_ok=True)
@@ -87,10 +86,10 @@ def write_proc_to_log(idx: int, stream, mirror: bool):
             print_idx(idx, line_utf8)
 
 
-def grab_stuff(idx: str, dep_name: str, target_dir: str, data: dict):
+def grab_stuff(idx: str, dep_name: str, target_dir: str, data: dict, target: str):
     print_idx(idx, " > Grabbing dependencies for " + dep_name)
-    got_files = grab_files_from(idx, target_dir, data)
-    got_dirs = grab_dirs_from(idx, target_dir, data)
+    got_files = grab_files_from(idx, target_dir, data, target)
+    got_dirs = grab_dirs_from(idx, target_dir, data, target)
     if not got_files and not got_dirs:
         print_idx(idx, " ! No grabs performed!")
         write_to_log("No grabs performed for: " + dep_name)
@@ -101,13 +100,13 @@ def get_target_dir(data: dict, dep_name: str, driver: str):
         **data, **sg.configuration, dep_name=dep_name)
 
 
-def recursive_dependencies(idx: str, target_dir: str, data: dict, dep_name: str):
+def recursive_dependencies(idx: str, driver_target_dir: str, data: dict, dep_name: str, target: str):
     if 'dep' not in data:
         print_idx(idx, "No 'dep' key found for dep: " + dep_name +
                   " using this dep-name as default (" + sg.args.dep + ")")
         data['dep'] = sg.args.dep
     dep_files = glob.glob(os.path.join(
-        target_dir, data['dep']), recursive=True)
+        driver_target_dir, data['dep']), recursive=True)
     print_idx(idx, " - Found dep-config:", dep_files)
 
     if len(dep_files) <= 0:
@@ -117,21 +116,21 @@ def recursive_dependencies(idx: str, target_dir: str, data: dict, dep_name: str)
     for dep_file in dep_files:
         new_dependencies = load_dependencies_config(dep_file, new_dependencies)
 
-    _install_dependencies(idx, new_dependencies)
+    _install_dependencies(idx, new_dependencies, target)
 
 
-def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str):
+def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, target: str):
     # default no arguments
     if "args" not in data:
         data["args"] = ""
     driver_data = sg.configuration[C_DRIVERS][driver]
     command = driver_data["command"].format(
         **data, **sg.configuration, dep_name=dep_name)
-    target_dir = get_target_dir(data, dep_name, driver)
-    if os.path.isdir(target_dir) and driver_data["needs-delete"]:
-        print_idx(idx, " - Target folder", target_dir,
+    driver_target_dir = get_target_dir(data, dep_name, driver)
+    if os.path.isdir(driver_target_dir) and driver_data["needs-delete"]:
+        print_idx(idx, " - Target folder", driver_target_dir,
                   "exists. Will be deleted as the driver needs this")
-        shutil.rmtree(target_dir)
+        shutil.rmtree(driver_target_dir)
     print_idx(idx, " > Executing:", command)
     feedback = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
     return_code = feedback.wait()
@@ -141,16 +140,16 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str):
     write_proc_to_log(idx, feedback.stderr, return_code != 0)
 
     if(sg.configuration[C_RECURSIVE]):
-        recursive_dependencies(idx, target_dir, data, dep_name)
+        recursive_dependencies(idx, driver_target_dir, data, dep_name, target)
 
     if return_code != 0:
         print_idx(idx, " ! Driver failed with code", feedback, "exiting.")
         sys.exit(return_code)
 
-    grab_stuff(idx, dep_name, target_dir, data)
+    grab_stuff(idx, dep_name, driver_target_dir, data, target)
 
 
-def install_dependency(name: str, idx: str, data: dict):
+def install_dependency(name: str, idx: str, data: dict, target: str):
     print_idx(idx, "Loading \"" + name + "\"")
     if "url" not in data:
         print_idx(idx, " ! The dependency did not have an url-tag attached")
@@ -167,7 +166,7 @@ def install_dependency(name: str, idx: str, data: dict):
     if name in loaded:
         print_idx(idx, " > Skipping retrieval", name,
                   " as it was already loaded by another dep.")
-        grab_stuff(idx, name, get_target_dir(data, name, driver), data)
+        grab_stuff(idx, name, get_target_dir(data, name, driver), data, target)
         return
     loaded.append(name)
 
@@ -176,21 +175,22 @@ def install_dependency(name: str, idx: str, data: dict):
                   sg.configuration[C_DRIVERS])
         sys.exit(2)
 
-    use_driver(idx, data, name, driver, url)
+    use_driver(idx, data, name, driver, url, target)
 
 
-def _install_dependencies(idx: int, dep_dict: dict, first: bool = False):
+def _install_dependencies(idx: int, dep_dict: dict, target: str, first: bool = False):
     with futures.ThreadPoolExecutor(max_workers=sg.args.threads) as pool:
         runners = []
         for i, dep in enumerate(dep_dict['dependencies']):
             runners.append(pool.submit(install_dependency, dep, str(
-                i) if first else str(idx) + "." + str(i), dep_dict['dependencies'][dep]))
+                i) if first else str(idx) + "." + str(i), dep_dict['dependencies'][dep], target))
         futures.wait(runners)
         for runner in runners:
             if runner.result() is not None:
                 print(runner.result())
 
-def install_dependencies():
+
+def install_dependencies(target: str = su.get_tex_home()):
     if "target" not in sg.dependencies or "dependencies" not in sg.dependencies:
         print("The dependency-file must supply a 'target' and an 'dependencies' key!")
         sys.exit(1)
@@ -198,10 +198,10 @@ def install_dependencies():
     write_to_log("====Dependencies for:" + sg.dependencies["target"]+"\n")
     print()
     print("Dependencies for:", sg.dependencies["target"])
-    print("Installing to:", su.get_tex_home())
+    print("Installing to:", target)
     print()
 
-    _install_dependencies(0, sg.dependencies, first=True)
+    _install_dependencies(0, sg.dependencies, target, first=True)
 
     # all installed
     if sg.configuration[C_CLEANUP]:
