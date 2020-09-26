@@ -5,6 +5,7 @@ import shutil
 import sys
 from concurrent import futures
 from subprocess import PIPE, Popen  # execution
+from pathlib import Path
 
 import sltxpkg.globals as sg
 from sltxpkg.config import load_dependencies_config, write_to_log
@@ -28,52 +29,48 @@ def detect_driver(idx: str, url: str):
     sys.exit(1)
 
 
-def grab_files_from(idx: str, path: str, data: dict, target: str):
-    print_idx(idx, " - Grabby-Grab-Grab files from \"" + path + "\"...")
-    if "grab-files" not in data:
-        print_idx(idx, " ! Key 'grab-files' not found. Won't grab any files")
+def split_grab_pattern(pattern: str, default_target: str) -> (str, str):
+    parts = pattern.split('=>', 1)
+    return (parts[0], default_target if len(parts) == 1 else parts[1])
+    
+
+def grab_from(idx: str, path: str, data:dict, target:str, key:str, grabber) -> bool:
+    if key not in data:
+        print_idx(idx, " ! Key '"+ key + "' not found. Won't grab any...")
         return False
 
-    files = []
-    for grab_pattern in data["grab-files"]:
+    grabs = []
+    for grab_pattern in data[key]:
+        pattern = split_grab_pattern(grab_pattern, target)
         # maybe forbid level up?
-        files.extend(glob.glob(os.path.join(
-            path, grab_pattern), recursive=True))
+        grabs.extend(map(lambda x,pattern=pattern: (x, pattern[1]) ,glob.glob(os.path.join(
+            path, pattern[0]), recursive=True)))
+
+    # TODO: rel path for files?
     # extra so i can setup installer afterwards more easily
-    print_idx(idx, " > Grabbing the follwing files for installation:",
-              [os.path.relpath(f, path) for f in files])
-    for file in files:
-        shutil.copy2(file, target)
+    print_idx(idx, " > Grabbing the follwing for installation:",
+              [os.path.relpath(f[0], path) for f in grabs])
+    for grab in grabs:
+        grabber(grab, target, path)
     return True
 
+def f_grab_files(data: (str, str), target:str, path:str):
+    file_target = data[1] if data[1] != target else os.path.join(data[1], os.path.relpath(data[0], path))
+    Path(file_target).parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(data[0], file_target)
 
-def grab_dirs_from(idx: str, path: str, data: dict, target: str):
-    print_idx(idx, " - Grabby-Grab-Grab dirs from \"" + path + "\"...")
-    if "grab-dirs" not in data:
-        print_idx(idx, " ! Key 'grab-dirs' not found. Won't grab any directories")
-        return False
+def f_grab_dirs(data: (str, str), target:str, path:str):
+    if sys.version_info < (3, 8, 0):
+        print("Python version below 3.8, falling back with distutils!")
+        import distutils.dir_util as du
 
-    dirs = []
-    for grab_pattern in data["grab-dirs"]:
-        # maybe forbid level up?
-        dirs.extend(glob.glob(os.path.join(
-            path, grab_pattern), recursive=True))
-
-    # extra so i can setup installer afterwards more easily
-    print_idx(idx, " > Grabbing the follwing dirs for installation:", dirs)
-    for dir in dirs:
-        # if fails rethrow :D
-        dir_target = os.path.join(target, os.path.relpath(dir, path))
-        if sys.version_info >= (3, 8, 0):
-            # we have exist is ok
-            shutil.copytree(dir, dir_target, dirs_exist_ok=True)
-        else:
-            # we use distutils
-            print("Python version below 3.8, falling back with distutils!")
-            import distutils.dir_util as du
-            du.copy_tree(dir, dir_target)
-    return True
-
+    # only choose relative path 
+    dir_target = data[1] if data[1] != target else os.path.join(data[1], os.path.relpath(data[0], path))
+    Path(dir_target).parent.mkdir(parents=True, exist_ok=True)
+    if sys.version_info >= (3, 8, 0): # we have exist is ok
+        shutil.copytree(data[0], dir_target, dirs_exist_ok=True)
+    else:
+        du.copy_tree(data[0], dir_target)
 
 def write_proc_to_log(idx: int, stream, mirror: bool):
     while True:
@@ -88,8 +85,10 @@ def write_proc_to_log(idx: int, stream, mirror: bool):
 
 def grab_stuff(idx: str, dep_name: str, target_dir: str, data: dict, target: str):
     print_idx(idx, " > Grabbing dependencies for " + dep_name)
-    got_files = grab_files_from(idx, target_dir, data, target)
-    got_dirs = grab_dirs_from(idx, target_dir, data, target)
+    print_idx(idx, "   - Grabby-Grab-Grab files from \"" + target_dir + "\"...")
+    got_files = grab_from(idx, target_dir, data, target,'grab-files', f_grab_files)
+    print_idx(idx, " - Grabby-Grab-Grab dirs from \"" + target_dir + "\"...")
+    got_dirs = grab_from(idx, target_dir, data, target, 'grab-dirs', f_grab_dirs)
     if not got_files and not got_dirs:
         print_idx(idx, " ! No grabs performed!")
         write_to_log("No grabs performed for: " + dep_name)
