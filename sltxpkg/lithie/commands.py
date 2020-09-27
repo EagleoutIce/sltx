@@ -40,7 +40,7 @@ def compile():
     if sg.args.extra_arguments is not None:
         sltx_command += "--args \"" + " ".join(sg.args.extra_arguments) + "\" "
 
-    sltx_command += "\"" + sg.args.file + "\""
+    sltx_command += " ".join(['"' + f + '"' for f in sg.args.files])
 
     print("Running command in docker: " + sltx_command)
     docker_ctrl.run_in_container(sg.args.dock_as_root, profile, sltx_command)

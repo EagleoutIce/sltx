@@ -59,7 +59,7 @@ setproctitle==1.1.10
 simplejson==3.16.0
 sip==4.19.21
 six==1.14.0
-sltx==0.1.20
+sltx==0.1.21
 ssh-import-id==5.10
 systemd-python==234
 testresources==2.0.1
