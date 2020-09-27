@@ -51,8 +51,8 @@ configuration = {
 
 dependencies = {}
 
-def print_idx(idx : int, *objects, sep=' ', end='\n', file=sys.stdout, flush=False):
-    print("[ID " + str(idx) + "]", *objects, sep=sep, end=end, file=file, flush=flush)
+def print_idx(idx : int, *objects, sep=' ', end='\n',pre='', file=sys.stdout, flush=False):
+    print(pre,"[ID " + str(idx) + "]", *objects, sep=sep, end=end, file=file, flush=flush)
 
 # global arguments read in
 args = None

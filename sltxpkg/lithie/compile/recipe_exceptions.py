@@ -1,0 +1,1 @@
+class RecipeException(Exception): pass

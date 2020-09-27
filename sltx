@@ -86,8 +86,10 @@ p_raw_compile = cmd_parser.add_parser(
 
 p_raw_compile.add_argument('-r', '--recipe', dest='recipe',
                            help='The recipe to instruct the main compile routine.', required=False, default=None)
-p_raw_compile.add_argument('file', metavar='file.tex', type=str,
-                           help="the file to load; it will be processed.")
+p_raw_compile.add_argument('files', metavar='file.tex', type=str, nargs='+',
+                           help="the file(s) to load; they will be processed.")
+p_raw_compile.add_argument('-a', '--args', action='append', metavar='ARGUMENT(S)', dest='extra_arguments',default=[],
+                       help="Extra arguments. Make sure to prepend them with the appropriate '-' or '--', they will be used as extra_arguments in the recipe.")
 
 p_compile = cmd_parser.add_parser(
     'compile', description="Compile documents with previously installed containers. If docker was disabled this will default to the same behavior as \"raw-compile\" passing on the recipe.", aliases=['cmp'])
@@ -101,11 +103,13 @@ p_compile.add_argument('-r', '--recipe', dest='recipe',
 # TODO: use namespaces in the future
 p_compile.add_argument('--root', dest='dock_as_root',
                        help='Run the docker container with the lithie-root setup. This may lead to permission errors when you want to delete the caches.', required=False, action='store_true')
-
+# TODO: overwrite extra args of recipe
+p_compile.add_argument('-a', '--args', action='append', metavar='ARGUMENT(S)', dest='extra_arguments',default=[],
+                       help="Extra arguments. Make sure to prepend them with the appropriate '-' or '--', they will be used as extra_arguments in the recipe.")
 # TODO: filters:
 # p_compile.add_argument('-i', '--isolate', action='store_true', dest='isolate', help="disables mounting the current fs. This will pass the file only. Has no effect if not using docker. Note that in isolation only the *.pdf will be returned")
-p_compile.add_argument('file', metavar='file.tex', type=str,
-                       help="the file to load; it will be processed.")
+p_compile.add_argument('files', metavar='file.tex', type=str, nargs='+',
+                       help="the file(s) to load; they will be processed.")
 
 p_generate = cmd_parser.add_parser(
     'gen-gha', description='Generate a GitHub workflow To automate compilation.', aliases=['gha'])

@@ -1,3 +1,4 @@
+# Recipe will be run for every file
 name: Default recipe (latexmk!)
 author: Florian Sihler
 hooks: 
@@ -9,13 +10,12 @@ cleanup_cmds: []
 # No cleanup commands!
 
 args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=\"{out_dir}\""
-eargs: 
-  - '-f'
+extra_args: 
   - '-shell-escape'
 
 # Tools will be used to generate files if needed or to require intermediate steps
 # They extend the hooks and can use ifs
-# They will extend eargs as well (bib for example will add -bibtex?)
+# They will extend extra_args as well (bib for example will add -bibtex?)
 tools: 
   - glossary
 
@@ -28,4 +28,4 @@ executable: latexmk
 # TODO: latexmk pretex
 # TODO latexmkrc if no ile is needd?
 run: 
-    - "{executable} {args} {eargs} {file}"
+    - "{executable} {args} {extra_args} {file}"

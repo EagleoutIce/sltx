@@ -31,11 +31,14 @@ def compile():
 
     if sg.args.config is not None:
         sltx_command += "--config \"" + sg.args.config + "\" "
-    
+
     sltx_command += "raw-compile "
 
     if sg.args.recipe is not None:
         sltx_command += "--recipe \"" + sg.args.recipe + "\" "
+
+    if sg.args.extra_arguments is not None:
+        sltx_command += "--args \"" + " ".join(sg.args.extra_arguments) + "\" "
 
     sltx_command += "\"" + sg.args.file + "\""
 
