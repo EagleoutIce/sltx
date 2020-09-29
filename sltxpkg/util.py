@@ -42,6 +42,9 @@ def file_contains(path: str, txt: str):
 def get_now():
     return strftime("%Y-%m-%d__%H-%M-%S", localtime())
 
+def get_default_conf() -> str:
+    return os.path.expanduser(sg.DEFAULT_CONFIG)
+
 def get_tex_home() -> str:
     return os.path.expanduser(default_texmf())
 

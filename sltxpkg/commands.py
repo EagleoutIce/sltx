@@ -20,6 +20,7 @@ from sltxpkg.lithie import commands as lithiecmd
 
 import sltxpkg.data
 
+
 def cmd_auto_setup():
     sc.assure_dirs()
     cleanse_caches()
@@ -36,22 +37,25 @@ def cmd_auto_setup():
 
 
 def cmd_dependency():
-    if sg.args.dep is None or sg.args.dep == "":
+    if sg.args.deps is None or len(sg.args.deps) == 0:
         print("You must supply a dependency 'file'.")
         exit(1)
 
-    if sg.args.dep is not None:
-        sg.dependencies = load_dependencies_config(
-            sg.args.dep, sg.dependencies)
+    for dep in sg.args.deps:
+        # will extend the dict with 'new' ones
+        # should work even better if sltx-source.yaml files are present in the targets
+        sg.dependencies = load_dependencies_config(dep, sg.dependencies)
 
     assure_dirs()
-    print(sg.args)
+
     target = su.get_tex_home() if sg.args.local_path is None else sg.args.local_path
     install_dependencies(target=target)
 
+
 def cmd_version():
     print("This is sltx, a simple latex helper-utility")
-    print("Tex-Home", su.get_tex_home())
+    print("Tex-Home:", su.get_tex_home())
+    print("Default config location:", su.get_default_conf(),"(present:",str(os.path.isfile(su.get_default_conf()))+")")
     print("Version:", su.get_version())
 
 
@@ -60,7 +64,8 @@ def cmd_docker():
 
 
 def cmd_raw_compile():
-    cooker.cook()
+    cooker.coo# TODO:
+# p_compile.add_argument('-d', '--dependency', nargs='1', metavar="dep.yml", dest='dep', )k()
 
 
 def cmd_compile():

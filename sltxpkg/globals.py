@@ -1,7 +1,7 @@
 import sys
 
-# TODO: cache dir?
-DEFAULT_CONFIG = "./sltx-config.yml"
+DEFAULT_CONFIG = "~/.sltx-config.yml"
+
 C_DRIVER_LOG = "driver_log"
 C_TEX_HOME = "tex_home"
 C_WORKING_DIR = "working_dir"
@@ -43,7 +43,7 @@ configuration = {
             "needs-delete": True  # if already exists
             # TODO: maybe update routine?
         }
-        # TODO: other
+        # TODO: others
     },
     C_DRIVER_PATTERNS: {
         "git": ["github", "gitlab"]

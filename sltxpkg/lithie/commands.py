@@ -40,6 +40,11 @@ def compile():
     if sg.args.extra_arguments is not None:
         sltx_command += "--args=\"" + " ".join(sg.args.extra_arguments) + "\" "
 
+    for dep in sg.args.extra_dependencies:
+        # will extend the dict with 'new' ones
+        # should work even better if sltx-source.yaml files are present in the targets
+        sltx_command += "--dependency \"" + dep + "\" " 
+
     sltx_command += " ".join(['"' + f + '"' for f in sg.args.files])
 
     print("Running command in docker: " + sltx_command)

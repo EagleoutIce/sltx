@@ -79,8 +79,8 @@ p_dependency = cmd_parser.add_parser(
     'dependency', description='Install dependencies on the host system.', aliases=['dep'])
 p_dependency.add_argument('-l', '--local', metavar='path', dest='local_path', default=None,
                     help="This will install the dependency file into the given directory. This might be useful if the compilation should be handled by an online editor. Use '.' to use the current directory.")
-p_dependency.add_argument('dep', metavar='dep.yml', type=valid_file,
-                          help="the file to load the dependencies from.")
+p_dependency.add_argument('deps', metavar='dep.yml', type=valid_file, nargs='+',
+                          help="the file(s) to load the dependencies from.")
 
 p_raw_compile = cmd_parser.add_parser(
     'raw-compile', description="Compile documents using a recipe. This will not start any docker container but will be executed inside one as well.", aliases=['raw-cmp'])
@@ -91,11 +91,12 @@ p_raw_compile.add_argument('files', metavar='file.tex', type=str, nargs='+',
                            help="the file(s) to load; they will be processed.")
 p_raw_compile.add_argument('-a', '--args', action='append', metavar='ARGUMENT(S)', dest='extra_arguments',default=[],
                        help="Extra arguments. Make sure to prepend them with the appropriate '-' or '--', they will be used as extra_arguments in the recipe.")
+p_raw_compile.add_argument('-d', '--dependency', dest='extra_dependencies', action='append',default=[],
+                       help='additional dependency files to download before the installation. May be supplied multiple times.', required=False)
 
 p_compile = cmd_parser.add_parser(
     'compile', description="Compile documents with previously installed containers. If docker was disabled this will default to the same behavior as \"raw-compile\" passing on the recipe.", aliases=['cmp'])
-# TODO:
-# p_compile.add_argument('-d', '--dependency', nargs='1', metavar="dep.yml", dest='dep', )
+
 # TODO: glossary etc.
 p_compile.add_argument('-p', '--profile', dest='profile',
                        help="allows to override the configured docker profile. This will enable docker automatically.")
@@ -110,6 +111,8 @@ p_compile.add_argument('-l', '--local-texmf', dest='local_texmf', action='store_
                        help='include the local texmf tree in the docker container', required=False)
 p_compile.add_argument('--no-local-texmf', dest='local_texmf', action='store_false',
                        help='exclude the local texmf tree in the docker container', required=False)
+p_compile.add_argument('-d', '--dependencies', dest='extra_dependencies', action='append',default=[],
+                       help='additional dependency files to download before the installation. May be supplied multiple times.', required=False)
 # TODO: overwrite extra args of recipe
 p_compile.add_argument('-a', '--args', action='append', metavar='ARGUMENT(S)', dest='extra_arguments',default=[],
                        help="Extra arguments. Make sure to prepend them with the appropriate '-' or '--', they will be used as extra_arguments in the recipe.")
