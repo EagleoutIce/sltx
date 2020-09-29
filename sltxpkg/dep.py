@@ -109,8 +109,8 @@ def get_target_dir(data: dict, dep_name: str, driver: str):
 def recursive_dependencies(idx: str, driver_target_dir: str, data: dict, dep_name: str, target: str):
     if 'dep' not in data:
         print_idx(idx, "No 'dep' key found for dep: " + dep_name +
-                  " using this dep-name as default (" + sg.args.dep + ")")
-        data['dep'] = sg.args.dep
+                  " using the default (" + sg.DEFAULT_DEPENDENCY + ")")
+        data['dep'] = sg.DEFAULT_DEPENDENCY
     dep_files = glob.glob(os.path.join(
         driver_target_dir, data['dep']), recursive=True)
     print_idx(idx, " - Found dep-config:", dep_files)

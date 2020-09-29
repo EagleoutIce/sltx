@@ -145,14 +145,15 @@ if(len(sys.argv) <= 1):
 sg.args = parser.parse_args()
 
 
-def autoload_config(path: str):
+def autoload_config(path: str, name: str):
     if os.path.isfile(path):
-        print("Automatically loading '{path}'".format(**globals(), **locals()))
+        print("Automatically loading {name} config: '{path}'".format(**locals()))
         sc.load_configuration(path)
 
 
-autoload_config(DEFAULT_CONFIG)
-autoload_config(LOCAL_CONFIG)
+autoload_config(DEFAULT_CONFIG, 'default')
+autoload_config(LOCAL_CONFIG, 'local')
+print()
 
 
 if sg.args.config is not None:
