@@ -38,7 +38,7 @@ def compile():
         sltx_command += "--recipe \"" + sg.args.recipe + "\" "
 
     if sg.args.extra_arguments is not None:
-        sltx_command += "--args \"" + " ".join(sg.args.extra_arguments) + "\" "
+        sltx_command += "--args=\"" + " ".join(sg.args.extra_arguments) + "\" "
 
     sltx_command += " ".join(['"' + f + '"' for f in sg.args.files])
 

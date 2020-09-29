@@ -5,7 +5,7 @@ import os
 import docker
 import sltxpkg.globals as sg
 from sltxpkg.globals import DOCKER_URL
-
+import sltxpkg.util as su
 
 class DockerCtrl:
     def __init__(self):
@@ -31,17 +31,14 @@ class DockerCtrl:
             target = profile[1:]
         else:
             target = DOCKER_URL.format(**locals())
-        print("Launching container", target)
+        print("Launching container based on image:", target)
         if root:
             print("Using root configuration. This might lead to permission errors in the future.", target)
         # TODO: this must be expanded better and safer, this way only '~' might be used which is bad
         wd = sg.configuration[sg.C_WORKING_DIR].replace(os.path.expanduser('~'), '/root')
         print("  - Note: Working-Dir bound to:", wd,"for",sg.configuration[sg.C_WORKING_DIR])
         print("  - Note: Main-Dir bound to: /root/data for",os.getcwd())
-        run = self.client.containers.run(
-            target, command=command, detach=True, remove=True, working_dir='/root/data',
-            network_mode='bridge',user='root' if root else 'lithie-user',
-            volumes={
+        volumes = {
                 os.getcwd(): {
                     'bind': '/root/data',
                     'mount': 'rw'
@@ -50,7 +47,18 @@ class DockerCtrl:
                     'bind': wd,
                     'mount': 'rw'
                 }
-            })
+            }
+        if sg.args.local_texmf:
+            target_mount = "/usr/share/sltx/texmf"
+            print("  - Note: Mounting local txmf-tree (" + su.get_tex_home() + ") to",target_mount)
+            volumes[su.get_tex_home()] = {
+                'bind': target_mount,
+                'mount': 'rw'
+            }
+        run = self.client.containers.run(
+            target, command=command, detach=True, remove=True, working_dir='/root/data',
+            network_mode='bridge',user='root' if root else 'lithie-user',
+            volumes=volumes)
         for l in run.logs(stdout=True, stderr=True, stream=True, timestamps=True):
             print(l.decode('utf-8'), end='')
         print("Container completed.")

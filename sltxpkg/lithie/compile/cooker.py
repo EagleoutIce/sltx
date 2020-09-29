@@ -7,7 +7,6 @@ import sltxpkg.lithie.compile.recipe_exceptions as rex
 
 def cook():
     recipe_path = 'default-latexmk.recipe' if sg.args.recipe is None else sg.args.recipe
-    # TODO: multithread
 
     with futures.ThreadPoolExecutor(max_workers=sg.args.threads) as pool:
         runners = []

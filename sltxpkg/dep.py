@@ -32,18 +32,18 @@ def detect_driver(idx: str, url: str):
 def split_grab_pattern(pattern: str, default_target: str) -> (str, str):
     parts = pattern.split('=>', 1)
     return (parts[0], default_target if len(parts) == 1 else parts[1])
-    
 
-def grab_from(idx: str, path: str, data:dict, target:str, key:str, grabber) -> bool:
+
+def grab_from(idx: str, path: str, data: dict, target: str, key: str, grabber) -> bool:
     if key not in data:
-        print_idx(idx, " ! Key '"+ key + "' not found. Won't grab any...")
+        print_idx(idx, " ! Key '" + key + "' not found. Won't grab any...")
         return False
 
     grabs = []
     for grab_pattern in data[key]:
         pattern = split_grab_pattern(grab_pattern, target)
         # maybe forbid level up?
-        grabs.extend(map(lambda x,pattern=pattern: (x, pattern[1]) ,glob.glob(os.path.join(
+        grabs.extend(map(lambda x, pattern=pattern: (x, pattern[1]), glob.glob(os.path.join(
             path, pattern[0]), recursive=True)))
 
     # TODO: rel path for files?
@@ -54,23 +54,28 @@ def grab_from(idx: str, path: str, data:dict, target:str, key:str, grabber) -> b
         grabber(grab, target, path)
     return True
 
-def f_grab_files(data: (str, str), target:str, path:str):
-    file_target = os.path.join(target, data[1]) if data[1] != target else os.path.join(data[1], os.path.relpath(data[0], path))
+
+def f_grab_files(data: (str, str), target: str, path: str):
+    file_target = os.path.join(target, data[1]) if data[1] != target else os.path.join(
+        data[1], os.path.relpath(data[0], path))
     Path(file_target).parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(data[0], file_target)
 
-def f_grab_dirs(data: (str, str), target:str, path:str):
+
+def f_grab_dirs(data: (str, str), target: str, path: str):
     if sys.version_info < (3, 8, 0):
         print("Python version below 3.8, falling back with distutils!")
         import distutils.dir_util as du
 
-    # only choose relative path 
-    dir_target = os.path.join(target, data[1]) if data[1] != target else os.path.join(data[1], os.path.relpath(data[0], path))
+    # only choose relative path
+    dir_target = os.path.join(target, data[1]) if data[1] != target else os.path.join(
+        data[1], os.path.relpath(data[0], path))
     Path(dir_target).parent.mkdir(parents=True, exist_ok=True)
-    if sys.version_info >= (3, 8, 0): # we have exist is ok
+    if sys.version_info >= (3, 8, 0):  # we have exist is ok
         shutil.copytree(data[0], dir_target, dirs_exist_ok=True)
     else:
         du.copy_tree(data[0], dir_target)
+
 
 def write_proc_to_log(idx: int, stream, mirror: bool):
     while True:
@@ -86,9 +91,11 @@ def write_proc_to_log(idx: int, stream, mirror: bool):
 def grab_stuff(idx: str, dep_name: str, target_dir: str, data: dict, target: str):
     print_idx(idx, " > Grabbing dependencies for " + dep_name)
     print_idx(idx, "   - Grabby-Grab-Grab files from \"" + target_dir + "\"...")
-    got_files = grab_from(idx, target_dir, data, target,'grab-files', f_grab_files)
+    got_files = grab_from(idx, target_dir, data, target,
+                          'grab-files', f_grab_files)
     print_idx(idx, " - Grabby-Grab-Grab dirs from \"" + target_dir + "\"...")
-    got_dirs = grab_from(idx, target_dir, data, target, 'grab-dirs', f_grab_dirs)
+    got_dirs = grab_from(idx, target_dir, data, target,
+                         'grab-dirs', f_grab_dirs)
     if not got_files and not got_dirs:
         print_idx(idx, " ! No grabs performed!")
         write_to_log("No grabs performed for: " + dep_name)
@@ -189,7 +196,7 @@ def _install_dependencies(idx: int, dep_dict: dict, target: str, first: bool = F
                 print(runner.result())
 
 
-def install_dependencies(target: str = su.get_tex_home()):
+def install_dependencies(target: str = su.get_sltx_tex_home()):
     if "target" not in sg.dependencies or "dependencies" not in sg.dependencies:
         print("The dependency-file must supply a 'target' and an 'dependencies' key!")
         sys.exit(1)

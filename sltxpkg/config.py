@@ -40,7 +40,7 @@ def _assure_dir(name: str, target_path: str, create: bool):
 
 
 def assure_dirs():
-    sg.configuration[C_TEX_HOME] = su.get_tex_home()  # expansion
+    sg.configuration[C_TEX_HOME] = su.get_sltx_tex_home()  # expansion
     create = sg.configuration[C_CREATE_DIRS]
     _assure_dir('Tex-Home', sg.configuration[C_TEX_HOME], create)
 

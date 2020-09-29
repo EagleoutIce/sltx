@@ -10,6 +10,7 @@
 # TODO: dig mode given detailed informations about errors
 # TODO: windows support
 
+# TODO: allow additional dependencies on compile
 import argparse
 import os  # list directory
 import sys  # cmd line args
@@ -101,8 +102,14 @@ p_compile.add_argument('-p', '--profile', dest='profile',
 p_compile.add_argument('-r', '--recipe', dest='recipe',
                        help='The recipe to instruct the main compile routine.', required=False, default=None)
 # TODO: use namespaces in the future
-p_compile.add_argument('--root', dest='dock_as_root',
-                       help='Run the docker container with the lithie-root setup. This may lead to permission errors when you want to delete the caches.', required=False, action='store_true')
+p_compile.add_argument('--root', dest='dock_as_root', action='store_true',
+                       help='Run the docker container with the lithie-root setup. This may lead to permission errors when you want to delete the caches.', required=False)
+# TODO: allow an option to be configured in configuration
+# TODO: allow symlinks
+p_compile.add_argument('-l', '--local-texmf', dest='local_texmf', action='store_true',default=False,
+                       help='include the local texmf tree in the docker container', required=False)
+p_compile.add_argument('--no-local-texmf', dest='local_texmf', action='store_false',
+                       help='exclude the local texmf tree in the docker container', required=False)
 # TODO: overwrite extra args of recipe
 p_compile.add_argument('-a', '--args', action='append', metavar='ARGUMENT(S)', dest='extra_arguments',default=[],
                        help="Extra arguments. Make sure to prepend them with the appropriate '-' or '--', they will be used as extra_arguments in the recipe.")

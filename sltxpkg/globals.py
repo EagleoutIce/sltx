@@ -12,7 +12,7 @@ C_DRIVERS = "drivers"
 C_DRIVER_PATTERNS = "driver_patterns"
 C_RECURSIVE = "recursive"
 C_FORMAT_MAX = "format_max"
-
+C_INCLUDE_LOCAL_TEXMF = "include_local_texmf"
 C_DOWNLOAD_DIR = 'download_dir'
 C_CACHE_DIR = 'cache_dir'
 
@@ -30,6 +30,7 @@ configuration = {
     C_CREATE_DIRS: True,
     C_CLEANUP: True,
     C_RECURSIVE: True,
+    C_INCLUDE_LOCAL_TEXMF: False,
     C_FORMAT_MAX: 5, # Max formatting depth
     C_USE_DOCKER: True,
     C_DOCKER_PROFILE: 'tx-default',
