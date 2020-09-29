@@ -29,7 +29,6 @@ def cmd_auto_setup():
         dep_path = str(files(sltxpkg.data).joinpath('sltx-dep.yaml'))
         sg.dependencies = load_dependencies_config(
             dep_path, sg.dependencies)
-        sg.args.deps = [os.path.basename(dep_path)]
         install_dependencies()
 
     # TODO: allow option to install local dependencies too using the shipped sltx-dep?
@@ -65,8 +64,19 @@ def cmd_docker():
 
 
 def cmd_raw_compile():
-    cooker.coo# TODO:
-# p_compile.add_argument('-d', '--dependency', nargs='1', metavar="dep.yml", dest='dep', )k()
+    # install possible deps
+    for dep in sg.args.extra_dependencies:
+        # will extend the dict with 'new' ones
+        # should work even better if sltx-source.yaml files are present in the targets
+        sg.dependencies = load_dependencies_config(dep, sg.dependencies)
+    # i know just writing withut len is more pythonic but i like it more if it is explicit
+    if len(sg.args.extra_dependencies) > 0:
+        texmf_home = su.get_tex_home()
+        print("Insalling additional dependencies.")
+        assure_dirs()
+        install_dependencies(target=texmf_home)
+
+    cooker.cook()
 
 
 def cmd_compile():
