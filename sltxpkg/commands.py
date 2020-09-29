@@ -47,7 +47,7 @@ def cmd_dependency():
 
     assure_dirs()
 
-    target = su.get_tex_home() if sg.args.local_path is None else sg.args.local_path
+    target = su.get_sltx_tex_home() if sg.args.local_path is None else sg.args.local_path
     install_dependencies(target=target)
 
 

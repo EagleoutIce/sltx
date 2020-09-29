@@ -173,4 +173,3 @@ except KeyError:
 
 cmd()
 
-# TODO: if no deps or no generate call
