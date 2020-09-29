@@ -42,16 +42,25 @@ def file_contains(path: str, txt: str):
 def get_now():
     return strftime("%Y-%m-%d__%H-%M-%S", localtime())
 
+
 def get_default_conf() -> str:
     return os.path.expanduser(sg.DEFAULT_CONFIG)
 
+
+def get_local_conf() -> str:
+    return os.path.expanduser(sg.LOCAL_CONFIG)
+
+
 def get_tex_home() -> str:
     return os.path.expanduser(default_texmf())
+
 
 def get_sltx_tex_home() -> str:
     return os.path.expanduser(sg.configuration[sg.C_TEX_HOME].format(
         **sg.configuration, os_default_texmf=default_texmf()))
 
 # For compile
+
+
 def sanitize_filename(text: str):
     return re.sub('[^a-zA-Z0-9\-_]', '_', text)

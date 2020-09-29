@@ -56,6 +56,7 @@ def cmd_version():
     print("This is sltx, a simple latex helper-utility")
     print("Tex-Home:", su.get_tex_home())
     print("Default config location:", su.get_default_conf(),"(present:",str(os.path.isfile(su.get_default_conf()))+")")
+    print("Local config location:", su.get_local_conf(),"(present:",str(os.path.isfile(su.get_local_conf()))+")")
     print("Version:", su.get_version())
 
 
