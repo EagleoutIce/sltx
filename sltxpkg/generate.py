@@ -107,22 +107,20 @@ def step_compile(document: dict, target_profile: str):
     file_list = prompt.get("File(s)")
     files = file_list.split(',')
 
-    exec_lines = ""
+    exec_line = "sltx "
 
     # TODO: fail as soon as one fails
-    for file in files:
-        exec_lines += "sltx "
-        if own_config and config_file is not None:
-            exec_lines += "--config \"{config_file}\" ".format(**locals())
+    if own_config and config_file is not None:
+        exec_line += "--config \"{config_file}\" ".format(**locals())
 
-        # TODO: recipe support!
-        # NOTE: root is required for now due to permission errors in action container
-        # this is only for gha
-        exec_lines += "compile --root --profile \"" + target_profile + "\" \"" + file + "\"\n"
+    # TODO: recipe support!
+    # NOTE: root is required for now due to permission errors in action container
+    # this is only for gha
+    exec_line += "compile --root --profile \"" + target_profile + "\" "  + " ".join(['"' + f + '"' for f in files]) + "\n"
 
     add_step(document,
              "Compile the Documents",
-             _run=YamlBlock(exec_lines)
+             _run=YamlBlock(exec_line)
              )
     return files
 
