@@ -1,6 +1,7 @@
 # Docker control
 import json
 import os
+import sys
 
 import docker
 import sltxpkg.globals as sg
@@ -26,7 +27,6 @@ class DockerCtrl:
                 d = {**d, **json.loads(subline)}
                 print("   {status} {progress} {id}".format(**d))
 
-    # TODO: get feedback from command to fail if command inside of docker failed
     def run_in_container(self, root: bool, profile: str, command: str):
         if profile.startswith(":"):
             target = profile[1:]
@@ -63,6 +63,8 @@ class DockerCtrl:
         for l in run.logs(stdout=True, stderr=True, stream=True, timestamps=True):
             print(l.decode('utf-8'), end='')
         print("Container completed.")
-        # print(run.wait()) # TODO: parse this
-        # print("stats:",dir(run.stats())) 
-        # TODO: get return value
+        feedback = run.wait()
+        if 'StatusCode' in feedback and feedback['StatusCode'] != 0:
+            code = feedback['StatusCode']
+            print("Command failed with:",code)
+            sys.exit(code)

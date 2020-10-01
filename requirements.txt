@@ -56,7 +56,7 @@ SecretStorage==2.3.1
 simplejson==3.16.0
 sip==4.19.18
 six==1.12.0
-sltx==0.1.27
+sltx==0.1.28
 systemd-python==234
 texttable==1.6.0
 ubuntu-advantage-tools==19.5
