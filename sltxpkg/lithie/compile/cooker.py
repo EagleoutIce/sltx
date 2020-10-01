@@ -1,5 +1,6 @@
 # cookes the recipe :D
 from concurrent import futures
+import sys
 
 import sltxpkg.globals as sg
 from sltxpkg.lithie.compile.recipe import Recipe
@@ -21,5 +22,6 @@ def cook():
                     print(runner.result())
         except rex.RecipeException as ex:
             print("\n\033[31m ! Processing of",file,"failed for:",repr(ex),"\033[m")
+            sys.exit(128)
         else:
             print("\n=Compiled all documents successfully=") 

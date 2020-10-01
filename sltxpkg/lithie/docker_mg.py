@@ -26,6 +26,7 @@ class DockerCtrl:
                 d = {**d, **json.loads(subline)}
                 print("   {status} {progress} {id}".format(**d))
 
+    # TODO: get feedback from command to fail if command inside of docker failed
     def run_in_container(self, root: bool, profile: str, command: str):
         if profile.startswith(":"):
             target = profile[1:]
@@ -56,9 +57,12 @@ class DockerCtrl:
                 'mount': 'rw'
             }
         run = self.client.containers.run(
-            target, command=command, detach=True, remove=True, working_dir='/root/data',
+            target, command=command, detach=True, remove=True, working_dir='/root/data',tty=True,
             network_mode='bridge',user='root' if root else 'lithie-user',
             volumes=volumes)
         for l in run.logs(stdout=True, stderr=True, stream=True, timestamps=True):
             print(l.decode('utf-8'), end='')
         print("Container completed.")
+        # print(run.wait()) # TODO: parse this
+        # print("stats:",dir(run.stats())) 
+        # TODO: get return value
