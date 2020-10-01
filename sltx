@@ -62,7 +62,7 @@ class Commands:
 
     def generate(self, p):
         for command in self.cmds.items():
-            add_parser(p, command[0][0], command[1][2], **((dict(command[1][1].kwargs, aliases=command[1][0][1])) if len(command[1][0][1]) != 0 else command[1][1].kwargs))
+            add_parser(p, command[0], command[1][2], **((dict(command[1][1].kwargs, aliases=command[1][0][1])) if len(command[1][0][1]) != 0 else command[1][1].kwargs))
 
 
 commands2 = Commands({
@@ -128,10 +128,6 @@ cmd_parser = parser.add_subparsers(
     dest='command')
 
 commands2.generate(cmd_parser)
-
-# version
-p_version = cmd_parser.add_parser(
-    'version', description='Show the version-info for sltx.')
 
 if (len(sys.argv) <= 1):
     parser.parse_args(['-h'])
