@@ -22,7 +22,7 @@ publish: version
 		echo "ERROR: You must change the 'VERSION' (${VERSION}) to publish";\
 		exit 1; fi
 	echo ${VERSION} > sltxpkg/data/version.info
-	pip3 freeze > requirements.txt
+	pipreqs --print > requirements.txt
 	git add .
 	git commit -s
 	git tag -a v${VERSION} -m 'Tag for version v${VERSION}'
