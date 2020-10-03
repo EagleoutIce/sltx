@@ -60,8 +60,15 @@ class DockerCtrl:
             target, command=command, detach=True, remove=True, working_dir='/root/data',tty=True,
             network_mode='bridge',user='root' if root else 'lithie-user',
             volumes=volumes)
+        # We need a buffer in case a multibyte unicode sequence
+        # will be broken at line end
+        buffer = b''
         for l in run.logs(stdout=True, stderr=True, stream=True, timestamps=True):
-            print(l.decode('utf-8'), end='')
+            try:
+                print((buffer + l).decode('utf-8'), end='')
+                buffer = b''
+            except UnicodeDecodeError as ex:
+                buffer += l
         print("Container completed.")
         feedback = run.wait()
         if 'StatusCode' in feedback and feedback['StatusCode'] != 0:
