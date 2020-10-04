@@ -17,6 +17,7 @@ import sys  # cmd line args
 
 import sltxpkg.config as sc
 import sltxpkg.util as su
+from sltxpkg.command_config import (Arg, Commands)
 from sltxpkg import globals as sg
 from sltxpkg.commands import (cmd_auto_setup, cmd_cleanse, cmd_compile,
                               cmd_dependency, cmd_docker, cmd_gen_gha,
@@ -32,38 +33,7 @@ def valid_file(arg: str) -> str:
     return arg
 
 
-def add_argument_to_parser(p, *args, **kwargs):
-    p.add_argument(*args, **kwargs)
-
-
-def add_parser(p, name, arguments, **kwargs):
-    np = p.add_parser(name, **kwargs)
-    for args in arguments:
-        add_argument_to_parser(np, *args.args, **args.kwargs)
-
-
 # TODO quiet mode latex/docker output written to log but not to stdout
-
-
-# name :(valuePair, description, (Argument))
-
-class Arg:
-    def __init__(self, *args, **kwargs):
-        self.args = args
-        self.kwargs = kwargs
-
-
-class Commands:
-    def __init__(self, cmds):
-        self.cmds = cmds
-
-    def helper_values(self):
-        return map(lambda x: x[0], self.cmds.values())
-
-    def generate(self, p):
-        for command in self.cmds.items():
-            add_parser(p, command[0], command[1][2], **((dict(command[1][1].kwargs, aliases=command[1][0][1])) if len(command[1][0][1]) != 0 else command[1][1].kwargs))
-
 
 commands2 = Commands({
     'dependency': ((cmd_dependency, ['dep']), Arg(description='Install dependencies on the host system.'),
@@ -152,9 +122,10 @@ try:
     tc = sg.args.command.lower()
     # This is ugly, but it basically checks if tc is in the commands and if so, use that commands
     # if not it searches through the list of aliasses and if it finds one it will use this
-    cmd = commands2.cmds[tc][0][0] if tc in commands2.cmds else commands2.cmds[[alias[0][0]
+    # TODO: make this acceptable
+    cmd = commands2.cmds[tc][0][0] if tc in commands2.cmds else commands2.cmds[[alias[0]
                                                            for alias in commands2.cmds.items()
-                                                           if tc in alias[0][1]][0]][0]
+                                                           if tc in alias[1][0][1]][0]][0][0]
 except KeyError:
     print("The supplied command:", sg.args.command,
           "is unknown. Choose one of:", list(commands2.cmds.keys()))

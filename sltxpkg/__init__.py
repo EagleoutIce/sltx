@@ -5,3 +5,4 @@ import sltxpkg.generate
 import sltxpkg.util
 import sltxpkg.commands
 import sltxpkg.prompt
+import sltxpkg.command_config
