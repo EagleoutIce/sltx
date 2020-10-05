@@ -6,6 +6,7 @@ import sys
 from concurrent import futures
 from subprocess import PIPE, Popen  # execution
 from pathlib import Path
+from typing import List
 
 import sltxpkg.globals as sg
 from sltxpkg.config import load_dependencies_config, write_to_log
@@ -88,13 +89,13 @@ def write_proc_to_log(idx: int, stream, mirror: bool):
             print_idx(idx, line_utf8)
 
 
-def grab_stuff(idx: str, dep_name: str, target_dir: str, data: dict, target: str):
+def grab_stuff(idx: str, dep_name: str, target_dir: str, dep_dict: dict, target: str):
     print_idx(idx, " > Grabbing dependencies for " + dep_name)
     print_idx(idx, "   - Grabby-Grab-Grab files from \"" + target_dir + "\"...")
-    got_files = grab_from(idx, target_dir, data, target,
+    got_files = grab_from(idx, target_dir, dep_dict, target,
                           'grab-files', f_grab_files)
     print_idx(idx, " - Grabby-Grab-Grab dirs from \"" + target_dir + "\"...")
-    got_dirs = grab_from(idx, target_dir, data, target,
+    got_dirs = grab_from(idx, target_dir, dep_dict, target,
                          'grab-dirs', f_grab_dirs)
     if not got_files and not got_dirs:
         print_idx(idx, " ! No grabs performed!")
@@ -145,7 +146,7 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, targe
         print_idx(idx, " - Error-Log of Driver:")
     write_proc_to_log(idx, feedback.stderr, return_code != 0)
 
-    if(sg.configuration[C_RECURSIVE]):
+    if (sg.configuration[C_RECURSIVE]):
         recursive_dependencies(idx, driver_target_dir, data, dep_name, target)
 
     if return_code != 0:
@@ -155,24 +156,177 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, targe
     grab_stuff(idx, dep_name, driver_target_dir, data, target)
 
 
-def install_dependency(name: str, idx: str, data: dict, target: str):
+class InvalidSltxConfigException(Exception):
+    """
+    Exception that is being raised when the sltx config contains invalid or missing fields.
+    """
+
+    def __init__(self, reason: str):
+        self.reason = reason
+
+    def __str__(self):
+        return "Invalid sltx config: %s" % self.reason
+
+
+class Dependency:
+    """
+    A dependency based on flo's model that allows being passed to a driver.
+    """
+
+    def __init__(self, name: str = None, driver: str = None, url: str = None):
+        self.name = name
+        self.driver = driver
+        self.url = url
+
+
+class SltxConfig:
+    target: str
+    grab: str
+    dependencies: []
+
+
+def parse_unknown_driver(idx: str, driver: str, data: dict) -> str:
+    """
+    Parses an unknown driver by checking whether auto detection is enabled and if so uses the first level of data to
+    auto detect the driver. If no one is found an InvalidSltxConfigException will be raised.
+
+    :param idx: The id of the current level
+    :param driver: The unknown driver
+    :param data: The attached data
+    :return: The detected driver
+    """
+    if not sg.configuration[C_AUTODETECT_DRIVERS]:
+        # Auto detecting not enabled.
+        print_idx(idx, " ! Unknown driver and auto detection disabled!")
+        raise InvalidSltxConfigException("unknown driver: %s" % driver)
+    else:
+        # Auto detect driver from level 1.
+        # TODO Adjust driver detection so that it uses multiple inputs and compares the detection results.
+        detected_driver = None
+        for data in data[driver]:
+            detected_driver = detect_driver(idx, data)
+            if detected_driver is not None:
+                break
+        if detected_driver is None:
+            # No driver could be auto detected.
+            print_idx(idx, " ! Could not detect driver:", driver)
+            raise InvalidSltxConfigException("unknown driver: %s" % driver)
+        return detected_driver
+
+
+def parse_dependencies_using_git(idx: str, data: dict) -> List[Dependency]:
+    """
+    Parses the dependencies using git driver. The first level of data is the host, the second one the user and the third
+    one the repository.
+
+    :param idx: The idx
+    :param data: The data attached to the git driver
+    :return: The parsed dependencies
+    """
+    deps = []
+    for host in data:
+        users = data[host]
+        # Check for github and gitlab as they are common and very special ones <3.
+        if host == "github":
+            host = "https://github.com"
+        elif host == "gitlab":
+            host = "https://gitlab.com"
+        # Proceed with the users.
+        for user in users:
+            repos = users[user]
+            # And finally check the particular repos.
+            for repo in repos:
+                # Build the dependency.
+                url = "%s/%s/%s" % (host, user, repo)
+                deps.append(Dependency(name=repo, driver="git", url=url))
+    return deps
+
+
+def parse_dependencies(idx: str, driver: str, data: dict) -> List[Dependency]:
+    """
+    Parses dependencies attached to a driver. The method highly depends on the driver: For git the url is built from
+    the following three levels. For other drivers currently urls are expected on the first level.
+
+    :param idx: The id of the current dependency level
+    :param driver: The driver name
+    :param data: The data attached to the driver
+    :return: The parsed dependencies
+    """
+    deps = []
+    if driver == "git":
+        # Build from first two levels
+        deps.extend(parse_dependencies_using_git(idx, data))
+    else:
+        # Parse the dependencies without using driver specific action.
+        for data_content in data:
+            # Check if any additional data is attached that we do not expect (for avoiding doing stuff flo does not
+            # expect)
+            if data_content in data:
+                raise InvalidSltxConfigException("no additional data expected for %s using driver %s"
+                                                 % (data_content, driver))
+            # Just parse the data content as an url
+            # TODO Check if the passed url is in url format.
+            # TODO Decide how we want to name the dependency if we only get an url.
+            deps.append(Dependency(name=data_content, driver=driver, url=data_content))
+    return deps
+
+
+def parse_sltx_config(idx: str, config: dict) -> SltxConfig:
+    """
+    Parses the dependencies. It has a hierarchical structure with the following layers:
+    Drivers -> Dependencies
+    The structure of the dependencies depend on the platform. For the git driver it looks like the following:
+    Platform (github, gitlab) -> User (EagleOutIce) -> Repository (color-palettes)
+
+    :param idx: The id of the current dependency level
+    :param config: The config loaded as yaml
+    :return: The parsed sltx config
+    """
+    print_idx(idx, "Parsing sltx config...")
+    res = SltxConfig()
+    # Read the target field.
+    if "target" not in config:
+        print_idx(idx, "Missing required target field in config.")
+        raise InvalidSltxConfigException("missing required target field")
+    res.target = config["target"]
+    # Read the grab field.
+    if "grab" not in config:
+        print_idx(idx, "Missing required grab field in config.")
+        raise InvalidSltxConfigException("missing required grab field")
+    res.grab = config["grab"]
+    # Parse the dependencies.
+    if "dependencies" not in config:
+        print_idx(idx, "No dependencies supplied.")
+    else:
+        drivers = config["dependencies"]
+        for driver in drivers:
+            # Proceed with each driver.
+            if driver not in sg.configuration[C_DRIVERS]:
+                driver = parse_unknown_driver(idx, driver, drivers[driver])
+            print_idx(idx, "Using driver:", driver)
+
+    print_idx(idx, "Finished parsing sltx config.")
+    return res
+
+
+def install_dependency(name: str, idx: str, dep_dict: dict, target: str):
     print_idx(idx, "Loading \"" + name + "\"")
-    if "url" not in data:
+    if "url" not in dep_dict:
         print_idx(idx, " ! The dependency did not have an url-tag attached")
-    url = data["url"]
+    url = dep_dict["url"]
     print_idx(idx, " - Loading from: \"" + url + "\"")
-    if "driver" not in data:
+    if "driver" not in dep_dict:
         if not sg.configuration[C_AUTODETECT_DRIVERS]:
             print_idx(idx, " ! No driver given and autodetection disabled!")
         else:
-            data["driver"] = detect_driver(idx, url)
-    driver = data["driver"]
+            dep_dict["driver"] = detect_driver(idx, url)
+    driver = dep_dict["driver"]
     print_idx(idx, " - Using driver: \"" + driver + "\"")
 
     if name in loaded:
         print_idx(idx, " > Skipping retrieval", name,
                   " as it was already loaded by another dep.")
-        grab_stuff(idx, name, get_target_dir(data, name, driver), data, target)
+        grab_stuff(idx, name, get_target_dir(dep_dict, name, driver), dep_dict, target)
         return
     loaded.append(name)
 
@@ -181,7 +335,7 @@ def install_dependency(name: str, idx: str, data: dict, target: str):
                   sg.configuration[C_DRIVERS])
         sys.exit(2)
 
-    use_driver(idx, data, name, driver, url, target)
+    use_driver(idx, dep_dict, name, driver, url, target)
 
 
 def _install_dependencies(idx: int, dep_dict: dict, target: str, first: bool = False):
@@ -201,7 +355,7 @@ def install_dependencies(target: str = su.get_sltx_tex_home()):
         print("The dependency-file must supply a 'target' and an 'dependencies' key!")
         sys.exit(1)
 
-    write_to_log("====Dependencies for:" + sg.dependencies["target"]+"\n")
+    write_to_log("====Dependencies for:" + sg.dependencies["target"] + "\n")
     print()
     print("Dependencies for:", sg.dependencies["target"])
     print("Installing to:", target)
