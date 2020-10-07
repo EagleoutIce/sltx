@@ -26,7 +26,7 @@ class DockerCtrl:
                 d = {'status': 'unknown', 'progress': '', 'id': ''}
                 d = {**d, **json.loads(subline)}
                 print("   {status} {progress} {id}".format(**d))
-
+    # tODO: autocache name with unique path needs to use real file name not docker!!
     def run_in_container(self, root: bool, profile: str, command: str):
         if profile.startswith(":"):
             target = profile[1:]

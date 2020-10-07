@@ -103,6 +103,7 @@ def should_be_excluded(file: str):
 
 
 def cleanse_caches():
+    # TODO: clean up .latexmkrc entries; not the whole file
     cache_dir = sg.configuration[sg.C_CACHE_DIR]
     if os.path.isdir(cache_dir):
         print("Cleaning all the caches... (" + cache_dir + ")")
