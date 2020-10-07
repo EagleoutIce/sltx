@@ -34,7 +34,7 @@ configuration = {
     C_CLEANUP: True,
     C_RECURSIVE: True,
     C_INCLUDE_LOCAL_TEXMF: False,
-    C_FORMAT_MAX: 5, # Max formatting depth
+    C_FORMAT_MAX: 5,  # Max formatting depth
     C_USE_DOCKER: True,
     C_DOCKER_PROFILE: 'tx-default',
     C_AUTODETECT_DRIVERS: True,
@@ -55,8 +55,10 @@ configuration = {
 
 dependencies = {}
 
-def print_idx(idx : int, *objects, sep=' ', end='\n',pre='', file=sys.stdout, flush=False):
-    print(pre,"[ID " + str(idx) + "]", *objects, sep=sep, end=end, file=file, flush=flush)
+
+def print_idx(idx: str, *objects, sep=' ', end='\n', pre='', file=sys.stdout, flush=False):
+    print(pre, "[ID " + str(idx) + "]", *objects, sep=sep, end=end, file=file, flush=flush)
+
 
 # global arguments read in
 args = None
