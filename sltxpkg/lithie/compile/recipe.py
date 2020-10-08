@@ -98,7 +98,7 @@ class Recipe():
         print_idx(self.idx, "  - Created: \"" + archive +
                   "\" (" + os.path.basename(archive) + ")")
         # We have to force latexmk into think it has to re-run
-        # TODO: We should check if not aux but we do this 
+        # TODO: We should check if not aux but we do this
         # We do this as we need a change and the percent itself gets consumed
         # This ensures a different sequence every time that will be deleted
         # on a successful run

@@ -16,7 +16,7 @@ class Arg:
 
 
 class Commands:
-    def __init__(self, cmds):
+    def __init__(self, cmds:dict):
         self.cmds = cmds
 
     def helper_values(self):
