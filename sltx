@@ -36,7 +36,7 @@ def valid_file(arg: str) -> str:
 
 # TODO quiet mode latex/docker output written to log but not to stdout
 
-commands2 = Commands({
+all_commands = Commands({
     'dependency': ((cmd_dependency, ['dep']), Arg(description='Install dependencies on the host system.'),
                    [
                        Arg('-l', '--local', metavar='path', dest='local_path', default=None,
@@ -111,12 +111,12 @@ parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
 
 
 cmd_parser = parser.add_subparsers(
-    title='command', description="Select the command for sltx", metavar=set(commands2.cmds.keys()),
+    title='command', description="Select the command for sltx", metavar=set(all_commands.cmds.keys()),
     help="Help for the specific command. You may use shortcuts for them: " +
-         str([k[1] for k in commands2.helper_values() if len(k[1]) != 0]),
+         str([k[1] for k in all_commands.helper_values() if len(k[1]) != 0]),
     dest='command')
 
-commands2.generate(cmd_parser)
+all_commands.generate(cmd_parser)
 
 if (len(sys.argv) <= 1):
     parser.parse_args(['-h'])
@@ -140,25 +140,10 @@ if sg.args.config is not None:
 
 try:
     tc = sg.args.command.lower()
-    
-    # This is ugly, but it basically checks if tc is in the commands and if so, use that commands
-    # if not it searches through the list of aliasses and if it finds one it will use this
-
-    def retrieve_cmd_from_alias(alias: tuple) -> list:
-        return alias[1][0][1]
-
-    def cmd_from_name(tc: str):
-        return commands2.cmds[tc][0][0]
-
-    def find_in_alias(tc: str):
-        index = [alias[0] for alias in commands2.cmds.items() if tc in retrieve_cmd_from_alias(alias)]
-        return cmd_from_name(index[0])
-        
-    cmd = cmd_from_name(tc) if tc in commands2.cmds else find_in_alias(tc)
-
+    cmd = all_commands.get_cmd(tc)
 except KeyError:
     print("The supplied command:", sg.args.command,
-          "is unknown. Choose one of:", list(commands2.cmds.keys()))
+          "is unknown. Choose one of:", list(all_commands.cmds.keys()))
     exit(1)
 
 cmd()
