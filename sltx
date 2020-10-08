@@ -140,12 +140,22 @@ if sg.args.config is not None:
 
 try:
     tc = sg.args.command.lower()
+    
     # This is ugly, but it basically checks if tc is in the commands and if so, use that commands
     # if not it searches through the list of aliasses and if it finds one it will use this
-    # TODO: make this acceptable
-    cmd = commands2.cmds[tc][0][0] if tc in commands2.cmds else commands2.cmds[[alias[0]
-                                                           for alias in commands2.cmds.items()
-                                                           if tc in alias[1][0][1]][0]][0][0]
+
+    def retrieve_cmd_from_alias(alias: tuple) -> list:
+        return alias[1][0][1]
+
+    def cmd_from_name(tc: str):
+        return commands2.cmds[tc][0][0]
+
+    def find_in_alias(tc: str):
+        index = [alias[0] for alias in commands2.cmds.items() if tc in retrieve_cmd_from_alias(alias)]
+        return cmd_from_name(index[0])
+        
+    cmd = cmd_from_name(tc) if tc in commands2.cmds else find_in_alias(tc)
+
 except KeyError:
     print("The supplied command:", sg.args.command,
           "is unknown. Choose one of:", list(commands2.cmds.keys()))
