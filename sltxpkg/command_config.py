@@ -23,17 +23,18 @@ class Commands:
 
     def generate(self, p):
         for command in self.cmds.items():
-            add_parser(p, command[0], command[1][2], **((dict(command[1][1].kwargs, aliases=command[1][0][1])) if len(command[1][0][1]) != 0 else command[1][1].kwargs))
+            aliases=Commands.__alias_from_cmd(command)
+            add_parser(p, command[0], command[1][2], **((dict(command[1][1].kwargs, aliases=aliases)) if len(aliases) != 0 else command[1][1].kwargs))
 
     @staticmethod
-    def __cmd_from_alias(alias: tuple) -> list:
+    def __alias_from_cmd(alias: tuple) -> list:
         return alias[1][0][1]
 
     def __cmd_from_name(self, tc: str):
         return self.cmds[tc][0][0]
 
     def __find_in_alias(self, tc: str):
-        matching_commands = [alias[0] for alias in self.cmds.items() if tc in Commands.__cmd_from_alias(alias)]
+        matching_commands = [alias[0] for alias in self.cmds.items() if tc in Commands.__alias_from_cmd(alias)]
         # if multiple we take the first (should not happen)
         return self.__cmd_from_name(matching_commands[0])
 
