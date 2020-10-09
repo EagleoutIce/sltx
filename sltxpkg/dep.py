@@ -20,6 +20,28 @@ from sltxpkg import dep
 loaded = []
 
 
+class Dependency:
+    """
+    A dependency based on flo's model that allows being passed to a driver.
+    """
+
+    def __init__(self, name: str = None, driver: str = None, url: str = None):
+        self.name = name
+        self.driver = driver
+        self.url = url
+
+
+class SltxDepConfig:
+    target: str
+    grab: str
+    dependencies: List[Dependency]
+    download_dir: None
+
+    def __init__(self):
+        # TODO Check if this applies to python conventions.
+        self.dependencies = []
+
+
 def detect_driver(idx: str, url: str):
     print_idx(idx, " - Autodetecting driver...")
     for key, patterns in sg.configuration[C_DRIVER_PATTERNS].items():
@@ -78,7 +100,7 @@ def f_grab_dirs(data: (str, str), target: str, path: str):
         du.copy_tree(data[0], dir_target)
 
 
-def write_proc_to_log(idx: int, stream, mirror: bool):
+def write_proc_to_log(idx: str, stream, mirror: bool):
     while True:
         line = stream.readline()
         if not line:
@@ -102,9 +124,9 @@ def grab_stuff(idx: str, dep_name: str, target_dir: str, dep_dict: dict, target:
         write_to_log("No grabs performed for: " + dep_name)
 
 
-def get_target_dir(data: dict, dep_name: str, driver: str):
-    return sg.configuration[C_DRIVERS][driver]["target-dir"].format(
-        **data, **sg.configuration, dep_name=dep_name)
+def get_target_dir(dep_config: SltxDepConfig, dep_name: str, driver: str):
+    download_dir = dep_config.download_dir if dep_config.download_dir is not None else sg.configuration[C_DOWNLOAD_DIR]
+    return sg.configuration[C_DRIVERS][driver]["target-dir"].format(download_dir=download_dir, dep_name=dep_name)
 
 
 def recursive_dependencies(idx: str, driver_target_dir: str, data: dict, dep_name: str, target: str):
@@ -154,35 +176,6 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, targe
         sys.exit(return_code)
 
     grab_stuff(idx, dep_name, driver_target_dir, data, target)
-
-
-class InvalidSltxConfigException(Exception):
-    """
-    Exception that is being raised when the sltx config contains invalid or missing fields.
-    """
-
-    def __init__(self, reason: str):
-        self.reason = reason
-
-    def __str__(self):
-        return "Invalid sltx config: %s" % self.reason
-
-
-class Dependency:
-    """
-    A dependency based on flo's model that allows being passed to a driver.
-    """
-
-    def __init__(self, name: str = None, driver: str = None, url: str = None):
-        self.name = name
-        self.driver = driver
-        self.url = url
-
-
-class SltxConfig:
-    target: str
-    grab: str
-    dependencies: []
 
 
 def parse_unknown_driver(idx: str, driver: str, data: dict) -> str:
@@ -271,7 +264,7 @@ def parse_dependencies(idx: str, driver: str, data: dict) -> List[Dependency]:
     return deps
 
 
-def parse_sltx_config(idx: str, config: dict) -> SltxConfig:
+def parse_sltx_dep_config(idx: str, config: dict) -> SltxDepConfig:
     """
     Parses the dependencies. It has a hierarchical structure with the following layers:
     Drivers -> Dependencies
@@ -283,15 +276,15 @@ def parse_sltx_config(idx: str, config: dict) -> SltxConfig:
     :return: The parsed sltx config
     """
     print_idx(idx, "Parsing sltx config...")
-    res = SltxConfig()
+    res = SltxDepConfig()
     # Read the target field.
     if "target" not in config:
-        print_idx(idx, "Missing required target field in config.")
+        print_idx(idx, "Missing required target field in dep config.")
         raise InvalidSltxConfigException("missing required target field")
     res.target = config["target"]
     # Read the grab field.
     if "grab" not in config:
-        print_idx(idx, "Missing required grab field in config.")
+        print_idx(idx, "Missing required grab field in dep config.")
         raise InvalidSltxConfigException("missing required grab field")
     res.grab = config["grab"]
     # Parse the dependencies.
@@ -304,29 +297,26 @@ def parse_sltx_config(idx: str, config: dict) -> SltxConfig:
             if driver not in sg.configuration[C_DRIVERS]:
                 driver = parse_unknown_driver(idx, driver, drivers[driver])
             print_idx(idx, "Using driver:", driver)
+            parsed_deps = parse_dependencies(idx, driver, drivers[driver])
+            print_idx(idx, "Parsed %d dependencies." % len(parsed_deps))
+            res.dependencies.extend(parsed_deps)
+    # Check for optional download dir overwrite
+    if "download-dir" in config:
+        res.download_dir = config["download-dir"]
 
-    print_idx(idx, "Finished parsing sltx config.")
+    print_idx(idx, "Finished parsing sltx dep config.")
     return res
 
 
-def install_dependency(name: str, idx: str, dep_dict: dict, target: str):
+def install_dependency(name: str, idx: str, dep_to_install: Dependency, target: str):
     print_idx(idx, "Loading \"" + name + "\"")
-    if "url" not in dep_dict:
-        print_idx(idx, " ! The dependency did not have an url-tag attached")
-    url = dep_dict["url"]
-    print_idx(idx, " - Loading from: \"" + url + "\"")
-    if "driver" not in dep_dict:
-        if not sg.configuration[C_AUTODETECT_DRIVERS]:
-            print_idx(idx, " ! No driver given and autodetection disabled!")
-        else:
-            dep_dict["driver"] = detect_driver(idx, url)
-    driver = dep_dict["driver"]
-    print_idx(idx, " - Using driver: \"" + driver + "\"")
+    print_idx(idx, " - Loading from: \"" + dep_to_install.url + "\"")
+    print_idx(idx, " - Using driver: \"" + dep_to_install.driver + "\"")
 
     if name in loaded:
-        print_idx(idx, " > Skipping retrieval", name,
-                  " as it was already loaded by another dep.")
-        grab_stuff(idx, name, get_target_dir(dep_dict, name, driver), dep_dict, target)
+        print_idx(idx, " > Skipping retrieval", name, " as it was already loaded by another dependency.")
+        target_dir = get_target_dir(dep_to_install, name, dep_to_install.driver)
+        grab_stuff(idx, name, target_dir, dep_dict, target)
         return
     loaded.append(name)
 
@@ -338,30 +328,28 @@ def install_dependency(name: str, idx: str, dep_dict: dict, target: str):
     use_driver(idx, dep_dict, name, driver, url, target)
 
 
-def _install_dependencies(idx: int, dep_dict: dict, target: str, first: bool = False):
+def _install_dependencies(idx: int, deps: List[Dependency], target: str, first: bool = False):
     with futures.ThreadPoolExecutor(max_workers=sg.args.threads) as pool:
         runners = []
-        for i, dep in enumerate(dep_dict['dependencies']):
-            runners.append(pool.submit(install_dependency, dep, str(
-                i) if first else str(idx) + "." + str(i), dep_dict['dependencies'][dep], target))
+        for i, dep_to_install in enumerate(deps):
+            new_idx = str(i) if first else str(idx) + "." + str(i)
+            runners.append(pool.submit(install_dependency, dep_to_install.name, new_idx, dep_to_install, target))
         futures.wait(runners)
         for runner in runners:
             if runner.result() is not None:
                 print(runner.result())
 
 
-def install_dependencies(target: str = su.get_sltx_tex_home()):
-    if "target" not in sg.dependencies or "dependencies" not in sg.dependencies:
-        print("The dependency-file must supply a 'target' and an 'dependencies' key!")
-        sys.exit(1)
+def install_dependencies(install_target: str = su.get_sltx_tex_home()):
+    dep_config = parse_sltx_dep_config("INIT", sg.dependencies)
 
-    write_to_log("====Dependencies for:" + sg.dependencies["target"] + "\n")
+    write_to_log("====Dependencies for:" + dep_config.target + "\n")
     print()
-    print("Dependencies for:", sg.dependencies["target"])
-    print("Installing to:", target)
+    print("Dependencies for:", dep_config.target)
+    print("Installing to:", install_target)
     print()
 
-    _install_dependencies(0, sg.dependencies, target, first=True)
+    _install_dependencies(0, sg.dependencies, install_target, first=True)
 
     # all installed
     if sg.configuration[C_CLEANUP]:
@@ -371,4 +359,16 @@ def install_dependencies(target: str = su.get_sltx_tex_home()):
     if not sg.configuration[C_RECURSIVE]:
         print("Recursion was disabled.")
     print("Dependency installation for",
-          sg.dependencies["target"], "completed.")
+          dep_config.target, "completed.")
+
+
+class InvalidSltxConfigException(Exception):
+    """
+    Exception that is being raised when the sltx config contains invalid or missing fields.
+    """
+
+    def __init__(self, reason: str):
+        self.reason = reason
+
+    def __str__(self):
+        return "Invalid sltx config: %s" % self.reason

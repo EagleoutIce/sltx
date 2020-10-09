@@ -26,7 +26,7 @@ def cmd_auto_setup():
     cleanse_caches()
 
     if sg.args.auto_deps:
-        dep_path = str(files(sltxpkg.data).joinpath('sltx-dep.yaml'))
+        dep_path = str(files(sltxpkg.data).joinpath(sg.DEFAULT_DEPENDENCY))
         sg.dependencies = load_dependencies_config(
             dep_path, sg.dependencies)
         install_dependencies()
@@ -48,7 +48,7 @@ def cmd_dependency():
     assure_dirs()
 
     target = su.get_sltx_tex_home() if sg.args.local_path is None else sg.args.local_path
-    install_dependencies(target=target)
+    install_dependencies(install_target=target)
 
 
 def cmd_version():
@@ -74,7 +74,7 @@ def cmd_raw_compile():
         texmf_home = su.get_tex_home()
         print("Insalling additional dependencies.")
         assure_dirs()
-        install_dependencies(target=texmf_home)
+        install_dependencies(install_target=texmf_home)
 
     cooker.cook()
 

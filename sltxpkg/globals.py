@@ -3,7 +3,7 @@ import sys
 DEFAULT_CONFIG = "~/.sltx-config.yml"
 LOCAL_CONFIG = "./sltx-config.yml"
 
-DEFAULT_DEPENDENCY="sltx-dep.yml"
+DEFAULT_DEPENDENCY = "sltx-dep.yml"
 
 C_DRIVER_LOG = "driver_log"
 C_TEX_HOME = "tex_home"
