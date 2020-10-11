@@ -1,10 +1,13 @@
 VERSION := $(shell cat sltxpkg/data/version.info)
 SOURCES := sltx $(wildcard sltxpkg/*.py) $(wildcard sltxpkg/data/recipes/*.recipe) requirements.txt setup.py MANIFEST.in README.md sltx-config.yml sltxpkg/data/ LICENSE
 
-.PHONY: all install_local build version publish 
+.PHONY: all install_local build test version publish
 
 
-all: build version
+all: test build version
+
+test:
+	python3 -m unittest discover -v -s sltxtest
 
 install_local: build version
 	pip3 install --upgrade "dist/sltx-${VERSION}-py3-none-any.whl"
@@ -17,7 +20,7 @@ build: $(SOURCES)
 version:
 	@echo "Build with version: ${VERSION}"
 
-publish: version
+publish: test build version
 	@if [ $(VERSION) = $(shell cat sltxpkg/data/version.info) ]; then\
 		echo "ERROR: You must change the 'VERSION' (${VERSION}) to publish";\
 		exit 1; fi

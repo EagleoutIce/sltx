@@ -3,3 +3,4 @@ include sltxpkg/data/recipes/*.recipe
 include sltxpkg/data/latexmk/configs/*.mkrc
 include sltxpkg/data/version.info
 include sltxpkg/data/sltx-dep.yaml
+prune sltxtest/
