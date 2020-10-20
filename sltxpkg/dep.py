@@ -24,6 +24,7 @@ class Dependency:
     """
     A dependency based on flo's model that allows being passed to a driver.
     """
+    download_dir: None
 
     def __init__(self, name: str = None, driver: str = None, url: str = None):
         self.name = name
@@ -35,7 +36,6 @@ class SltxDepConfig:
     target: str
     grab: str
     dependencies: List[Dependency]
-    download_dir: None
 
     def __init__(self):
         # TODO Check if this applies to python conventions.
@@ -112,6 +112,7 @@ def write_proc_to_log(idx: str, stream, mirror: bool):
 
 
 def grab_stuff(idx: str, dep_name: str, target_dir: str, dep_dict: dict, target: str):
+    # TODO CONTINUE HERE
     print_idx(idx, " > Grabbing dependencies for " + dep_name)
     print_idx(idx, "   - Grabby-Grab-Grab files from \"" + target_dir + "\"...")
     got_files = grab_from(idx, target_dir, dep_dict, target,
@@ -124,7 +125,7 @@ def grab_stuff(idx: str, dep_name: str, target_dir: str, dep_dict: dict, target:
         write_to_log("No grabs performed for: " + dep_name)
 
 
-def get_target_dir(dep_config: SltxDepConfig, dep_name: str, driver: str):
+def get_target_dir(dep_config: Dependency, dep_name: str, driver: str):
     download_dir = dep_config.download_dir if dep_config.download_dir is not None else sg.configuration[C_DOWNLOAD_DIR]
     return sg.configuration[C_DRIVERS][driver]["target-dir"].format(download_dir=download_dir, dep_name=dep_name)
 
@@ -229,9 +230,13 @@ def parse_dependencies_using_git(idx: str, data: dict) -> List[Dependency]:
             repos = users[user]
             # And finally check the particular repos.
             for repo in repos:
+                props = repos[repo]
                 # Build the dependency.
                 url = "%s/%s/%s" % (host, user, repo)
-                deps.append(Dependency(name=repo, driver="git", url=url))
+                dependency = Dependency(name=repo, driver="git", url=url)
+                if "download-dir" in props:
+                    dependency.download_dir = props["download-dir"]
+                deps.append(dependency)
     return deps
 
 
@@ -252,15 +257,14 @@ def parse_dependencies(idx: str, driver: str, data: dict) -> List[Dependency]:
     else:
         # Parse the dependencies without using driver specific action.
         for data_content in data:
-            # Check if any additional data is attached that we do not expect (for avoiding doing stuff flo does not
-            # expect)
-            if data_content in data:
-                raise InvalidSltxConfigException("no additional data expected for %s using driver %s"
-                                                 % (data_content, driver))
+            props = data[data_content]
+            dependency = Dependency(name=data_content, driver=driver, url=data_content)
+            if "download-dir" in props:
+                dependency.download_dir = props["download-dir"]
             # Just parse the data content as an url
             # TODO Check if the passed url is in url format.
             # TODO Decide how we want to name the dependency if we only get an url.
-            deps.append(Dependency(name=data_content, driver=driver, url=data_content))
+            deps.append(dependency)
     return deps
 
 
