@@ -34,7 +34,7 @@ class Dependency:
 
 class SltxDepConfig:
     target: str
-    grab: str
+    grab: dict
     dependencies: List[Dependency]
 
     def __init__(self):
@@ -111,15 +111,15 @@ def write_proc_to_log(idx: str, stream, mirror: bool):
             print_idx(idx, line_utf8)
 
 
-def grab_stuff(idx: str, dep_name: str, target_dir: str, dep_dict: dict, target: str):
+def grab_stuff(idx: str, dep_name: str, target_dir: str, dep_dict: SltxDepConfig, target: str):
     # TODO CONTINUE HERE
     print_idx(idx, " > Grabbing dependencies for " + dep_name)
     print_idx(idx, "   - Grabby-Grab-Grab files from \"" + target_dir + "\"...")
     got_files = grab_from(idx, target_dir, dep_dict, target,
-                          'grab-files', f_grab_files)
+                          'files', f_grab_files)
     print_idx(idx, " - Grabby-Grab-Grab dirs from \"" + target_dir + "\"...")
     got_dirs = grab_from(idx, target_dir, dep_dict, target,
-                         'grab-dirs', f_grab_dirs)
+                         'dirs', f_grab_dirs)
     if not got_files and not got_dirs:
         print_idx(idx, " ! No grabs performed!")
         write_to_log("No grabs performed for: " + dep_name)
@@ -131,6 +131,10 @@ def get_target_dir(dep_config: Dependency, dep_name: str, driver: str):
 
 
 def recursive_dependencies(idx: str, driver_target_dir: str, data: dict, dep_name: str, target: str):
+    # This is executed after the current dependency has been downloaded and before the files are being grabbed.
+    # This allows loading the needed dependencies concurrently to grabbing the files. As we are currently not supporting
+    # Multiple dependency files, we just don't use this function.
+    # TODO Change this as this is currently not supported.
     if 'dep' not in data:
         print_idx(idx, "No 'dep' key found for dep: " + dep_name +
                   " using the default (" + sg.DEFAULT_DEPENDENCY + ")")
@@ -149,18 +153,24 @@ def recursive_dependencies(idx: str, driver_target_dir: str, data: dict, dep_nam
     _install_dependencies(idx, new_dependencies, target)
 
 
-def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, target: str):
+def use_driver(idx: str, dep_config: SltxDepConfig, dep_name: str, driver: str, url: str, target: str,
+               args: str = None):
     # default no arguments
-    if "args" not in data:
-        data["args"] = ""
+    # Add args for driver.
+    # TODO Args are currently not supported.
+    data = dict()
+    data["args"] = "" if "args" not in data else args
     driver_data = sg.configuration[C_DRIVERS][driver]
+    # Prepare the driver command.
     command = driver_data["command"].format(
         **data, **sg.configuration, dep_name=dep_name)
+    # TODO Dis data stuff not right. CONTINUE HERE
     driver_target_dir = get_target_dir(data, dep_name, driver)
     if os.path.isdir(driver_target_dir) and driver_data["needs-delete"]:
         print_idx(idx, " - Target folder", driver_target_dir,
                   "exists. Will be deleted as the driver needs this")
         shutil.rmtree(driver_target_dir)
+    # Execute the driver command.
     print_idx(idx, " > Executing:", command)
     feedback = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
     return_code = feedback.wait()
@@ -168,14 +178,19 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, targe
     if return_code != 0:
         print_idx(idx, " - Error-Log of Driver:")
     write_proc_to_log(idx, feedback.stderr, return_code != 0)
+    # Parse the sltx config.
+    dep_config = parse_sltx_dep_config_from_target_dir(idx, driver_target_dir)
 
-    if (sg.configuration[C_RECURSIVE]):
-        recursive_dependencies(idx, driver_target_dir, data, dep_name, target)
+    # Proceed with the downloaded files.
+    if sg.configuration[C_RECURSIVE]:
+        # Recursively fetch the new dependencies
+        _install_dependencies(idx, dep_config.dependencies, target, first=False)
 
     if return_code != 0:
         print_idx(idx, " ! Driver failed with code", feedback, "exiting.")
         sys.exit(return_code)
 
+    # TODO Now the recursive stuff works and we just have to grab our files :) CONTINUE HERE 2
     grab_stuff(idx, dep_name, driver_target_dir, data, target)
 
 
@@ -312,6 +327,20 @@ def parse_sltx_dep_config(idx: str, config: dict) -> SltxDepConfig:
     return res
 
 
+def parse_sltx_dep_config_from_target_dir(idx: str, target_dir: str) -> SltxDepConfig:
+    """
+    Parses the sltx config that lies in the target directory.
+
+    :param idx: The id of the current dependency level
+    :param target_dir: The target directory
+    :return: The parsed sltx config
+    """
+    dep_path = os.path.join(target_dir, sg.DEFAULT_DEPENDENCY)
+    # I really don't get the load dep config stuff.
+    dep_config_dict = su.load_yaml(dep_path)
+    return parse_sltx_dep_config(idx, dep_config_dict)
+
+
 def install_dependency(name: str, idx: str, dep_to_install: Dependency, target: str):
     print_idx(idx, "Loading \"" + name + "\"")
     print_idx(idx, " - Loading from: \"" + dep_to_install.url + "\"")
@@ -320,6 +349,7 @@ def install_dependency(name: str, idx: str, dep_to_install: Dependency, target: 
     if name in loaded:
         print_idx(idx, " > Skipping retrieval", name, " as it was already loaded by another dependency.")
         target_dir = get_target_dir(dep_to_install, name, dep_to_install.driver)
+        # TODO Parse the sltx dep config
         grab_stuff(idx, name, target_dir, dep_dict, target)
         return
     loaded.append(name)
@@ -332,11 +362,11 @@ def install_dependency(name: str, idx: str, dep_to_install: Dependency, target: 
     use_driver(idx, dep_dict, name, driver, url, target)
 
 
-def _install_dependencies(idx: int, deps: List[Dependency], target: str, first: bool = False):
+def _install_dependencies(idx: str, deps: List[Dependency], target: str, first: bool = False):
     with futures.ThreadPoolExecutor(max_workers=sg.args.threads) as pool:
         runners = []
         for i, dep_to_install in enumerate(deps):
-            new_idx = str(i) if first else str(idx) + "." + str(i)
+            new_idx = str(i) if first else idx + "." + str(i)
             runners.append(pool.submit(install_dependency, dep_to_install.name, new_idx, dep_to_install, target))
         futures.wait(runners)
         for runner in runners:
