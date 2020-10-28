@@ -24,4 +24,4 @@ def cook():
             print("\n\033[31m ! Processing of",file,"failed for:",repr(ex),"\033[m")
             sys.exit(128)
         else:
-            print("\n=Compiled all documents successfully=") 
+            print("\n=Compiled all documents successfully=")

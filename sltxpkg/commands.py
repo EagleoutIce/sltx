@@ -77,7 +77,12 @@ def cmd_raw_compile():
         install_dependencies(target=texmf_home)
 
     cooker.cook()
-
+    # if no exception we went here compiling fine
+    if sg.configuration[sg.C_CLEANUP]:
+        sg.args.exclude_patterns = []
+        sg.args.cleanse_all = False
+        sg.args.cleanse_cache = False
+        cmd_cleanse()
 
 def cmd_compile():
     if(sg.configuration[C_USE_DOCKER]):
