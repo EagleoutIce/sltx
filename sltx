@@ -134,7 +134,7 @@ def autoload_config(path: str, name: str):
 autoload_config(DEFAULT_CONFIG, 'default')
 autoload_config(LOCAL_CONFIG, 'local')
 print()
-if not sg.args.files:
+if hasattr(sg.args, 'files') and not sg.args.files:
     print("Set default files to:", sg.configuration[sg.C_DEFAULT_FILES])
     sg.args.files = sg.configuration[sg.C_DEFAULT_FILES]
     if not sg.args.files:
