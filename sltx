@@ -61,14 +61,14 @@ commands2 = Commands({
                         help='additional dependency files to download before the installation. May be supplied multiple times.', required=False),
                     Arg('-a', '--args', action='append', metavar='ARGUMENT(S)', dest='extra_arguments', default=[],
                         help="Extra arguments. Make sure to prepend them with the appropriate '-' or '--', they will be used as extra_arguments in the recipe."),
-                    Arg('files', metavar='file.tex', type=str, nargs='+',
+                    Arg('files', metavar='file.tex', type=str, nargs='*',
                         help="the file(s) to load; they will be processed.")
     ]),
     'raw-compile': ((cmd_raw_compile, ['raw-cmp']), Arg(description="Compile documents using a recipe. This will not start any docker container but will be executed inside one as well."),
                     [
                         Arg('-r', '--recipe', dest='recipe',
                             help='The recipe to instruct the main compile routine.', required=False, default=None),
-                        Arg('files', metavar='file.tex', type=str, nargs='+',
+                        Arg('files', metavar='file.tex', type=str, nargs='*',
                             help="the file(s) to load; they will be processed."),
                         Arg('-a', '--args', action='append', metavar='ARGUMENT(S)', dest='extra_arguments', default=[],
                             help="Extra arguments. Make sure to prepend them with the appropriate '-' or '--', they will be used as extra_arguments in the recipe."),
@@ -103,7 +103,7 @@ parser.add_argument('-c', '--config', dest='config', metavar='config.yml',
 
 parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
                     help="number of threads to run the installation. Default is 1. This number will only affect some routines.",
-                    default=1)
+                    default=-1)
 
 
 # parser.add_argument('-n', '--no-archive', dest='no_archive', action='store_true',
@@ -134,6 +134,17 @@ def autoload_config(path: str, name: str):
 autoload_config(DEFAULT_CONFIG, 'default')
 autoload_config(LOCAL_CONFIG, 'local')
 print()
+if not sg.args.files:
+    print("Set default files to:", sg.configuration[sg.C_DEFAULT_FILES])
+    sg.args.files = sg.configuration[sg.C_DEFAULT_FILES]
+    if not sg.args.files:
+        print("Error: no files supplied")
+        exit(1)
+
+if sg.args.threads < 0:
+    print("Set default thread-count to:",
+          sg.configuration[sg.C_DEFAULT_THREADS])
+    sg.args.threads = sg.configuration[sg.C_DEFAULT_THREADS]
 
 if sg.args.config is not None:
     sc.load_configuration(sg.args.config)
@@ -144,8 +155,8 @@ try:
     # if not it searches through the list of aliasses and if it finds one it will use this
     # TODO: make this acceptable
     cmd = commands2.cmds[tc][0][0] if tc in commands2.cmds else commands2.cmds[[alias[0]
-                                                           for alias in commands2.cmds.items()
-                                                           if tc in alias[1][0][1]][0]][0][0]
+                                                                                for alias in commands2.cmds.items()
+                                                                                if tc in alias[1][0][1]][0]][0][0]
 except KeyError:
     print("The supplied command:", sg.args.command,
           "is unknown. Choose one of:", list(commands2.cmds.keys()))

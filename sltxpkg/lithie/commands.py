@@ -43,7 +43,7 @@ def compile():
     for dep in sg.args.extra_dependencies:
         # will extend the dict with 'new' ones
         # should work even better if sltx-source.yaml files are present in the targets
-        sltx_command += "--dependency \"" + dep + "\" " 
+        sltx_command += "--dependency \"" + dep + "\" "
 
     sltx_command += " ".join(['"' + f + '"' for f in sg.args.files])
 
