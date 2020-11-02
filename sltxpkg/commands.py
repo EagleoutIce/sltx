@@ -127,7 +127,7 @@ def cmd_cleanse():
     # Delete all current log files
     # TODO: make this dry. avoid specifying the log files signature multiple times (see Recipe)
     print("Cleaning local logs...")
-    clean_patterns = ['sltx-log-*.tar.gz', 'sltx-drivers.log']
+    clean_patterns = ['sltx-log-*.tar.gz', 'sltx-log-*.zip', 'sltx-drivers.log']
     for clean_pattern in clean_patterns:
         for f in Path(".").glob(clean_pattern):
             if should_be_excluded(str(f)):

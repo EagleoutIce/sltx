@@ -94,7 +94,7 @@ class Recipe():
     def __critical_abort(self, code: int):
         print_idx(self.idx, "Collecting files in working directory")
         archive = shutil.make_archive(os.path.join(
-            os.getcwd(), 'sltx-log-' + su.get_now()), 'gztar', self.__f("{out_dir}"))
+            os.getcwd(), 'sltx-log-' + su.get_now() + '-' + self.file.replace(' ','_')), 'zip', self.__f("{out_dir}"))
         print_idx(self.idx, "  - Created: \"" + archive +
                   "\" (" + os.path.basename(archive) + ")")
         # We have to force latexmk into think it has to re-run
