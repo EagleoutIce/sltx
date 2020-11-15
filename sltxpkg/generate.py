@@ -171,7 +171,7 @@ def generate():
     assure_workflow_target(target_path)
 
     document['name'] = prompt.get("Workflow name")
-    document['on'] = {'push': {'branches': ['master']}}
+    document['on'] = {'push': {'branches': ['master','main']}}
     document['jobs'] = {
         'build': {
             'runs-on': 'ubuntu-latest',
