@@ -29,6 +29,9 @@ def compile():
     profile = sg.configuration[sg.C_DOCKER_PROFILE] if sg.args.profile is None else sg.args.profile
     sltx_command = "sltx -t " + str(sg.args.threads) + " "
 
+    if sg.args.quiet:
+        sltx_command += "--quiet "
+
     if sg.args.config is not None:
         sltx_command += "--config \"" + sg.args.config + "\" "
 

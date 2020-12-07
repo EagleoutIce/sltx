@@ -105,10 +105,14 @@ parser.add_argument('-t', '--threads', metavar='N', dest='threads', type=int,
                     help="number of threads to run the installation. Default is 1. This number will only affect some routines.",
                     default=-1)
 
+parser.add_argument('-q', '--quiet', dest='quiet',
+                    required=False, action='store_true',
+                    help="Set the flag if output is to be reduced")
 
 # parser.add_argument('-n', '--no-archive', dest='no_archive', action='store_true',
 #                     help="If set, sltx won't create tar-balls in case of critical failures.")
 
+# TODO: Format support with mlatexformat?
 
 cmd_parser = parser.add_subparsers(
     title='command', description="Select the command for sltx", metavar=set(commands2.cmds.keys()),

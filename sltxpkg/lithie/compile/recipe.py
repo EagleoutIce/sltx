@@ -65,6 +65,8 @@ class Recipe():
 
     def __sanitize_extra_args(self):
         self.settings['extra_args'].extend(sg.args.extra_arguments)
+        if (sg.args.quiet):
+            self.settings['extra_args'].append('--quiet')
         self.settings['extra_args'] = " ".join(self.settings['extra_args'])
 
     @staticmethod
