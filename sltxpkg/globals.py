@@ -21,6 +21,7 @@ C_CACHE_DIR = 'cache_dir'
 # Use for auto-file
 C_DEFAULT_FILES = 'default_files'
 C_DEFAULT_THREADS = 'default_threads'
+C_DEFAULT_RECIPE = 'default_recipe'
 
 C_USE_DOCKER = "docker_use"
 C_DOCKER_PROFILE = "docker_profile"
@@ -33,6 +34,7 @@ configuration = {
     C_DOWNLOAD_DIR: "~/.sltx/download",
     C_CACHE_DIR: "~/.sltx/cache",
     C_DEFAULT_FILES: [],
+    C_DEFAULT_RECIPE: "default-latexmk.recipe",
     C_DRIVER_LOG: "sltx-drivers.log",
     C_DEFAULT_THREADS: 1,
     C_CREATE_DIRS: True,

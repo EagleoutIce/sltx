@@ -1,5 +1,5 @@
 # Recipe will be run for every file
-name: Default recipe (latexmk!)
+name: Default recipe but with compression (latexmk!)
 author: Florian Sihler
 hooks:
     pre: []
@@ -23,10 +23,11 @@ tools:
 # May contain 'glob'-Patterns
 wanted_files:
   - "{out_dir}/{file_base_noext}.pdf"
+  - "{out_dir}/{file_base_noext}-compressed.pdf"
 
 executable: latexmk
 
-# TODO: latexmk pretex
-# TODO latexmkrc if no ile is needed?
 run:
     - "{executable} {args} {extra_args} {file}"
+    # Compression:
+    - "gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -dAutoRotatePages=/None -sOutputFile=\"{out_dir}/{file_base_noext}-compressed.pdf\" \"{out_dir}/{file_base_noext}.pdf\""
