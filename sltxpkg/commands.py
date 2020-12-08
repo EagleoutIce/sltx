@@ -135,7 +135,7 @@ def cmd_cleanse():
             else:
                 f.unlink()
     if sg.args.cleanse_all:
-        thome = su.get_tex_home()
+        thome = su.get_sltx_tex_home()
         if os.path.isdir(thome):
             print("Cleaning sltx-texmf-tree... (" + thome + ")")
             shutil.rmtree(thome)
