@@ -29,41 +29,41 @@ C_DOCKER_PROFILE = "docker_profile"
 DOCKER_URL = "eagleoutice/lithie-{profile}"
 
 configuration = {
-    C_TEX_HOME: "{os_default_texmf}/tex/latex/sltx",
-    C_WORKING_DIR: "~/.sltx",
-    C_DOWNLOAD_DIR: "~/.sltx/download",
-    C_CACHE_DIR: "~/.sltx/cache",
-    C_DEFAULT_FILES: [],
-    C_DEFAULT_RECIPE: "default-latexmk.recipe",
-    C_DRIVER_LOG: "sltx-drivers.log",
-    C_DEFAULT_THREADS: 1,
-    C_CREATE_DIRS: True,
-    C_CLEANUP: True,
-    C_RECURSIVE: True,
-    C_INCLUDE_LOCAL_TEXMF: False,
-    C_FORMAT_MAX: 5, # Max formatting depth
-    C_USE_DOCKER: True,
-    C_DOCKER_PROFILE: 'tx-default',
-    C_AUTODETECT_DRIVERS: True,
-    # TODO maybe specific install routine instead of plain copy
-    C_DRIVERS: {
-        "git": {
-            "command": "git clone --depth 1 {args} \"{url}\" \"{download_dir}/{dep_name}\"",
-            "target-dir": "{download_dir}/{dep_name}",
-            "needs-delete": True  # if already exists
-            # TODO: maybe update routine?
-        }
-        # TODO: others
-    },
-    C_DRIVER_PATTERNS: {
-        "git": ["github", "gitlab"]
-    }
+	C_TEX_HOME: "{os_default_texmf}/tex/latex/sltx",
+	C_WORKING_DIR: "~/.sltx",
+	C_DOWNLOAD_DIR: "~/.sltx/download",
+	C_CACHE_DIR: "~/.sltx/cache",
+	C_DEFAULT_FILES: [],
+	C_DEFAULT_RECIPE: "default-latexmk.recipe",
+	C_DRIVER_LOG: "sltx-drivers.log",
+	C_DEFAULT_THREADS: 1,
+	C_CREATE_DIRS: True,
+	C_CLEANUP: True,
+	C_RECURSIVE: True,
+	C_INCLUDE_LOCAL_TEXMF: False,
+	C_FORMAT_MAX: 5, # Max formatting depth
+	C_USE_DOCKER: True,
+	C_DOCKER_PROFILE: 'tx-default',
+	C_AUTODETECT_DRIVERS: True,
+	# TODO maybe specific install routine instead of plain copy
+	C_DRIVERS: {
+		"git": {
+			"command": "git clone --depth 1 {args} \"{url}\" \"{download_dir}/{dep_name}\"",
+			"target-dir": "{download_dir}/{dep_name}",
+			"needs-delete": True  # if already exists
+			# TODO: maybe update routine?
+		}
+		# TODO: others
+	},
+	C_DRIVER_PATTERNS: {
+		"git": ["github", "gitlab"]
+	}
 }
 
 dependencies = {}
 
 def print_idx(idx : int, *objects, sep=' ', end='\n',pre='', file=sys.stdout, flush=False):
-    print(pre,"[ID " + str(idx) + "]", *objects, sep=sep, end=end, file=file, flush=flush)
+	print(pre,"[ID " + str(idx) + "]", *objects, sep=sep, end=end, file=file, flush=flush)
 
 # global arguments read in
 args = None
