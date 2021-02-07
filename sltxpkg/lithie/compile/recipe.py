@@ -134,7 +134,7 @@ class Recipe():
 
 		# Get the resulting file(s)
 		print_idx(self.idx, "> Retrieving resulting files to \"" + our_dir + "\"")
-		for wf in self.settings['wanted_files']:
+		for wf in self.settings['wanted_files'] + sg.configuration[sg.C_WANTED_FILES]:
 			wf = self.__f(wf)
 			print_idx(self.idx, "  - Retrieving files for pattern \"" + wf + "\"")
 			wanted = glob.glob(os.path.join(

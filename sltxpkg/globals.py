@@ -22,6 +22,7 @@ C_CACHE_DIR = 'cache_dir'
 C_DEFAULT_FILES = 'default_files'
 C_DEFAULT_THREADS = 'default_threads'
 C_DEFAULT_RECIPE = 'default_recipe'
+C_WANTED_FILES = 'extra_wanted_files'
 
 C_USE_DOCKER = "docker_use"
 C_DOCKER_PROFILE = "docker_profile"
@@ -44,6 +45,7 @@ configuration = {
 	C_FORMAT_MAX: 5, # Max formatting depth
 	C_USE_DOCKER: True,
 	C_DOCKER_PROFILE: 'tx-default',
+	C_WANTED_FILES: [],
 	C_AUTODETECT_DRIVERS: True,
 	# TODO maybe specific install routine instead of plain copy
 	C_DRIVERS: {
