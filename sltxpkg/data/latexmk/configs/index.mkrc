@@ -1,0 +1,2 @@
+# Line ending important.
+$makeindex = 'makeindex -s "$(dirname "$(kpsewhich --progname=pdflatex lecture-index.sty)")/lithie-indexfile.ist" -g %S'

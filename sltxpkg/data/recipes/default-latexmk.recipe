@@ -19,6 +19,7 @@ extra_args:
 # They will extend extra_args as well (bib for example will add -bibtex?)
 tools:
   - glossary
+  - index
 
 # May contain 'glob'-Patterns
 wanted_files:

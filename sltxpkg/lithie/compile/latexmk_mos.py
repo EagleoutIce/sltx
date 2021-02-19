@@ -33,6 +33,6 @@ def append_to_global_config(text : str, guard : str):
 			return
 
 	with open(file, mode) as f:
-		f.write(START_GUARD + "\n")
+		f.write("\n" + START_GUARD + "\n")
 		f.writelines(text)
 		f.write("# sltx END " + guard + "\n")
