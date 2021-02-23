@@ -1,2 +1,2 @@
 # Line ending important.
-$makeindex = 'f="$(dirname "$(kpsewhich --progname=pdflatex lecture-index.sty)")/lithie-indexfile.ist" test -f $f && (makeindex -s "$f" -g %S) || (makeindex %O -o %D %S)'
+$makeindex = 'f="$(dirname "$(kpsewhich --progname=pdflatex lecture-index.sty)")/lithie-indexfile.ist"; test -f "$f" && (makeindex -s "$f" -g %S) || (makeindex %O -o %D %S)'
