@@ -17,6 +17,7 @@ from sltxpkg.globals import (C_CLEANUP, C_CREATE_DIRS, C_DOWNLOAD_DIR,
 							 C_RECURSIVE, C_TEX_HOME, C_USE_DOCKER,
 							 C_WORKING_DIR, DEFAULT_CONFIG)
 from sltxpkg.lithie import commands as lithiecmd
+from sltxpkg.lithie.analyze.analyzer import Analyzer
 
 import sltxpkg.data
 
@@ -121,6 +122,11 @@ def cleanse_caches():
 	else:
 		print("No caches \"" + cache_dir + "\" were found. Skipping...")
 
+def cmd_analyze_logfile():
+
+	for i, file in enumerate(sg.args.files):
+		analyzer = Analyzer(file, i)
+		analyzer.analyze()
 
 def cmd_cleanse():
 	sc.assure_dirs()

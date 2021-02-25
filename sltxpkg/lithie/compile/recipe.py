@@ -106,7 +106,7 @@ class Recipe():
 		# on a successful run
 		with open(self.__f("{out_dir}/{file_base_noext}.aux"), 'a') as f:
 			f.write('%% sltx errormark' + str(random.random()) + " - " + str(random.random()))
-		raise rex.RecipeException(
+		raise rex.RecipeException(archive,
 			'Recipe for '+str(self.idx)+' failed with code: '+str(code)+'. See logfile: \"' + archive + "\"")
 
 	# Run the recipe
