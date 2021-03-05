@@ -2,6 +2,10 @@ import shutil
 import tempfile
 import glob
 import os.path
+import re
+
+ANALYZER_PATTERN = re.compile(
+    '^! |LaTeX error|Undefined control sequence|improper alph')
 
 
 class Analyzer():
@@ -21,10 +25,11 @@ class Analyzer():
             with open(templog) as tl:
                 offsetpr = 0
                 for line in tl.readlines():
-                    if line.startswith('!') or 'LaTeX error' in line:
-                        offsetpr = 4
+                    if re.search(ANALYZER_PATTERN, line):
+                        offsetpr = 6
+                        print('\033[38;5;64m', end='')
                     if offsetpr > 0:
-                        print(line,end='')
+                        print('    >', line, end='\033[m')
                         offsetpr -= 1
                         if offsetpr == 0:
-                            print("-------")
+                            print("\033[38;5;239m    # -------\033[m")
