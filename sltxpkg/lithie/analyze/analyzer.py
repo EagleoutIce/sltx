@@ -5,7 +5,7 @@ import os.path
 import re
 
 ANALYZER_PATTERN = re.compile(
-    '^! |LaTeX error|Undefined control sequence|improper alph|Incomplete \\\\if|Runaway preamble\\?|has an extra|Permission denied')
+    '^! |LaTeX error|Undefined control sequence|improper alph|Incomplete \\\\if|Runaway preamble\\?|has an extra|Permission denied|not loadable: Metric')
 
 
 class Analyzer():
