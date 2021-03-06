@@ -5,7 +5,7 @@ import os.path
 import re
 
 ANALYZER_PATTERN = re.compile(
-    '^! |LaTeX error|Undefined control sequence|improper alph|Incomplete \\\\if|Runaway preamble\\?|has an extra|Permission denied|not loadable: Metric')
+    '^! |LaTeX [Ee]rror|Undefined control sequence|improper alph|Incomplete \\\\if|Runaway preamble\\?|has an extra|Permission denied|not loadable: Metric')
 
 
 class Analyzer():
@@ -32,4 +32,4 @@ class Analyzer():
                         print('    >', line, end='\033[m')
                         offsetpr -= 1
                         if offsetpr == 0:
-                            print("\033[38;5;239m    # -------\033[m")
+                            print("\033[38;5;239m    # -------------------------------------\033[m")
