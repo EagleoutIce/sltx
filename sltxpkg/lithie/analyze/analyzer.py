@@ -5,7 +5,7 @@ import os.path
 import re
 
 ANALYZER_PATTERN = re.compile(
-    '^! |Error:|Undefined control sequence|improper alph|Incomplete \\\\if|Runaway preamble\\?|has an extra|Permission denied|not loadable: Metric|Extra alignment tab has been|Can\'t create output|too long|Runaway argument|al parameter number')
+    '^! |Error:|Undefined control sequence|improper alph|Incomplete \\\\if|Runaway preamble\\?|has an extra|Permission denied|not loadable: Metric|Extra alignment tab has been|Can\'t create output|too long|Runaway argument|al parameter number|Misplaced (alignment)?|doesn\'t match|Invalid UTF-8|forgotten \\\\end')
 ARCHIVE_PATTERN = re.compile('.*(\.tar(\.gz)?$|\.zip|\.7z)')
 
 ANALYZE_DIVIDER = "\033[38;5;247m    # -------------------------------------\033[m"
@@ -57,6 +57,7 @@ class Analyzer():
     def __analyze_folder(self, target: str):
         templogs = glob.glob(os.path.join(target, '*.log'))
         templogs.extend(glob.glob(os.path.join(target, '*.ilg')))
+        templogs.extend(glob.glob(os.path.join(target, '*.glg')))
         for templog in templogs:
             self.__analyze_file(templog)
 
