@@ -34,7 +34,10 @@ def compile():
     sc.assure_dirs()
     docker_ctrl = DockerCtrl()
     profile = sg.configuration[sg.C_DOCKER_PROFILE] if sg.args.profile is None else sg.args.profile
-    sltx_command = "sltx -t " + str(sg.args.threads) + " --log "
+    sltx_command = "sltx -t " + str(sg.args.threads) + " "
+
+    if sg.args.log:
+        sltx_command += "--log "
 
     if sg.args.quiet:
         sltx_command += "--quiet "

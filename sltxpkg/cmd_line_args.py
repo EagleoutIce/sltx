@@ -97,7 +97,7 @@ parser.add_argument('-q', '--quiet', dest='quiet',
 
 parser.add_argument('--log', dest='log',
                     required=False, action='store_true',
-                    help="Write to logfile. Will be set automatically if in docker-compile.")
+                    help="Write to logfile. This is experimental.")
 
 # parser.add_argument('-n', '--no-archive', dest='no_archive', action='store_true',
 #                     help="If set, sltx won't create tar-balls in case of critical failures.")
