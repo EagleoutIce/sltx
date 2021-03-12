@@ -8,7 +8,7 @@ from sltxpkg import util as su
 from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_DOWNLOAD_DIR, C_DRIVER_LOG, C_DRIVER_PATTERNS,
                              C_DRIVERS, C_TEX_HOME, C_WORKING_DIR, C_CACHE_DIR,
-                             DEFAULT_CONFIG)
+                             DEFAULT_CONFIG, LOGGER)
 
 
 def write_to_log(data: str):
@@ -32,10 +32,10 @@ def load_dependencies_config(file: str, target: dict):
 def _assure_dir(name: str, target_path: str, create: bool):
     if not os.path.isdir(target_path):
         if create:
-            print(">", name, ":", target_path, "not found. Creating...")
+            LOGGER.info("> %s: %s not found. Creating...", name, target_path)
             os.makedirs(target_path)
         else:
-            print("! Not allowed to create" + name + ". Exit")
+            LOGGER.error("! Not allowed to create " + name + ". Exit")
             sys.exit(1)
 
 

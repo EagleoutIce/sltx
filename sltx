@@ -14,9 +14,15 @@ from sltxpkg.command_config import Arg, Commands
 from sltxpkg.globals import DEFAULT_CONFIG, LOCAL_CONFIG
 
 
+from sltxpkg.commands import (cmd_auto_setup, cmd_cleanse, cmd_compile,
+                              cmd_dependency, cmd_docker, cmd_gen_gha,
+                              cmd_raw_compile, cmd_version, cmd_analyze_logfile)
+from sltxpkg.globals import DEFAULT_CONFIG, LOCAL_CONFIG, LOGGER, log_setfh
+
+
 def autoload_config(path: str, name: str):
     if os.path.isfile(path):
-        print(
+        LOGGER.info(
             "Automatically loading {name} config: '{path}'".format(**locals()))
         sc.load_configuration(path)
 
@@ -32,20 +38,26 @@ if (len(sys.argv) <= 1):
 
 sg.args = parser.parse_args()
 
+if sg.args.log:
+    log_setfh()
+
+if not sg.args.command:
+    parser.parse_args(['-h'])
 
 autoload_config(DEFAULT_CONFIG, 'default')
 autoload_config(LOCAL_CONFIG, 'local')
-print()
+
 if hasattr(sg.args, 'files') and not sg.args.files:
-    print("Set default files to:", sg.configuration[sg.C_DEFAULT_FILES])
+    LOGGER.info("Set default files to: " +
+                sg.configuration[sg.C_DEFAULT_FILES])
     sg.args.files = sg.configuration[sg.C_DEFAULT_FILES]
     if not sg.args.files:
-        print("Error: no files supplied")
+        LOGGER.error("No files supplied")
         exit(1)
 
 if sg.args.threads < 0:
-    print("Set default thread-count to:",
-          sg.configuration[sg.C_DEFAULT_THREADS])
+    LOGGER.info("Set default thread-count to: %d",
+                sg.configuration[sg.C_DEFAULT_THREADS])
     sg.args.threads = sg.configuration[sg.C_DEFAULT_THREADS]
 
 if sg.args.config is not None:
@@ -58,8 +70,8 @@ try:
     # TODO: make this acceptable
     cmd = sub_parser.cmds[tc if tc in sub_parser.cmds else retrieve_by_alias()]
 except KeyError:
-    print("The supplied command:", sg.args.command,
-          "is unknown. Choose one of:", list(sub_parser.cmds.keys()))
+    LOGGER.error("The supplied command: %s is unknown. Choose one of: %s",
+                 sg.args.command, list(sub_parser.cmds.keys()))
     exit(1)
 
 cmd[0][0]()

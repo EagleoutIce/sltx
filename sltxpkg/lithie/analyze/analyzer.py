@@ -56,7 +56,7 @@ class Analyzer():
 
     def __analyze_folder(self, target: str):
         templogs = []
-        for ext in ('*.log', '*.ilg', '*.glg', '*.alg', '*.blg'):
+        for ext in ('*.log', '*.ilg', '*.glg', '*.alg', '*.blg', '*.sltx-log'):
             templogs.extend(glob.glob(os.path.join(target, ext)))
         for templog in templogs:
             self.__analyze_file(templog)

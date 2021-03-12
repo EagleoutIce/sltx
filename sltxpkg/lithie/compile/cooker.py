@@ -19,11 +19,12 @@ def cook():
         try:
             for runner, i, file in runners:
                 if runner.result() is not None:
-                    print("Status for runner:", i, "operating on file:", file)
-                    print(runner.result())
+                    sg.LOGGER.info(
+                        "Status for runner: %d operating on file: %s", i, file)
+                    sg.LOGGER.info(runner.result())
         except rex.RecipeException as ex:
             print("\n\033[31m ! Processing of", file,
                   "failed for:", repr(ex), "\033[m")
             sys.exit(128)
         else:
-            print("\n=Compiled all documents successfully=")
+            sg.LOGGER.info("\n=Compiled all documents successfully=")
