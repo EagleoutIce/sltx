@@ -150,7 +150,8 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, targe
         recursive_dependencies(idx, driver_target_dir, data, dep_name, target)
 
     if return_code != 0:
-        print_idx(idx, " ! Driver failed with code" + feedback + "exiting.")
+        print_idx(idx, " ! Driver failed with code" +
+                  str(feedback) + "exiting.")
         sys.exit(return_code)
 
     grab_stuff(idx, dep_name, driver_target_dir, data, target)
@@ -171,7 +172,7 @@ def install_dependency(name: str, idx: str, data: dict, target: str):
     print_idx(idx, " - Using driver: \"" + driver + "\"")
 
     if name in loaded:
-        print_idx(idx, " > Skipping retrieval" + name +
+        print_idx(idx, " > Skipping retrieval " + name +
                   " as it was already loaded by another dep.")
         grab_stuff(idx, name, get_target_dir(data, name, driver), data, target)
         return
