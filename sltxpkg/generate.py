@@ -85,7 +85,6 @@ def step_setup_sltx(document: dict) -> str:
     target_profile = prompt.get(
         "Profile [{default}]", default=sg.configuration[sg.C_DOCKER_PROFILE]).lower()
 
-    # TODO: we need a option for additional dependencies
     setup_lines = "echo \"" + target_profile + "\" | sltx docker"
 
     add_step(document,

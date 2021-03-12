@@ -47,7 +47,6 @@ configuration = {
     C_DOCKER_PROFILE: 'tx-default',
     C_WANTED_FILES: [],
     C_AUTODETECT_DRIVERS: True,
-    # TODO maybe specific install routine instead of plain copy
     C_DRIVERS: {
         "git": {
                 "command": "git clone --depth 1 {args} \"{url}\" \"{download_dir}/{dep_name}\"",
@@ -55,7 +54,6 @@ configuration = {
             "needs-delete": True  # if already exists
             # TODO: maybe update routine?
         }
-        # TODO: others
     },
     C_DRIVER_PATTERNS: {
         "git": ["github", "gitlab"]

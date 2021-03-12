@@ -17,7 +17,6 @@ from importlib_resources import files
 from sltxpkg.globals import print_idx
 
 # TODO: in case of error pack the directory with tar and ship it to the folder
-# TODO: show the log dump (like jake)
 
 
 class Recipe():
