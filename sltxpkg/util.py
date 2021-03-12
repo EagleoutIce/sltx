@@ -39,7 +39,7 @@ def file_contains(path: str, txt: str):
         return s.find(txt.encode('utf-8')) != -1
 
 
-def get_now():
+def get_now() -> str:
     return strftime("%Y-%m-%d__%H-%M-%S", localtime())
 
 
@@ -62,5 +62,5 @@ def get_sltx_tex_home() -> str:
 # For compile
 
 
-def sanitize_filename(text: str):
+def sanitize_filename(text: str) -> str:
     return re.sub('[^a-zA-Z0-9\-_]', '_', text)
