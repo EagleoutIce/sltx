@@ -4,5 +4,6 @@
         "rfind",
         "sltx",
         "sltxpkg"
-    ]
+    ],
+    "editor.formatOnSave": true
 }

@@ -19,8 +19,8 @@ class Analyzer():
 
     def __unpack_or_cp(self) -> str:
         if(re.match(ARCHIVE_PATTERN, self.file)):
-            print("\033[38;5;31m"+self.file.replace(os.getcwd(),
-                                               '\033[38;5;247m[cwd]\033[38;5;31m') + "\033[m")
+            print("\033[38;5;31m" + self.file.replace(os.getcwd(),
+                                                      '\033[38;5;247m[cwd]\033[38;5;31m') + "\033[m")
             target = tempfile.TemporaryDirectory(prefix='sltx-ua-log').name
             shutil.unpack_archive(self.file, extract_dir=target)
             return target
