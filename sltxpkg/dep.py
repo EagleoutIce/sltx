@@ -49,7 +49,7 @@ def grab_from(idx: str, path: str, data: dict, target: str, key: str, grabber) -
     # TODO: rel path for files?
     # extra so i can setup installer afterwards more easily
     print_idx(idx, " > Grabbing the follwing for installation: "
-              + [os.path.relpath(f[0], path) for f in grabs])
+              + str([os.path.relpath(f[0], path) for f in grabs]))
     for grab in grabs:
         grabber(grab, target, path)
     return True
@@ -113,7 +113,7 @@ def recursive_dependencies(idx: str, driver_target_dir: str, data: dict, dep_nam
         data['dep'] = sg.DEFAULT_DEPENDENCY
     dep_files = glob.glob(os.path.join(
         driver_target_dir, data['dep']), recursive=True)
-    print_idx(idx, " - Found dep-config: " + dep_files)
+    print_idx(idx, " - Found dep-config: " + str(dep_files))
 
     if len(dep_files) <= 0:
         return
@@ -212,7 +212,7 @@ def install_dependencies(target: str = su.get_sltx_tex_home()):
     if sg.configuration[C_CLEANUP]:
         LOGGER.info("> Cleaning up the download directory, as set.")
         shutil.rmtree(sg.configuration[C_DOWNLOAD_DIR])
-    LOGGER.info("Loaded: " + dep.loaded)
+    LOGGER.info("Loaded: " + str(dep.loaded))
     if not sg.configuration[C_RECURSIVE]:
         LOGGER.info("Recursion was disabled.")
     LOGGER.info("Dependency installation for %s completed.",
