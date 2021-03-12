@@ -5,7 +5,7 @@ import yaml
 from yaml.representer import SafeRepresenter
 
 import sltxpkg.globals as sg
-from sltxpkg.globals import C_TEX_HOME
+from sltxpkg.globals import C_TEX_HOME, LOGGER
 
 # https://stackoverflow.com/a/20863889
 
@@ -28,20 +28,21 @@ yaml.add_representer(YamlBlock, represent_literal_str)
 
 def assure_workflow_target(path: str):
     if os.path.isfile(path):
-        print("A workflow-file with the given name does already exist!")
+        LOGGER.info("A workflow-file with the given name does already exist!")
         overwrite = prompt.get_bool(default=False)
         if not overwrite:
-            print("Aborting...")
+            LOGGER.error("Aborting...")
             exit(1)
     basepath = os.path.dirname(path)
     if basepath is None or basepath.strip() == "":
         return
 
     if not os.path.isdir(basepath):
-        print("The directory", basepath, "does not exist. should it be created?")
+        LOGGER.info(
+            "The directory %s does not exist. should it be created?", basepath)
         create = prompt.get_bool(default=True)
         if not create:
-            print("Aborting...")
+            LOGGER.error("Aborting...")
             exit(1)
         os.makedirs(basepath)
 
@@ -81,7 +82,8 @@ def step_setup_python(document: dict):
 def step_setup_sltx(document: dict) -> str:
     # tODO get them with 'docker search' # TODO dry
     valid_profiles = ['tx-small', 'tx-default', 'tx-full']
-    print("Please enter the profile you want for sltx. Valid names are:", valid_profiles)
+    LOGGER.info(
+        "Please enter the profile you want for sltx. Valid names are: " + valid_profiles)
     target_profile = prompt.get(
         "Profile [{default}]", default=sg.configuration[sg.C_DOCKER_PROFILE]).lower()
 
@@ -165,7 +167,7 @@ def step_commit_and_push(document: dict, files: list):
 def generate():
     document = {}
 
-    print("We will now generate a GitHub-Action workflow")
+    LOGGER.info("We will now generate a GitHub-Action workflow")
     target_path = prompt.get(
         "Workflow-Path [{default}]", default=".github/workflows/compile.yaml")
     assure_workflow_target(target_path)
@@ -185,10 +187,10 @@ def generate():
     files = step_compile(document, profile)
     step_commit_and_push(document, files)
 
-    print("Ok, I will write the file now...")
+    LOGGER.info("Ok, I will write the file now...")
     with open(target_path, 'tw') as f:
         # We will disable this to get name on top and have no sorting
         stream = yaml.dump(document, default_flow_style=False, sort_keys=False)
         # formatting a little bit?
         f.write(stream.replace('jobs:', '\njobs:'))
-    print("File written to \"" + target_path + "\". Job completed.")
+    LOGGER.info("File written to \"" + target_path + "\". Job completed.")

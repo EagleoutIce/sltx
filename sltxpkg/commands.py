@@ -15,7 +15,7 @@ from sltxpkg.dep import install_dependencies
 from sltxpkg.globals import (C_CLEANUP, C_CREATE_DIRS, C_DOWNLOAD_DIR,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_RECURSIVE, C_TEX_HOME, C_USE_DOCKER,
-                             C_WORKING_DIR, DEFAULT_CONFIG)
+                             C_WORKING_DIR, DEFAULT_CONFIG, LOGGER)
 from sltxpkg.lithie import commands as lithiecmd
 from sltxpkg.lithie.analyze.analyzer import Analyzer
 
@@ -38,7 +38,7 @@ def cmd_auto_setup():
 
 def cmd_dependency():
     if sg.args.deps is None or len(sg.args.deps) == 0:
-        print("You must supply a dependency 'file'.")
+        LOGGER.error("You must supply a dependency 'file'.")
         exit(1)
 
     for dep in sg.args.deps:
@@ -53,13 +53,13 @@ def cmd_dependency():
 
 
 def cmd_version():
-    print("This is sltx, a simple latex helper-utility")
-    print("Tex-Home:", su.get_tex_home())
-    print("Default config location:", su.get_default_conf(),
-          "(present:", str(os.path.isfile(su.get_default_conf()))+")")
-    print("Local config location:", su.get_local_conf(),
-          "(present:", str(os.path.isfile(su.get_local_conf()))+")")
-    print("Version:", su.get_version())
+    LOGGER.info("This is sltx, a simple latex helper-utility")
+    LOGGER.info("Tex-Home: " + su.get_tex_home())
+    LOGGER.info("Default config location: %s (present: %s)",
+                su.get_default_conf(), str(os.path.isfile(su.get_default_conf())))
+    LOGGER.info("Local config location: %s (present: %s)",
+                su.get_local_conf(), str(os.path.isfile(su.get_local_conf())))
+    LOGGER.info("Version: " + su.get_version())
 
 
 def cmd_docker():
@@ -75,7 +75,7 @@ def cmd_raw_compile():
     # i know just writing withut len is more pythonic but i like it more if it is explicit
     if len(sg.args.extra_dependencies) > 0:
         texmf_home = su.get_tex_home()
-        print("Insalling additional dependencies.")
+        LOGGER.info("Insalling additional dependencies.")
         assure_dirs()
         install_dependencies(target=texmf_home)
 
@@ -90,10 +90,10 @@ def cmd_raw_compile():
 
 def cmd_compile():
     if(sg.configuration[C_USE_DOCKER]):
-        print("Using docker to compile")
+        LOGGER.info("Using docker to compile")
         lithiecmd.compile()
     else:
-        print("Docker was disabled, using local compilation.")
+        LOGGER.info("Docker was disabled, using local compilation.")
         cmd_raw_compile()
 
 
@@ -115,7 +115,7 @@ def cleanse_caches():
     # TODO: clean up .latexmkrc entries; not the whole file
     cache_dir = sg.configuration[sg.C_CACHE_DIR]
     if os.path.isdir(cache_dir):
-        print("Cleaning all the caches... (" + cache_dir + ")")
+        LOGGER.info("Cleaning all the caches... (" + cache_dir + ")")
         # avoids deleting the cache dir itself
         for root, dirs, files in os.walk(cache_dir):
             for name in files:
@@ -123,7 +123,8 @@ def cleanse_caches():
             for name in dirs:
                 shutil.rmtree(os.path.join(root, name))
     else:
-        print("No caches \"" + cache_dir + "\" were found. Skipping...")
+        LOGGER.warning("No caches \"" + cache_dir +
+                       "\" were found. Skipping...")
 
 
 def cmd_analyze_logfile():
@@ -137,23 +138,23 @@ def cmd_cleanse():
     sc.assure_dirs()
     # Delete all current log files
     # TODO: make this dry. avoid specifying the log files signature multiple times (see Recipe)
-    print("Cleaning local logs...")
+    LOGGER.info("Cleaning local logs...")
     clean_patterns = ['sltx-log-*.tar.gz',
-                      'sltx-log-*.zip', 'sltx-drivers.log']
+                      'sltx-log-*.zip', 'sltx-drivers.log', '*.sltx-log']
     for clean_pattern in clean_patterns:
         for f in Path(".").glob(clean_pattern):
             if should_be_excluded(str(f)):
-                print("File", f, "excluded.")
+                LOGGER.info("File " + f + " excluded.")
             else:
                 f.unlink()
     if sg.args.cleanse_all:
         thome = su.get_sltx_tex_home()
         if os.path.isdir(thome):
-            print("Cleaning sltx-texmf-tree... (" + thome + ")")
+            LOGGER.error("Cleaning sltx-texmf-tree... (" + thome + ")")
             shutil.rmtree(thome)
         else:
-            print("The local sltx-texmf tree in \"" +
-                  thome + "\" was not found. Skipping...")
+            LOGGER.warning("The local sltx-texmf tree in \"" +
+                           thome + "\" was not found. Skipping...")
 
     if sg.args.cleanse_all or sg.args.cleanse_cache:
         cleanse_caches()

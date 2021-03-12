@@ -3,6 +3,7 @@ from sys import platform
 import os
 import sltxpkg.data.latexmk.configs
 import sltxpkg.util as su
+from sltxpkg.globals import LOGGER
 
 # We have to configure latexmk configuration-files os-dependent
 # NOTE: no cygwin support
@@ -33,8 +34,8 @@ def append_to_global_config(text: str, guard: str):
     mode = 'a'
 
     if os.path.isfile(file) and su.file_contains(file, START_GUARD):
-        print("Global latexmk config already contains config for",
-              guard + ". Skipping.")
+        LOGGER.info(
+            "Global latexmk config already contains config for %s. Skipping.", guard)
         return
 
     with open(file, mode) as f:

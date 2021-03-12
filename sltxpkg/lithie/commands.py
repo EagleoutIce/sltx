@@ -13,7 +13,8 @@ def install():
         "Profile [{default}]", default=sg.configuration[sg.C_DOCKER_PROFILE]).lower()
     # TODO: do not exit, try anyway
     if target not in valid_profiles:
-        print(target, "was not found in", valid_profiles, "exiting for now")
+        sg.LOGGER.error("%s was not found in %s exiting for now",
+                        valid_profiles, target)
         exit(1)
 
     _install(target)
@@ -33,7 +34,7 @@ def compile():
     sc.assure_dirs()
     docker_ctrl = DockerCtrl()
     profile = sg.configuration[sg.C_DOCKER_PROFILE] if sg.args.profile is None else sg.args.profile
-    sltx_command = "sltx -t " + str(sg.args.threads) + " "
+    sltx_command = "sltx -t " + str(sg.args.threads) + " --log "
 
     if sg.args.quiet:
         sltx_command += "--quiet "
@@ -56,5 +57,5 @@ def compile():
 
     sltx_command += " ".join(['"' + f + '"' for f in sg.args.files])
 
-    print("Running command in docker: " + sltx_command)
+    sg.LOGGER.info("Running command in docker: " + sltx_command)
     docker_ctrl.run_in_container(sg.args.dock_as_root, profile, sltx_command)

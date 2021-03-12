@@ -12,7 +12,7 @@ from sltxpkg.config import load_dependencies_config, write_to_log
 from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_RECURSIVE, C_TEX_HOME, C_DOWNLOAD_DIR,
-                             DEFAULT_CONFIG, print_idx)
+                             DEFAULT_CONFIG, print_idx, LOGGER)
 import sltxpkg.util as su
 from sltxpkg import dep
 
@@ -64,7 +64,7 @@ def f_grab_files(data: (str, str), target: str, path: str):
 
 def f_grab_dirs(data: (str, str), target: str, path: str):
     if sys.version_info < (3, 8, 0):
-        print("Python version below 3.8, falling back with distutils!")
+        LOGGER.info("Python version below 3.8, falling back with distutils!")
         import distutils.dir_util as du
 
     # only choose relative path
@@ -193,28 +193,27 @@ def _install_dependencies(idx: int, dep_dict: dict, target: str, first: bool = F
         futures.wait(runners)
         for runner in runners:
             if runner.result() is not None:
-                print(runner.result())
+                LOGGER.info(runner.result())
 
 
 def install_dependencies(target: str = su.get_sltx_tex_home()):
     if "target" not in sg.dependencies or "dependencies" not in sg.dependencies:
-        print("The dependency-file must supply a 'target' and an 'dependencies' key!")
+        LOGGER.error(
+            "The dependency-file must supply a 'target' and an 'dependencies' key!")
         sys.exit(1)
 
     write_to_log("====Dependencies for:" + sg.dependencies["target"]+"\n")
-    print()
-    print("Dependencies for:", sg.dependencies["target"])
-    print("Installing to:", target)
-    print()
+    LOGGER.info("\nDependencies for: " + sg.dependencies["target"])
+    LOGGER.info("Installing to: %s\n", target)
 
     _install_dependencies(0, sg.dependencies, target, first=True)
 
     # all installed
     if sg.configuration[C_CLEANUP]:
-        print("> Cleaning up the download directory, as set.")
+        LOGGER.info("> Cleaning up the download directory, as set.")
         shutil.rmtree(sg.configuration[C_DOWNLOAD_DIR])
-    print("Loaded:", dep.loaded)
+    LOGGER.info("Loaded: " + dep.loaded)
     if not sg.configuration[C_RECURSIVE]:
-        print("Recursion was disabled.")
-    print("Dependency installation for",
-          sg.dependencies["target"], "completed.")
+        LOGGER.info("Recursion was disabled.")
+    LOGGER.info("Dependency installation for %s completed.",
+                sg.dependencies["target"])

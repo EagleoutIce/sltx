@@ -5,7 +5,7 @@ import sys
 
 import docker
 import sltxpkg.globals as sg
-from sltxpkg.globals import DOCKER_URL
+from sltxpkg.globals import DOCKER_URL, LOGGER
 import sltxpkg.util as su
 
 
@@ -16,7 +16,7 @@ class DockerCtrl:
 
     def update_img(self, profile: str):
         target = DOCKER_URL.format(**locals())
-        print("Pulling image:", target, "this may take a few minutes")
+        LOGGER.info("Pulling image: %s this may take a few minutes", target)
         for line in self.client.api.pull(target, tag='latest', stream=True):
             # default values
             line = line.decode('utf-8')
@@ -26,7 +26,7 @@ class DockerCtrl:
                     continue
                 d = {'status': 'unknown', 'progress': '', 'id': ''}
                 d = {**d, **json.loads(subline)}
-                print("   {status} {progress} {id}".format(**d))
+                LOGGER.info("   {status} {progress} {id}".format(**d))
     # tODO: autocache name with unique path needs to use real file name not docker!!
 
     def run_in_container(self, root: bool, profile: str, command: str):
@@ -34,16 +34,17 @@ class DockerCtrl:
             target = profile[1:]
         else:
             target = DOCKER_URL.format(**locals())
-        print("Launching container based on image:", target)
+        LOGGER.info("Launching container based on image: " + target)
         if root:
-            print(
-                "Using root configuration. This might lead to permission errors in the future.", target)
+            LOGGER.warning(
+                "Using root configuration. This might lead to permission errors in the future. " + target)
         # TODO: this must be expanded better and safer, this way only '~' might be used which is bad
         wd = sg.configuration[sg.C_WORKING_DIR].replace(
             os.path.expanduser('~'), '/root')
-        print("  - Note: Working-Dir bound to:", wd,
-              "for", sg.configuration[sg.C_WORKING_DIR])
-        print("  - Note: Main-Dir bound to: /root/data for", os.getcwd())
+        LOGGER.info("  - Note: Working-Dir bound to: %s for %s",
+                    wd, sg.configuration[sg.C_WORKING_DIR])
+        LOGGER.info(
+            "  - Note: Main-Dir bound to: /root/data for " + os.getcwd())
         volumes = {
             os.getcwd(): {
                 'bind': '/root/data',
@@ -56,8 +57,8 @@ class DockerCtrl:
         }
         if sg.args.local_texmf:
             target_mount = "/usr/share/sltx/texmf"
-            print("  - Note: Mounting local txmf-tree (" +
-                  su.get_tex_home() + ") to", target_mount)
+            LOGGER.info("  - Note: Mounting local txmf-tree (%s) to %s",
+                        su.get_tex_home(), target_mount)
             volumes[su.get_tex_home()] = {
                 'bind': target_mount,
                 'mount': 'rw'
@@ -71,13 +72,13 @@ class DockerCtrl:
         buffer = b''
         for l in run.logs(stdout=True, stderr=True, stream=True, timestamps=True):
             try:
-                print((buffer + l).decode('utf-8'), end='')
+                LOGGER.info((buffer + l).decode('utf-8').rstrip())
                 buffer = b''
             except UnicodeDecodeError as ex:
                 buffer += l
-        print("Container completed.")
+        LOGGER.info("Container completed.")
         feedback = run.wait()
         if 'StatusCode' in feedback and feedback['StatusCode'] != 0:
             code = feedback['StatusCode']
-            print("Command failed with:", code)
+            LOGGER.error("Command failed with: " + code)
             sys.exit(code)

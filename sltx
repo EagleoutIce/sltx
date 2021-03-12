@@ -23,7 +23,7 @@ from sltxpkg import globals as sg
 from sltxpkg.commands import (cmd_auto_setup, cmd_cleanse, cmd_compile,
                               cmd_dependency, cmd_docker, cmd_gen_gha,
                               cmd_raw_compile, cmd_version, cmd_analyze_logfile)
-from sltxpkg.globals import DEFAULT_CONFIG, LOCAL_CONFIG
+from sltxpkg.globals import DEFAULT_CONFIG, LOCAL_CONFIG, LOGGER, log_setfh
 
 
 def valid_file(arg: str) -> str:
@@ -114,6 +114,10 @@ parser.add_argument('-q', '--quiet', dest='quiet',
                     required=False, action='store_true',
                     help="Set the flag if output is to be reduced")
 
+parser.add_argument('--log', dest='log',
+                    required=False, action='store_true',
+                    help="Write to logfile. Will be set automatically if in docker-compile.")
+
 # parser.add_argument('-n', '--no-archive', dest='no_archive', action='store_true',
 #                     help="If set, sltx won't create tar-balls in case of critical failures.")
 
@@ -132,27 +136,34 @@ if (len(sys.argv) <= 1):
 
 sg.args = parser.parse_args()
 
+if sg.args.log:
+    log_setfh()
+
+if not sg.args.command:
+    parser.parse_args(['-h'])
+
 
 def autoload_config(path: str, name: str):
     if os.path.isfile(path):
-        print(
+        LOGGER.info(
             "Automatically loading {name} config: '{path}'".format(**locals()))
         sc.load_configuration(path)
 
 
 autoload_config(DEFAULT_CONFIG, 'default')
 autoload_config(LOCAL_CONFIG, 'local')
-print()
+
 if hasattr(sg.args, 'files') and not sg.args.files:
-    print("Set default files to:", sg.configuration[sg.C_DEFAULT_FILES])
+    LOGGER.info("Set default files to: " +
+                sg.configuration[sg.C_DEFAULT_FILES])
     sg.args.files = sg.configuration[sg.C_DEFAULT_FILES]
     if not sg.args.files:
-        print("Error: no files supplied")
+        LOGGER.error("No files supplied")
         exit(1)
 
 if sg.args.threads < 0:
-    print("Set default thread-count to:",
-          sg.configuration[sg.C_DEFAULT_THREADS])
+    LOGGER.info("Set default thread-count to: %d",
+                sg.configuration[sg.C_DEFAULT_THREADS])
     sg.args.threads = sg.configuration[sg.C_DEFAULT_THREADS]
 
 if sg.args.config is not None:
@@ -167,8 +178,8 @@ try:
                                                                                 for alias in commands2.cmds.items()
                                                                                 if tc in alias[1][0][1]][0]][0][0]
 except KeyError:
-    print("The supplied command:", sg.args.command,
-          "is unknown. Choose one of:", list(commands2.cmds.keys()))
+    LOGGER.error("The supplied command: %s is unknown. Choose one of: %s",
+                 sg.args.command, list(commands2.cmds.keys()))
     exit(1)
 
 cmd()
