@@ -127,7 +127,6 @@ def cleanse_caches():
 
 
 def cmd_analyze_logfile():
-
     for i, file in enumerate(sg.args.files):
         analyzer = Analyzer(file, i)
         analyzer.analyze()

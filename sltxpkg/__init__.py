@@ -6,3 +6,4 @@ import sltxpkg.util
 import sltxpkg.commands
 import sltxpkg.prompt
 import sltxpkg.command_config
+import sltxpkg.cmd_line_args
