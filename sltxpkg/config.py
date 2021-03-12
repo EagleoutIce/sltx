@@ -8,7 +8,8 @@ from sltxpkg import util as su
 from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_DOWNLOAD_DIR, C_DRIVER_LOG, C_DRIVER_PATTERNS,
                              C_DRIVERS, C_TEX_HOME, C_WORKING_DIR, C_CACHE_DIR,
-                             DEFAULT_CONFIG, LOGGER)
+                             DEFAULT_CONFIG)
+from sltxpkg.log_control import LOGGER
 
 
 def write_to_log(data: str):

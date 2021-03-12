@@ -14,7 +14,8 @@ from sltxpkg.config import load_dependencies_config, write_to_log
 from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
                              C_DOWNLOAD_DIR, C_DRIVER_LOG, C_DRIVER_PATTERNS,
                              C_DRIVERS, C_RECURSIVE, C_TEX_HOME,
-                             DEFAULT_CONFIG, LOGGER, print_idx)
+                             DEFAULT_CONFIG, print_idx)
+from sltxpkg.log_control import LOGGER
 
 loaded = []
 

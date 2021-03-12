@@ -1,26 +1,4 @@
-from datetime import datetime
-import logging.config
-import sys
-import logging
-
-LOG_STR_LONG = '%(asctime)s [%(levelname)-8s@%(filename)-10s;%(lineno)-4d] %(message)s'
-LOG_STR = '%(message)s'
-
-# We keep only one logger as a beginning
-logging.basicConfig(format=LOG_STR, datefmt='%Y-%m-%d %H:%M:%S')
-
-
-def log_setfh():
-    sltx_log_file_handler = logging.FileHandler(
-        'sltx-{:%Y-%m-%d-%H-%M-%S-%f}.sltx-log'.format(datetime.now()))
-    formatter = logging.Formatter(LOG_STR)
-    sltx_log_file_handler.setFormatter(formatter)
-    LOGGER.addHandler(sltx_log_file_handler)
-
-
-LOGGER = logging.getLogger('sltx')
-LOGGER.setLevel(logging.DEBUG)
-
+from sltxpkg.log_control import LOGGER
 
 DEFAULT_CONFIG = "~/.sltx-config.yml"
 LOCAL_CONFIG = "./sltx-config.yml"

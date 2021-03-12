@@ -5,8 +5,9 @@ import sys
 
 import docker
 import sltxpkg.globals as sg
-from sltxpkg.globals import DOCKER_URL, LOGGER
+from sltxpkg.globals import DOCKER_URL
 import sltxpkg.util as su
+from sltxpkg.log_control import LOGGER
 
 
 class DockerCtrl:
@@ -72,7 +73,7 @@ class DockerCtrl:
         buffer = b''
         for l in run.logs(stdout=True, stderr=True, stream=True, timestamps=True):
             try:
-                LOGGER.info((buffer + l).decode('utf-8').rstrip())
+                LOGGER.info('\u0001'+(buffer + l).decode('utf-8'))
                 buffer = b''
             except UnicodeDecodeError as ex:
                 buffer += l
@@ -80,5 +81,5 @@ class DockerCtrl:
         feedback = run.wait()
         if 'StatusCode' in feedback and feedback['StatusCode'] != 0:
             code = feedback['StatusCode']
-            LOGGER.error("Command failed with: " + code)
+            LOGGER.error("Command failed with: " + str(code))
             sys.exit(code)

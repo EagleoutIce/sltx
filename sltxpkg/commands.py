@@ -15,9 +15,10 @@ from sltxpkg.dep import install_dependencies
 from sltxpkg.globals import (C_CLEANUP, C_CREATE_DIRS, C_DOWNLOAD_DIR,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_RECURSIVE, C_TEX_HOME, C_USE_DOCKER,
-                             C_WORKING_DIR, DEFAULT_CONFIG, LOGGER)
+                             C_WORKING_DIR, DEFAULT_CONFIG)
 from sltxpkg.lithie import commands as lithiecmd
 from sltxpkg.lithie.analyze.analyzer import Analyzer
+from sltxpkg.log_control import LOGGER
 
 import sltxpkg.data
 

@@ -5,7 +5,8 @@ import yaml
 from yaml.representer import SafeRepresenter
 
 import sltxpkg.globals as sg
-from sltxpkg.globals import C_TEX_HOME, LOGGER
+from sltxpkg.globals import C_TEX_HOME
+from sltxpkg.log_control import LOGGER
 
 # https://stackoverflow.com/a/20863889
 
