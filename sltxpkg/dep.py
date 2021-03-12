@@ -4,17 +4,17 @@ import re
 import shutil
 import sys
 from concurrent import futures
-from subprocess import PIPE, Popen  # execution
 from pathlib import Path
+from subprocess import PIPE, Popen  # execution
 
 import sltxpkg.globals as sg
-from sltxpkg.config import load_dependencies_config, write_to_log
-from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
-                             C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
-                             C_RECURSIVE, C_TEX_HOME, C_DOWNLOAD_DIR,
-                             DEFAULT_CONFIG, print_idx, LOGGER)
 import sltxpkg.util as su
 from sltxpkg import dep
+from sltxpkg.config import load_dependencies_config, write_to_log
+from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_CREATE_DIRS,
+                             C_DOWNLOAD_DIR, C_DRIVER_LOG, C_DRIVER_PATTERNS,
+                             C_DRIVERS, C_RECURSIVE, C_TEX_HOME,
+                             DEFAULT_CONFIG, LOGGER, print_idx)
 
 loaded = []
 
@@ -48,8 +48,8 @@ def grab_from(idx: str, path: str, data: dict, target: str, key: str, grabber) -
 
     # TODO: rel path for files?
     # extra so i can setup installer afterwards more easily
-    print_idx(idx, " > Grabbing the follwing for installation:",
-              [os.path.relpath(f[0], path) for f in grabs])
+    print_idx(idx, " > Grabbing the follwing for installation: "
+              + [os.path.relpath(f[0], path) for f in grabs])
     for grab in grabs:
         grabber(grab, target, path)
     return True
@@ -113,7 +113,7 @@ def recursive_dependencies(idx: str, driver_target_dir: str, data: dict, dep_nam
         data['dep'] = sg.DEFAULT_DEPENDENCY
     dep_files = glob.glob(os.path.join(
         driver_target_dir, data['dep']), recursive=True)
-    print_idx(idx, " - Found dep-config:", dep_files)
+    print_idx(idx, " - Found dep-config: " + dep_files)
 
     if len(dep_files) <= 0:
         return
@@ -134,10 +134,10 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, targe
         **data, **sg.configuration, dep_name=dep_name)
     driver_target_dir = get_target_dir(data, dep_name, driver)
     if os.path.isdir(driver_target_dir) and driver_data["needs-delete"]:
-        print_idx(idx, " - Target folder", driver_target_dir,
+        print_idx(idx, " - Target folder " + driver_target_dir +
                   "exists. Will be deleted as the driver needs this")
         shutil.rmtree(driver_target_dir)
-    print_idx(idx, " > Executing:", command)
+    print_idx(idx, " > Executing: " + command)
     feedback = Popen(command, stdout=PIPE, stderr=PIPE, shell=True)
     return_code = feedback.wait()
     write_proc_to_log(idx, feedback.stdout, False)
@@ -149,7 +149,7 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, url: str, targe
         recursive_dependencies(idx, driver_target_dir, data, dep_name, target)
 
     if return_code != 0:
-        print_idx(idx, " ! Driver failed with code", feedback, "exiting.")
+        print_idx(idx, " ! Driver failed with code" + feedback + "exiting.")
         sys.exit(return_code)
 
     grab_stuff(idx, dep_name, driver_target_dir, data, target)
@@ -170,14 +170,14 @@ def install_dependency(name: str, idx: str, data: dict, target: str):
     print_idx(idx, " - Using driver: \"" + driver + "\"")
 
     if name in loaded:
-        print_idx(idx, " > Skipping retrieval", name,
+        print_idx(idx, " > Skipping retrieval" + name +
                   " as it was already loaded by another dep.")
         grab_stuff(idx, name, get_target_dir(data, name, driver), data, target)
         return
     loaded.append(name)
 
     if driver not in sg.configuration[C_DRIVERS]:
-        print_idx(idx, " ! The selected driver is unknown. Loaded:",
+        print_idx(idx, " ! The selected driver is unknown. Loaded:" +
                   sg.configuration[C_DRIVERS])
         sys.exit(2)
 

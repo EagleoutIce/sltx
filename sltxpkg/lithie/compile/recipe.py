@@ -49,10 +49,10 @@ class Recipe():
             recipe_full_path = str(
                 files(sltxpkg.data.recipes).joinpath(recipe_path))
         if not os.path.isfile(recipe_full_path):
-            print_idx(self.idx, "Recipe", recipe_full_path,
-                      "was not found. Exiting.")
+            print_idx(self.idx, "Recipe " + recipe_full_path +
+                      " was not found. Exiting.")
             exit(1)
-        print_idx(self.idx, "Loading recipe:", recipe_full_path)
+        print_idx(self.idx, "Loading recipe: " + recipe_full_path)
         y_conf = su.load_yaml(recipe_full_path)
         self.settings = {**self.settings, **y_conf}
         self.__process_tools()
@@ -85,7 +85,7 @@ class Recipe():
     def __runcmds(self, cmds: [str]):
         for cmd in cmds:
             cmd = self.__f(cmd)  # expand
-            print_idx(self.idx, "  -", cmd)
+            print_idx(self.idx, "  - " + cmd)
             os.system(cmd)
 
     def __runhooks(self, hookid: str):
@@ -114,7 +114,7 @@ class Recipe():
 
     # Run the recipe
     def run(self):
-        print_idx(self.idx, "Processing file:", self.file, pre='\n\n')
+        print_idx(self.idx, "Processing file: " + self.file, pre='\n\n')
         sc.assure_dirs()  # Ensure Working diSr and texmf home
         sc._assure_dir('file cache', self.__f("{out_dir}"), True)
         print_idx(self.idx, self.__f(
@@ -124,7 +124,7 @@ class Recipe():
         print_idx(self.idx, "> Running the compile commands")
         for cmd in self.settings['run']:
             cmd = self.__f(cmd)  # expand
-            print_idx(self.idx, "  -", cmd)
+            print_idx(self.idx, "  - " + cmd)
             fback = os.system(cmd)
             if fback != 0:
                 print_idx(self.idx,

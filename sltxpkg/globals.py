@@ -85,8 +85,8 @@ configuration = {
 dependencies = {}
 
 
-def print_idx(idx: int, *objects, pre: str = '', sep: str = ' '):
-    LOGGER.info("%s[ID %s] %s", pre, str(idx), sep.join(objects))
+def print_idx(idx: int, message: str, pre: str = ''):
+    LOGGER.info("%s[ID %s] %s", pre, str(idx), message)
 
 
 # global arguments read in
