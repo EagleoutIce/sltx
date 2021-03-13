@@ -15,7 +15,7 @@ from sltxpkg.dep import install_dependencies
 from sltxpkg.globals import (C_CLEANUP, C_CREATE_DIRS, C_DOWNLOAD_DIR,
                              C_DRIVER_LOG, C_DRIVER_PATTERNS, C_DRIVERS,
                              C_RECURSIVE, C_TEX_HOME, C_USE_DOCKER,
-                             C_WORKING_DIR, DEFAULT_CONFIG)
+                             C_WORKING_DIR, DEFAULT_CONFIG, C_DOCKER_PROFILE)
 from sltxpkg.lithie import commands as lithiecmd
 from sltxpkg.lithie.analyze.analyzer import Analyzer
 from sltxpkg.log_control import LOGGER
@@ -91,7 +91,8 @@ def cmd_raw_compile():
 
 def cmd_compile():
     if(sg.configuration[C_USE_DOCKER]):
-        LOGGER.info("Using docker to compile")
+        LOGGER.info("Using docker to compile (" +
+                    sg.configuration[C_DOCKER_PROFILE] + ")")
         lithiecmd.compile()
     else:
         LOGGER.info("Docker was disabled, using local compilation.")

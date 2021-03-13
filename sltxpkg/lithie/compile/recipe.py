@@ -114,7 +114,7 @@ class Recipe():
 
     # Run the recipe
     def run(self):
-        print_idx(self.idx, "Processing file: " + self.file, pre='\n\n')
+        print_idx(self.idx, "Processing file: " + self.file, pre='\n')
         sc.assure_dirs()  # Ensure Working diSr and texmf home
         sc._assure_dir('file cache', self.__f("{out_dir}"), True)
         print_idx(self.idx, self.__f(
