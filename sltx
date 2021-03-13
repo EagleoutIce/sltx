@@ -18,7 +18,7 @@ from sltxpkg.commands import (cmd_auto_setup, cmd_cleanse, cmd_compile,
                               cmd_dependency, cmd_docker, cmd_gen_gha,
                               cmd_raw_compile, cmd_version, cmd_analyze_logfile)
 from sltxpkg.globals import DEFAULT_CONFIG, LOCAL_CONFIG
-from sltxpkg.log_control import LOGGER, log_setfh
+from sltxpkg.log_control import LOGGER, log_set_file_handler
 
 
 def autoload_config(path: str, name: str):
@@ -39,7 +39,7 @@ if (len(sys.argv) <= 1):
 sg.args = parser.parse_args()
 
 if sg.args.log:
-    log_setfh()
+    log_set_file_handler()
 
 if not sg.args.command:
     parser.parse_args(['-h'])
