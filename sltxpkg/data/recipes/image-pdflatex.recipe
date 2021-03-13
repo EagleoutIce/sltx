@@ -1,0 +1,31 @@
+# Recipe will be run for every file
+name: Default recipe (latexmk!)
+author: Florian Sihler
+hooks:
+  pre: []
+  in: []
+  post: []
+
+cleanup_cmds: []
+# No cleanup commands!
+
+args: '-interaction=nonstopmode -output-directory="{out_dir}" -jobname "{file_base_noext}"'
+extra_args:
+  - "-shell-escape"
+  - "-recorder"
+
+tools: []
+
+# May contain 'glob'-Patterns
+wanted_files:
+  - "{out_dir}/{file_base_noext}.pdf"
+  - "{out_dir}/{file_base_noext}-compressed.pdf"
+
+executable: pdflatex
+
+quiet: " > /dev/null"
+
+run:
+  - "{executable} {args} {extra_args} -draftmode \\\\def\\\\lithieprofile:braceo:default:bracee:\\\\input:braceo:{file}:bracee: {do_quiet}"
+  - "{executable} {args} {extra_args} \\\\def\\\\lithieprofile:braceo:default:bracee:\\\\input:braceo:{file}:bracee: {do_quiet}"
+  - 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -dAutoRotatePages=/None -sOutputFile="{out_dir}/{file_base_noext}-compressed.pdf" "{out_dir}/{file_base_noext}.pdf" {do_quiet}'

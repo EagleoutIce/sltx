@@ -3,6 +3,8 @@ import logging.config
 import re
 from datetime import datetime
 
+from sltxpkg.util import create_multiple_replacer
+
 LOG_STR_LONG = '%(asctime)s [%(levelname)-8s@%(filename)-10s;%(lineno)-4d] %(message)s'
 LOG_STR = '%(message)s'
 LOG_STR = '%(level_color)s%(message)s%(color_reset)s'
@@ -19,14 +21,7 @@ COLORS = {
 }
 
 
-def __log_setup_color_repl(replacements: dict):
-    replacements = dict((re.escape(k), v)
-                        for k, v in replacements.items())
-    rep_pattern = re.compile('|'.join(replacements.keys()))
-    return lambda msg: rep_pattern.sub(lambda x: replacements[re.escape(x.group(0))], msg)
-
-
-__log__replacer = __log_setup_color_repl({
+__log__replacer = create_multiple_replacer({
     'True': ENCAPSULE_SEQ % (92, 'True'),
     'False': ENCAPSULE_SEQ % (91, 'False')
 })
@@ -76,7 +71,6 @@ class LithieLogStreamHandler(logging.StreamHandler):
             self.terminator = ''
         else:
             self.terminator = '\n'
-
         return super().emit(record)
 
 

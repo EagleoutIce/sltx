@@ -75,3 +75,10 @@ SANITIZE_PATTERN = re.compile('[^a-zA-Z0-9\-]')
 
 def sanitize_filename(text: str) -> str:
     return SANITIZE_PATTERN.sub('_', text)
+
+
+def create_multiple_replacer(replacements: dict):
+    replacements = dict((re.escape(k), v)
+                        for k, v in replacements.items())
+    rep_pattern = re.compile('|'.join(replacements.keys()))
+    return lambda msg: rep_pattern.sub(lambda x: replacements[re.escape(x.group(0))], msg)

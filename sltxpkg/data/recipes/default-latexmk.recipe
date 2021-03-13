@@ -13,6 +13,7 @@ args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=\"{
 extra_args:
   - '-shell-escape'
   - '-recorder'
+  - '{do:quiet}'
 
 # Tools will be used to generate files if needed or to require intermediate steps
 # They extend the hooks and can use ifs
@@ -27,7 +28,7 @@ wanted_files:
 
 executable: latexmk
 
-# TODO: latexmk pretex
-# TODO latexmkrc if no ile is needed?
+quiet: '--quiet'
+
 run:
     - "{executable} {args} {extra_args} {file}"

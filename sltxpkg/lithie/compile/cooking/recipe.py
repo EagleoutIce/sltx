@@ -1,10 +1,10 @@
 import glob
 import os
+import random
 import shutil
 import tempfile
 from os.path import abspath, basename, splitext
 from pathlib import Path
-import random
 
 import sltxpkg.config as sc
 import sltxpkg.data.recipes
@@ -15,8 +15,13 @@ import sltxpkg.util as su
 import yaml
 from importlib_resources import files
 from sltxpkg.globals import print_idx
+from sltxpkg.util import create_multiple_replacer
 
 # TODO: in case of error pack the directory with tar and ship it to the folder
+BRACE_REPLACER = create_multiple_replacer({
+    ':braceo:': '{',
+    ':bracee:': '}',
+})
 
 
 class Recipe():
@@ -75,12 +80,15 @@ class Recipe():
     # format; TODO: maybe cache the results
     def __f(self, t: str) -> str:
         for _ in range(sg.configuration[sg.C_FORMAT_MAX]):
+            _t = t
             t = t.format(**self.settings, **sg.configuration, file=self.file,
                          filenoext=splitext(self.file)[0],
                          file_base_noext=splitext(basename(self.file))[0],
                          tmp=tempfile.gettempdir(),
                          out_dir=os.path.join("{cache_dir}", su.sanitize_filename(abspath(self.file))))
-        return t
+            if _t == t:
+                break
+        return BRACE_REPLACER(t)
 
     def __runcmds(self, cmds: [str]):
         for cmd in cmds:
