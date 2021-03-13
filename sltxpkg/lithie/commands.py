@@ -39,6 +39,9 @@ def compile():
     if sg.args.log:
         sltx_command += "--log "
 
+    if sg.args.verbose:
+        sltx_command += "--verbose: "
+
     if sg.args.quiet:
         sltx_command += "--quiet "
 
