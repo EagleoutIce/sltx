@@ -9,7 +9,7 @@ import random
 import sltxpkg.config as sc
 import sltxpkg.data.recipes
 import sltxpkg.globals as sg
-import sltxpkg.lithie.compile.recipe_exceptions as rex
+import sltxpkg.lithie.compile.cooking.recipe_exceptions as rex
 import sltxpkg.lithie.compile.tools as tools
 import sltxpkg.util as su
 import yaml
@@ -112,8 +112,9 @@ class Recipe():
         raise rex.RecipeException(archive,
                                   'Recipe for '+str(self.idx)+' failed with code: '+str(code)+'. See logfile: \"' + archive + "\"")
 
-    # Run the recipe
     def run(self):
+        """Executes the configured Recipe
+        """
         print_idx(self.idx, "Processing file: " + self.file, pre='\n')
         sc.assure_dirs()  # Ensure Working diSr and texmf home
         sc._assure_dir('file cache', self.__f("{out_dir}"), True)

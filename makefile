@@ -9,7 +9,7 @@ all: test build version
 test:
 	python3 -m unittest discover -v -s sltxtest
 
-install_local: build version
+install_local: test build version
 	pip3 install --upgrade "dist/sltx-${VERSION}-py3-none-any.whl"
 	@echo Please make sure to go back to the normal sltx whenever possible
 

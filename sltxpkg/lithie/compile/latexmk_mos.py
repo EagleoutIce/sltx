@@ -10,6 +10,11 @@ from sltxpkg.globals import LOGGER
 
 
 def get_root() -> str:
+    """Return the root folder of the current platform
+
+    Returns:
+        str: root folder of the current platform
+    """
     if platform == "linux":
         return os.path.expandvars("$HOME/.latexmkrc")
     elif platform == "darwin":
@@ -19,16 +24,27 @@ def get_root() -> str:
 
 
 def get_config(name: str) -> str:
+    """Get local mkrc configuration
+
+    Args:
+        name (str): The required configuration file name.
+
+    Returns:
+        str: The content of the requested file.
+    """
     return files(sltxpkg.data.latexmk.configs).joinpath(name + '.mkrc').read_text()
 
 
-def append_local2global_config(name: str):
-    append_to_global_config(get_config(name), name)
+def append_local2global_config(name: str) -> None:
+    """Appends an included configuration to the system configuration
 
-# TODO: what if nonglobal? what if more deps?
+    Args:
+        name (str): The requirested configuration
+    """
+    __append_to_global_config(get_config(name), name)
 
 
-def append_to_global_config(text: str, guard: str):
+def __append_to_global_config(text: str, guard: str) -> None:
     file = get_root()
     START_GUARD = "# sltx START " + guard
     mode = 'a'

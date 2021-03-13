@@ -1,13 +1,16 @@
 # cookes the recipe :D
-from concurrent import futures
 import sys
+from concurrent import futures
 
 import sltxpkg.globals as sg
-from sltxpkg.lithie.compile.recipe import Recipe
-import sltxpkg.lithie.compile.recipe_exceptions as rex
+from sltxpkg.globals import LOGGER
+import sltxpkg.lithie.compile.cooking.recipe_exceptions as rex
+from sltxpkg.lithie.compile.cooking.recipe import Recipe
 
 
 def cook():
+    """This will take the desired files and cooks the recipes accordingly.
+    """
     recipe_path = sg.configuration[sg.C_DEFAULT_RECIPE] if sg.args.recipe is None else sg.args.recipe
 
     with futures.ThreadPoolExecutor(max_workers=sg.args.threads) as pool:
@@ -19,12 +22,12 @@ def cook():
         try:
             for runner, i, file in runners:
                 if runner.result() is not None:
-                    sg.LOGGER.info(
+                    LOGGER.info(
                         "Status for runner: %d operating on file: %s", i, file)
-                    sg.LOGGER.info(runner.result())
+                    LOGGER.info(runner.result())
         except rex.RecipeException as ex:
             print("\n\033[31m ! Processing of", file,
                   "failed for:", repr(ex), "\033[m")
             sys.exit(128)
         else:
-            sg.LOGGER.info("\n=Compiled all documents successfully=")
+            LOGGER.info("\n=Compiled all documents successfully=")
