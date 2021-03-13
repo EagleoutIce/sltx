@@ -156,6 +156,6 @@ class Recipe():
                 shutil.copy2(f, our_dir)
 
         self.__runhooks('post')
-        if sg.configuration['cleanup']:
+        if sg.configuration[sg.C_CLEANUP]:
             print_idx(self.idx, "> Cleaning up (configured by configuration)")
             self.__runcmds(self.settings['cleanup_cmds'])
