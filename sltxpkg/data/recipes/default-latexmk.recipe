@@ -13,7 +13,7 @@ args: "-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir=\"{
 extra_args:
   - '-shell-escape'
   - '-recorder'
-  - '{do:quiet}'
+  - '{do_quiet}'
 
 # Tools will be used to generate files if needed or to require intermediate steps
 # They extend the hooks and can use ifs
