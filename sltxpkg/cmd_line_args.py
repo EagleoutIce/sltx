@@ -99,6 +99,10 @@ parser.add_argument('-q', '--quiet', dest='quiet',
                     required=False, action='store_true',
                     help="Set the flag if output is to be reduced")
 
+parser.add_argument('-v', '--verbose', dest='verbose',
+                    required=False, action='store_true',
+                    help="Output in verbose mode -> more information from sltx")
+
 parser.add_argument('--log', dest='log',
                     required=False, action='store_true',
                     help="Write to logfile. This is experimental.")

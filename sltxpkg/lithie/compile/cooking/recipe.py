@@ -42,8 +42,11 @@ class Recipe():
         # to retrieve files:
         'wanted_files': [],
         'executable': '',
-        'run': []
+        'run': [],
+        'quiet': ''
     }
+
+    quiet = ''
 
     def __init__(self, recipe_path: str, file: str, idx: int):
         super().__init__()
@@ -60,6 +63,8 @@ class Recipe():
         print_idx(self.idx, "Loading recipe: " + recipe_full_path)
         y_conf = su.load_yaml(recipe_full_path)
         self.settings = {**self.settings, **y_conf}
+        if sg.args.quiet:
+            self.quiet = self.settings['quiet']
         self.__process_tools()
         self.__sanitize_extra_args()  # we need them as a single string
 
@@ -69,8 +74,6 @@ class Recipe():
 
     def __sanitize_extra_args(self):
         self.settings['extra_args'].extend(sg.args.extra_arguments)
-        if (sg.args.quiet):
-            self.settings['extra_args'].append('--quiet')
         self.settings['extra_args'] = " ".join(self.settings['extra_args'])
 
     @staticmethod
@@ -80,24 +83,23 @@ class Recipe():
     # format; TODO: maybe cache the results
     def __f(self, t: str) -> str:
         for _ in range(sg.configuration[sg.C_FORMAT_MAX]):
-            _t = t
             t = t.format(**self.settings, **sg.configuration, file=self.file,
-                         filenoext=splitext(self.file)[0],
+                         filenoext=splitext(self.file)[0], do_quiet=self.quiet,
                          file_base_noext=splitext(basename(self.file))[0],
                          tmp=tempfile.gettempdir(),
                          out_dir=os.path.join("{cache_dir}", su.sanitize_filename(abspath(self.file))))
-            if _t == t:
-                break
         return BRACE_REPLACER(t)
 
     def __runcmds(self, cmds: [str]):
         for cmd in cmds:
             cmd = self.__f(cmd)  # expand
-            print_idx(self.idx, "  - " + cmd)
+            if sg.args.verbose:
+                print_idx(self.idx, "  - " + cmd)
             os.system(cmd)
 
     def __runhooks(self, hookid: str):
-        print_idx(self.idx, "> Hooks for \"" + hookid + "\"")
+        if sg.args.verbose:
+            print_idx(self.idx, "> Hooks for \"" + hookid + "\"")
         self.__runcmds(self.settings['hooks'][hookid])
 
     def __critical_abort(self, code: int):
@@ -120,6 +122,26 @@ class Recipe():
         raise rex.RecipeException(archive,
                                   'Recipe for '+str(self.idx)+' failed with code: '+str(code)+'. See logfile: \"' + archive + "\"")
 
+    def __save_files(self, our_dir: str):
+        # Get the resulting file(s)
+        print_idx(self.idx, "> Retrieving resulting files to \"" + our_dir + "\"")
+        got_files = []
+        for wf in self.settings['wanted_files'] + sg.configuration[sg.C_WANTED_FILES]:
+            wf = self.__f(wf)
+            if sg.args.verbose:
+                print_idx(
+                    self.idx, "  - Retrieving files for pattern \"" + wf + "\"")
+            wanted = glob.glob(os.path.join(
+                sg.configuration[sg.C_WORKING_DIR], wf))
+            for f in wanted:
+                if sg.args.verbose:
+                    print_idx(self.idx, "Saving \"" + f + "\" ")
+                shutil.copy2(f, our_dir)
+            got_files += wanted
+
+        if not sg.args.verbose:
+            print_idx(self.idx, "Saved files (" + str(got_files) + ")")
+
     def run(self):
         """Executes the configured Recipe
         """
@@ -130,10 +152,12 @@ class Recipe():
             "> Running recipe \"{name}\" by \"{author}\"."))
         self.__runhooks('pre')
 
-        print_idx(self.idx, "> Running the compile commands")
-        for cmd in self.settings['run']:
+        print_idx(self.idx, "> Running the compile commands (" +
+                  str(len(self.settings['run'])) + ")")
+        for i, cmd in enumerate(self.settings['run']):
             cmd = self.__f(cmd)  # expand
-            print_idx(self.idx, "  - " + cmd)
+            if sg.args.verbose:
+                print_idx(self.idx, "  - " + cmd)
             fback = os.system(cmd)
             if fback != 0:
                 print_idx(self.idx,
@@ -141,20 +165,7 @@ class Recipe():
                 self.__critical_abort(fback)
 
         self.__runhooks('in')
-
-        our_dir = os.getcwd()
-
-        # Get the resulting file(s)
-        print_idx(self.idx, "> Retrieving resulting files to \"" + our_dir + "\"")
-        for wf in self.settings['wanted_files'] + sg.configuration[sg.C_WANTED_FILES]:
-            wf = self.__f(wf)
-            print_idx(self.idx, "  - Retrieving files for pattern \"" + wf + "\"")
-            wanted = glob.glob(os.path.join(
-                sg.configuration[sg.C_WORKING_DIR], wf))
-            for f in wanted:
-                print_idx(self.idx, "Saving \"" + f + "\" ")
-                shutil.copy2(f, our_dir)
-
+        self.__save_files(os.getcwd())
         self.__runhooks('post')
         if sg.configuration[sg.C_CLEANUP]:
             print_idx(self.idx, "> Cleaning up (configured by configuration)")
