@@ -92,6 +92,6 @@ LOGGER = logging.getLogger('sltx')
 LOGGER.handlers.clear()
 LOGGER.propagate = False
 sltx_log_stream_handler = LithieLogStreamHandler()
-sltx_log_stream_handler.setFormatter(LithieColoredStreamFormatter(LOG_STR))
+# sltx_log_stream_handler.setFormatter(LithieColoredStreamFormatter(LOG_STR))
 LOGGER.addHandler(sltx_log_stream_handler)
 LOGGER.setLevel(logging.DEBUG)
