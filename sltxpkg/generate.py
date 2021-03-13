@@ -83,7 +83,7 @@ def step_setup_python(document: dict):
 def step_setup_sltx(document: dict) -> str:
     valid_profiles = ['tx-small', 'tx-default', 'tx-full']
     LOGGER.info(
-        "Please enter the profile you want for sltx. Valid names are: " + valid_profiles)
+        "Please enter the profile you want for sltx. Valid names are: " + str(valid_profiles))
     target_profile = prompt.get(
         "Profile [{default}]", default=sg.configuration[sg.C_DOCKER_PROFILE]).lower()
 

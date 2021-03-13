@@ -4,6 +4,7 @@ from sys import platform
 import sltxpkg.data.latexmk.configs
 import sltxpkg.util as su
 from importlib_resources import as_file, files
+from sltxpkg import globals as sg
 from sltxpkg.globals import LOGGER
 
 # We have to configure latexmk configuration-files os-dependent
@@ -51,8 +52,9 @@ def __append_to_global_config(text: str, guard: str) -> None:
     mode = 'a'
 
     if os.path.isfile(file) and su.file_contains(file, START_GUARD):
-        LOGGER.info(
-            "Global latexmk config already contains config for %s. Skipping.", guard)
+        if sg.args.verbose:
+            LOGGER.info(
+                "Global latexmk config already contains config for %s. Skipping.", guard)
         return
 
     with open(file, mode) as f:
