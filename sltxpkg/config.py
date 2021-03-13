@@ -44,7 +44,7 @@ def load_dependencies_config(file: str, target: dict) -> dict:
     return {**target, **y_dep}
 
 
-def __assure_dir(name: str, target_path: str, create: bool):
+def assure_dir(name: str, target_path: str, create: bool):
     if not os.path.isdir(target_path):
         if create:
             LOGGER.info("> %s: %s not found. Creating...", name, target_path)
@@ -57,10 +57,10 @@ def __assure_dir(name: str, target_path: str, create: bool):
 def assure_dirs():
     sg.configuration[C_TEX_HOME] = su.get_sltx_tex_home()  # expansion
     create = sg.configuration[C_CREATE_DIRS]
-    __assure_dir('Tex-Home', sg.configuration[C_TEX_HOME], create)
+    assure_dir('Tex-Home', sg.configuration[C_TEX_HOME], create)
 
     for config, name in [(C_WORKING_DIR, 'Working-Dir'), (C_DOWNLOAD_DIR, 'Download-Dir'),
                          (C_CACHE_DIR, 'Cache-Dir')]:
         sg.configuration[config] = os.path.expanduser(
             sg.configuration[config])  # expansion
-        __assure_dir(name, sg.configuration[config], create)
+        assure_dir(name, sg.configuration[config], create)

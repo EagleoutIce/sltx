@@ -11,7 +11,12 @@ import sltxpkg.data
 import sltxpkg.globals as sg
 
 
-def default_texmf():
+def default_texmf() -> str:
+    """Default texmf-paths
+
+    Returns:
+        str: The default texmf-path for the given platform
+    """
     if platform == "linux" or platform == "linux2":
         return "~/texmf"
     elif platform == "darwin":
@@ -20,14 +25,19 @@ def default_texmf():
         return "~/texmf"
 
 
-def get_version():
+def get_version() -> str:
+    """Returns the version number from the included package files
+
+    Returns:
+        str: The version number in string format.
+    """
     return files(sltxpkg.data).joinpath('version.info').read_text()
 
 
 def load_yaml(file_path: str):
     with open(file_path, 'r') as yaml_file:
         # FullLoader only available for 5.1 and above:
-        if float(yaml.__version__[:yaml.__version__.rfind(".")]) >= 5.1:
+        if float(yaml.__version__[:yaml.__version__.rfind('.')]) >= 5.1:
             return yaml.load(yaml_file, Loader=yaml.FullLoader)
         else:
             return yaml.load(yaml_file)
@@ -59,8 +69,9 @@ def get_sltx_tex_home() -> str:
     return os.path.expanduser(sg.configuration[sg.C_TEX_HOME].format(
         **sg.configuration, os_default_texmf=default_texmf()))
 
-# For compile
+
+SANITIZE_PATTERN = re.compile('[^a-zA-Z0-9\-]')
 
 
 def sanitize_filename(text: str) -> str:
-    return re.sub('[^a-zA-Z0-9\-_]', '_', text)
+    return SANITIZE_PATTERN.sub('_', text)

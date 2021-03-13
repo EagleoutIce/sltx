@@ -117,7 +117,7 @@ class Recipe():
         """
         print_idx(self.idx, "Processing file: " + self.file, pre='\n')
         sc.assure_dirs()  # Ensure Working diSr and texmf home
-        sc.__assure_dir('file cache', self.__f("{out_dir}"), True)
+        sc.assure_dir('file cache', self.__f("{out_dir}"), True)
         print_idx(self.idx, self.__f(
             "> Running recipe \"{name}\" by \"{author}\"."))
         self.__runhooks('pre')

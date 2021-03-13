@@ -4,7 +4,8 @@
         "rfind",
         "sltx",
         "sltxpkg",
-        "sltxtest"
+        "sltxtest",
+        "texmf"
     ],
     "editor.formatOnSave": true
 }
