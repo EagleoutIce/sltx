@@ -1,15 +1,15 @@
 import os
 
 
-def valid_default(inp: str):
-    return inp is not None and inp.strip() != ""
+def valid_default(inp: str) -> bool:
+    return inp is not None and len(inp.strip()) > 0
 
 
-def valid_dir(inp: str):
+def valid_dir(inp: str) -> bool:
     return valid_default(inp) and os.path.isdir(inp)
 
 
-def valid_file(inp: str):
+def valid_file(inp: str) -> bool:
     return valid_default(inp) and os.path.isfile(inp)
 
 
@@ -25,7 +25,7 @@ def get(prompt: str, valid_input=valid_default, type=str, default=None):
     return ret
 
 
-def get_bool(pre="", default=None):
+def get_bool(pre="", default=None) -> bool:
     if default is None:
         prompt = "[true/false]"
     elif default:
@@ -36,9 +36,9 @@ def get_bool(pre="", default=None):
     return get(pre + prompt, type=bool, default=default)
 
 
-def get_dir(prompt: str, default=None):
+def get_dir(prompt: str, default=None) -> str:
     return get(prompt, valid_input=valid_dir, type=str, default=default)
 
 
-def get_file(prompt: str, default=None):
+def get_file(prompt: str, default=None) -> str:
     return get(prompt, valid_input=valid_file, type=str, default=default)

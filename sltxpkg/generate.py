@@ -81,7 +81,6 @@ def step_setup_python(document: dict):
 
 
 def step_setup_sltx(document: dict) -> str:
-    # tODO get them with 'docker search' # TODO dry
     valid_profiles = ['tx-small', 'tx-default', 'tx-full']
     LOGGER.info(
         "Please enter the profile you want for sltx. Valid names are: " + valid_profiles)
@@ -111,7 +110,6 @@ def step_compile(document: dict, target_profile: str):
 
     exec_line = "sltx "
 
-    # TODO: fail as soon as one fails
     if own_config and config_file is not None:
         exec_line += "--config \"{config_file}\" ".format(**locals())
 

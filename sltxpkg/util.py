@@ -1,8 +1,8 @@
 import mmap
 import os
+import re
 from sys import platform
 from time import localtime, strftime
-import re
 
 import yaml
 from importlib_resources import as_file, files

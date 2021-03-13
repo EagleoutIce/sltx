@@ -35,8 +35,10 @@ class Commands:
         return self.cmds[tc][0][0]
 
     def __find_in_alias(self, tc: str):
-        matching_commands = [alias[0] for alias in self.cmds.items(
-        ) if tc in Commands.__alias_from_cmd(alias)]
+        matching_commands = [
+            alias[0]
+            for alias in self.cmds.items()
+            if tc in Commands.__alias_from_cmd(alias)]
         # if multiple we take the first (should not happen)
         return self.__cmd_from_name(matching_commands[0])
 

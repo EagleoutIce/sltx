@@ -20,10 +20,14 @@ file_help = "the file(s) to load; they will be processed."
 file_tx = "file.tex"
 
 sub_parser = Commands({
-    'analyze': ((cmd_analyze_logfile, ['log']), Arg(description='Analyze a logfile for errors.'), [
-        Arg('files', metavar='log.zip', type=str, nargs='*', help=file_help)
-    ]),
-    'dependency': ((cmd_dependency, ['dep']), Arg(description='Install dependencies on the host system.'),
+    'analyze': ((cmd_analyze_logfile, ['log']),
+                Arg(description='Analyze a logfile for errors.'),
+                [
+                    Arg('files', metavar='log.zip',
+                        type=str, nargs='*', help=file_help)]
+                ),
+    'dependency': ((cmd_dependency, ['dep']),
+                   Arg(description='Install dependencies on the host system.'),
                    [
         Arg('-l', '--local', metavar='path', dest='local_path', default=None,
             help="This will install the dependency file into the given directory. This might be useful if the compilation should be handled by an online editor. Use '.' to use the current directory."),
@@ -98,9 +102,6 @@ parser.add_argument('-q', '--quiet', dest='quiet',
 parser.add_argument('--log', dest='log',
                     required=False, action='store_true',
                     help="Write to logfile. This is experimental.")
-
-# parser.add_argument('-n', '--no-archive', dest='no_archive', action='store_true',
-#                     help="If set, sltx won't create tar-balls in case of critical failures.")
 
 # TODO: Format support with mlatexformat?
 

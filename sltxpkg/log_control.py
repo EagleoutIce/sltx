@@ -85,6 +85,8 @@ logging.basicConfig(format=LOG_STR, datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def log_set_file_handler():
+    """Update the file handler of the main 'LOGGER' to mirror outputs to a file
+    """
     sltx_log_file_handler = LithieLogFileHandler(
         'sltx-{:%Y-%m-%d-%H-%M-%S-%f}.sltx-log'.format(datetime.now()))
     formatter = logging.Formatter(LOG_STR)

@@ -3,7 +3,8 @@
         "cmds",
         "rfind",
         "sltx",
-        "sltxpkg"
+        "sltxpkg",
+        "sltxtest"
     ],
     "editor.formatOnSave": true
 }
