@@ -20,8 +20,10 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=('sltxtest', 'sltxtest.*')),
     package_data={
         'data': ['sltxpkg/data/version.info', 'sltxpkg/data/sltx-dep.yaml'],
-        'data/recipes': ['sltxpkg/data/recipes/default-latexmk.recipe', 'sltxpkg/data/recipes/compress-latexmk.recipe'],
-        'data/latexmk/configs': ['data/latexmk/configs/glossary.mkrc', 'data/latexmk/configs/index.mkrc']
+        'data/recipes': ['sltxpkg/data/recipes/default-latexmk.recipe',
+                         'sltxpkg/data/recipes/compress-latexmk.recipe'],
+        'data/latexmk/configs': ['data/latexmk/configs/glossary.mkrc',
+                                 'data/latexmk/configs/index.mkrc']
     },
     include_package_data=True,
     classifiers=[

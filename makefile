@@ -18,7 +18,9 @@ build: $(SOURCES)
 	python3 setup.py sdist bdist_wheel
 
 version:
-	@echo "Build with version: ${VERSION}"
+	@echo "\033[34mBuild with version: ${VERSION}\033[m"
+	@sltx version
+	@echo "\033[34m==========================\033[m"
 
 publish: test build version
 	@if [ $(VERSION) = $(shell cat sltxpkg/data/version.info) ]; then\

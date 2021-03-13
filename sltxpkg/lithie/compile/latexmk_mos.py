@@ -1,8 +1,9 @@
-from importlib_resources import files, as_file
-from sys import platform
 import os
+from sys import platform
+
 import sltxpkg.data.latexmk.configs
 import sltxpkg.util as su
+from importlib_resources import as_file, files
 from sltxpkg.globals import LOGGER
 
 # We have to configure latexmk configuration-files os-dependent

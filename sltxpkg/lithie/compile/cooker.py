@@ -3,8 +3,8 @@ import sys
 from concurrent import futures
 
 import sltxpkg.globals as sg
-from sltxpkg.globals import LOGGER
 import sltxpkg.lithie.compile.cooking.recipe_exceptions as rex
+from sltxpkg.globals import LOGGER
 from sltxpkg.lithie.compile.cooking.recipe import Recipe
 
 

@@ -23,8 +23,7 @@ from sltxpkg.log_control import LOGGER, log_setfh
 
 def autoload_config(path: str, name: str):
     if os.path.isfile(path):
-        LOGGER.info(
-            "Automatically loading {name} config: '{path}'".format(**locals()))
+        LOGGER.info("Automatically loading %s config: '%s'", name, path)
         sc.load_configuration(path)
 
 
@@ -66,9 +65,6 @@ if sg.args.config is not None:
 
 try:
     tc = sg.args.command.lower()
-    # This is ugly, but it basically checks if tc is in the commands and if so, use that commands
-    # if not it searches through the list of aliasses and if it finds one it will use this
-    # TODO: make this acceptable
     cmd = sub_parser.cmds[tc if tc in sub_parser.cmds else retrieve_by_alias()]
 except KeyError:
     LOGGER.error("The supplied command: %s is unknown. Choose one of: %s",
