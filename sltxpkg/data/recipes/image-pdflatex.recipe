@@ -9,7 +9,7 @@ hooks:
 cleanup_cmds: []
 # No cleanup commands!
 
-args: '-interaction=nonstopmode -output-directory="{out_dir}" -jobname "{file_base_noext}"'
+args: '-interaction=nonstopmode -output-directory="{out_dir}"'
 extra_args:
   - "-shell-escape"
   - "-recorder"
@@ -26,6 +26,9 @@ executable: pdflatex
 quiet: " > /dev/null"
 
 run:
-  - "{executable} {args} {extra_args} -draftmode \\\\def\\\\lithieprofile:braceo:default:bracee:\\\\input:braceo:{file}:bracee: {do_quiet}"
-  - "{executable} {args} {extra_args} \\\\def\\\\lithieprofile:braceo:default:bracee:\\\\input:braceo:{file}:bracee: {do_quiet}"
+  - '{executable} {args} {extra_args} -draftmode -jobname "{file_base_noext}" \\\\def\\\\lithieprofile:braceo:default:bracee:\\\\input:braceo:{file}:bracee: {do_quiet}'
+  - '{executable} {args} {extra_args} -draftmode -jobname "{file_base_noext}-print" \\\\def\\\\lithieprofile:braceo:print:bracee:\\\\input:braceo:{file}:bracee: {do_quiet}'
+  - '{executable} {args} {extra_args} -jobname "{file_base_noext}" \\\\def\\\\lithieprofile:braceo:default:bracee:\\\\input:braceo:{file}:bracee: {do_quiet}'
+  - '{executable} {args} {extra_args} -jobname "{file_base_noext}-print" \\\\def\\\\lithieprofile:braceo:default:bracee:\\\\input:braceo:{file}:bracee: {do_quiet}'
   - 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -dAutoRotatePages=/None -sOutputFile="{out_dir}/{file_base_noext}-compressed.pdf" "{out_dir}/{file_base_noext}.pdf" {do_quiet}'
+  - 'gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dNOPAUSE -dQUIET -dBATCH -dAutoRotatePages=/None -sOutputFile="{out_dir}/{file_base_noext}-print-compressed.pdf" "{out_dir}/{file_base_noext}-print.pdf" {do_quiet}'
