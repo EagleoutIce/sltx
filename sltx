@@ -23,7 +23,7 @@ from sltxpkg.log_control import LOGGER, log_set_file_handler
 
 def autoload_config(path: str, name: str):
     if os.path.isfile(path):
-        LOGGER.info("Automatically loading %s config: '%s'", name, path)
+        LOGGER.info("Auto-load %s-config: '%s'", name, path)
         sc.load_configuration(path)
 
 
@@ -48,16 +48,18 @@ autoload_config(DEFAULT_CONFIG, 'default')
 autoload_config(LOCAL_CONFIG, 'local')
 
 if hasattr(sg.args, 'files') and not sg.args.files:
-    LOGGER.info("Set default files to: " +
-                str(sg.configuration[sg.C_DEFAULT_FILES]))
+    if sg.args.verbose:
+        LOGGER.info("Set default files to: " +
+                    str(sg.configuration[sg.C_DEFAULT_FILES]))
     sg.args.files = sg.configuration[sg.C_DEFAULT_FILES]
     if not sg.args.files:
         LOGGER.error("No files supplied")
         exit(1)
 
 if sg.args.threads < 0:
-    LOGGER.info("Set default thread-count to: %d",
-                sg.configuration[sg.C_DEFAULT_THREADS])
+    if sg.args.verbose:
+        LOGGER.info("Set default thread-count to: %d",
+                    sg.configuration[sg.C_DEFAULT_THREADS])
     sg.args.threads = sg.configuration[sg.C_DEFAULT_THREADS]
 
 if sg.args.config is not None:
