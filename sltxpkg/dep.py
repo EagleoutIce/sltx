@@ -5,7 +5,8 @@ import shutil
 import sys
 from concurrent import futures
 from pathlib import Path
-from subprocess import PIPE, Popen  # execution
+from subprocess import PIPE, Popen
+from typing import Tuple  # execution
 
 import sltxpkg.globals as sg
 import sltxpkg.util as su
@@ -37,7 +38,7 @@ def detect_driver(idx: str, url: str) -> str:
     sys.exit(1)
 
 
-def split_grab_pattern(pattern: str, default_target: str) -> (str, str):
+def split_grab_pattern(pattern: str, default_target: str) -> Tuple[str, str]:
     """Performes splits on grab patterns ("source=>target")
        will fill in the given default target, if split does not present one
 
@@ -59,7 +60,7 @@ class DependencyProfileException(Exception):
         super().__init__(self.message)
 
 
-def extend_grab_from_local(idx: str, driver_target_dir: str, data: dict) -> (list, list):
+def extend_grab_from_local(idx: str, driver_target_dir: str, data: dict) -> Tuple[list, list]:
     """May install extra profiles
 
        This method will check for a local dep file, and if present
@@ -92,7 +93,8 @@ def extend_grab_from_local(idx: str, driver_target_dir: str, data: dict) -> (lis
     file_profiles = file_profiles['profiles']
     # Note: I do want always a default profile so it makes live easier for me
     if 'default' not in file_profiles:
-        raise DependencyProfileException('No default profile for enlisted profiles. Found: ' + str(file_profiles))
+        raise DependencyProfileException(
+            'No default profile for enlisted profiles. Found: ' + str(file_profiles))
     if 'profile' in data:
         requested_profile = data['profile']
         if requested_profile not in file_profiles:
@@ -101,7 +103,8 @@ def extend_grab_from_local(idx: str, driver_target_dir: str, data: dict) -> (lis
     else:
         requested_profile = 'default'
     added_profiles: dict = file_profiles[requested_profile]
-    print_idx(idx, ' > Loaded profile (' + requested_profile + '): ' + str(added_profiles))
+    print_idx(idx, ' > Loaded profile (' +
+              requested_profile + '): ' + str(added_profiles))
     # TODO: this may be beautified
     grab_files = added_profiles['grab-files'] if 'grab-files' in added_profiles else ""
     grab_dirs = added_profiles['grab_dirs'] if 'grab_dirs' in added_profiles else ""
@@ -134,14 +137,14 @@ def grab_from(idx: str, path: str, data: dict, target: str, key: str, grabber, e
     return True
 
 
-def f_grab_files(data: (str, str), target: str, path: str):
+def f_grab_files(data: Tuple[str, str], target: str, path: str):
     file_target = os.path.join(target, data[1]) if data[1] != target else os.path.join(
         data[1], os.path.relpath(data[0], path))
     Path(file_target).parent.mkdir(parents=True, exist_ok=True)
     shutil.copy2(data[0], file_target)
 
 
-def f_grab_dirs(data: (str, str), target: str, path: str):
+def f_grab_dirs(data: Tuple[str, str], target: str, path: str):
     # only choose relative path
     dir_target = os.path.join(target, data[1]) if data[1] != target else os.path.join(
         data[1], os.path.relpath(data[0], path))
@@ -210,7 +213,8 @@ def use_driver(idx: str, data: dict, dep_name: str, driver: str, target: str):
     if "args" not in data:
         data["args"] = ""
     driver_data = sg.configuration[C_DRIVERS][driver]
-    command = driver_data["command"].format(**data, **sg.configuration, dep_name=dep_name)
+    command = driver_data["command"].format(
+        **data, **sg.configuration, dep_name=dep_name)
     driver_target_dir = get_target_dir(data, dep_name, driver)
     if driver_data["needs-delete"] and os.path.isdir(driver_target_dir):
         print_idx(idx, " - Target folder " + driver_target_dir +

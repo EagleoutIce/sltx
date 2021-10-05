@@ -4,6 +4,7 @@ import random
 import shutil
 import tempfile
 from os.path import abspath, basename, splitext
+from typing import List
 
 from importlib_resources import files
 
@@ -75,7 +76,7 @@ class Recipe():
         self.settings['extra_args'] = " ".join(self.settings['extra_args'])
 
     @staticmethod
-    def get_default_recipes() -> [str]:
+    def get_default_recipes() -> List[str]:
         return [f for f in os.listdir() if f.endswith(".recipe")]
 
     # format; TODO: maybe cache the results
@@ -88,7 +89,7 @@ class Recipe():
                          out_dir=os.path.join("{cache_dir}", su.sanitize_filename(abspath(self.file))))
         return BRACE_REPLACER(t)
 
-    def __runcmds(self, cmds: [str]):
+    def __runcmds(self, cmds: List[str]):
         for cmd in cmds:
             cmd = self.__f(cmd)  # expand
             if sg.args.verbose:
