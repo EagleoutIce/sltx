@@ -14,6 +14,7 @@ import sltxpkg.data.recipes
 import sltxpkg.globals as sg
 import sltxpkg.lithie.compile.cooking.recipe_exceptions as rex
 import sltxpkg.lithie.compile.tools as tools
+from sltxpkg.log_control import LOGGER
 import sltxpkg.util as su
 from sltxpkg.globals import print_idx
 from sltxpkg.util import create_multiple_replacer
@@ -116,6 +117,8 @@ class Recipe():
         # This ensures a different sequence every time that will be deleted
         # on a successful run
         if sg.configuration[sg.C_CLEAN_ON_FAILURE]:
+            LOGGER.info('Running auto clean on failure.')
+            sg.args.exclude_patterns = []
             sg.args.include_patterns = [self.__f("{out_dir}")]
             scmd.cleanse_caches()
         else:

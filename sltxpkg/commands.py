@@ -97,7 +97,7 @@ def cmd_gen_gha():
 
 
 def should_be_excluded(file: str):
-    if sg.args.exclude_patterns is None:
+    if vars(sg.args).get('exclude_patterns') is None:
         return False
 
     for exclude_pattern in sg.args.exclude_patterns:
@@ -107,7 +107,7 @@ def should_be_excluded(file: str):
 
 
 def should_be_included(file: str):
-    if sg.args.include_patterns is None:
+    if vars(sg.args).get('include_patterns') is None:
         return True
 
     for include_pattern in sg.args.include_patterns:
