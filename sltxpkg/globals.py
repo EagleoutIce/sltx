@@ -10,6 +10,7 @@ C_TEX_HOME = "tex_home"
 C_WORKING_DIR = "working_dir"
 C_CREATE_DIRS = "create_dirs"
 C_CLEANUP = "cleanup"
+C_CLEAN_ON_FAILURE = "clean_on_failure"
 C_AUTODETECT_DRIVERS = "autodetect_drivers"
 C_DRIVERS = "drivers"
 C_DRIVER_PATTERNS = "driver_patterns"
@@ -42,6 +43,7 @@ configuration = {
     C_DEFAULT_THREADS: 1,
     C_CREATE_DIRS: True,
     C_CLEANUP: True,
+    C_CLEAN_ON_FAILURE: False,
     C_RECURSIVE: True,
     C_INCLUDE_LOCAL_TEXMF: False,
     C_FORMAT_MAX: 5,  # Max formatting depth

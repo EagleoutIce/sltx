@@ -9,6 +9,7 @@ from typing import List
 from importlib_resources import files
 
 import sltxpkg.config as sc
+import sltxpkg.commands as scmd
 import sltxpkg.data.recipes
 import sltxpkg.globals as sg
 import sltxpkg.lithie.compile.cooking.recipe_exceptions as rex
@@ -114,9 +115,13 @@ class Recipe():
         # We do this as we need a change and the percent itself gets consumed
         # This ensures a different sequence every time that will be deleted
         # on a successful run
-        with open(self.__f("{out_dir}/{file_base_noext}.aux"), 'a') as f:
-            f.write('%% sltx errormark' + str(random.random()) +
-                    " - " + str(random.random()))
+        if sg.configuration[sg.C_CLEAN_ON_FAILURE]:
+            sg.args.include_patterns = [self.__f("{out_dir}")]
+            scmd.cleanse_caches()
+        else:
+            with open(self.__f("{out_dir}/{file_base_noext}.aux"), 'a') as f:
+                f.write('%% sltx errormark' + str(random.random()) +
+                        " - " + str(random.random()))
         # automatic analyze
         os.system('sltx analyze "' + archive + '"')
         raise rex.RecipeException(archive,
