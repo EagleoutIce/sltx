@@ -106,17 +106,31 @@ def should_be_excluded(file: str):
     return False
 
 
+def should_be_included(file: str):
+    if sg.args.include_patterns is None:
+        return True
+
+    for include_pattern in sg.args.include_patterns:
+        if re.match(include_pattern, file):
+            return True
+    return False
+
+
 def cleanse_caches():
     # TODO: clean up .latexmkrc entries; not the whole file
     cache_dir = sg.configuration[sg.C_CACHE_DIR]
     if os.path.isdir(cache_dir):
-        LOGGER.info("Cleaning al the caches... (" + cache_dir + ")")
+        LOGGER.info("Cleaning all the caches... (" + cache_dir + ")")
         # avoids deleting the cache dir itself
         for root, folder_dirs, folder_files in os.walk(cache_dir):
             for name in folder_files:
-                os.remove(os.path.join(root, name))
+                f = os.path.join(root, name)
+                if not should_be_excluded(str(f)) and should_be_included(str(f)):
+                    os.remove(f)
             for name in folder_dirs:
-                shutil.rmtree(os.path.join(root, name))
+                f = os.path.join(root, name)
+                if not should_be_excluded(str(f)) and should_be_included(str(f)):
+                    shutil.rmtree(os.path.join(root, name))
     else:
         LOGGER.warning("No caches \"" + cache_dir +
                        "\" were found. Skipping...")
@@ -137,7 +151,7 @@ def cmd_cleanse():
                       'sltx-log-*.zip', 'sltx-drivers.log', '*.sltx-log']
     for clean_pattern in clean_patterns:
         for f in Path(".").glob(clean_pattern):
-            if should_be_excluded(str(f)):
+            if should_be_excluded(str(f)) or not should_be_included(str(f)):
                 LOGGER.info("File " + str(f) + " excluded.")
             else:
                 f.unlink()

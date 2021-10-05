@@ -35,7 +35,7 @@ sub_parser = Commands({
                                 "directory."),
                        Arg('deps', metavar='dep.yml', type=valid_file, nargs='+',
                            help="the file(s) to load the dependencies from.")
-                   ]),
+    ]),
     'docker': ((cmd_docker, ['do']), Arg(description='Manage the containers to compile with sltx.'), []),
     'compile': ((cmd_compile, ['cmp']), Arg(
         description="Compile documents with previously installed containers. If docker was disabled this will default "
@@ -62,7 +62,7 @@ sub_parser = Commands({
                              "be used as extra_arguments in the recipe."),
                     Arg('files', metavar=file_tx, type=str, nargs='*',
                         help=file_help)
-                ]),
+    ]),
     'raw-compile': ((cmd_raw_compile, ['raw-cmp']), Arg(
         description="Compile documents using a recipe. This will not start any docker container but will be executed "
                     "inside one as well."),
@@ -78,7 +78,7 @@ sub_parser = Commands({
                             help='additional dependency files to download before the installation. May be supplied '
                                  'multiple times.',
                             required=False)
-                    ]),
+    ]),
     'gen-gha': ((cmd_gen_gha, ['gha']), Arg(description='Generate a GitHub workflow To automate compilation.'), []),
     'cleanse': ((cmd_cleanse, ['cls']), Arg(
         description="This will clean all additional sltx-files in the current directory (like \"sltx-log-*\" files). "
@@ -86,19 +86,22 @@ sub_parser = Commands({
                     "the current config. If you've changed some configurations they will be used."),
                 [
                     Arg('-C', '--cache', dest='cleanse_cache', action='store_true',
-                        help="If set, sltx will clean the cache."),
+                        help="If set, sltx will clean the caches."),
                     Arg('--all', dest='cleanse_all', action='store_true',
-                        help="If set, sltx will clean the texmf-tree (sltx) and the cache as-well."),
+                        help="If set, sltx will clean the texmf-tree (sltx) and the complete cache as-well."),
                     Arg('-e', '--exclude', action='append', metavar='pattern', dest='exclude_patterns',
-                        help="Exclude all files/directories matching this pattern. May be supplied multiple times.")
-                ]),
-    'auto-setup': (
-    (cmd_auto_setup, []), Arg(description='Setup a basic version of sltx (this requires docker to be setup).'),
-    [
-        Arg('-d', '--dependencies', dest='auto_deps', action='store_true',
-            help='This will install the recommended dependencies on your host system. This is helpful if you have '
-                 'texlive installed and want your editor to recognize the libraries as well.')
+                        help="Exclude all files/directories matching this pattern. May be supplied multiple times."),
+                    Arg('-i', '--include', action='append', metavar='pattern', dest='include_patterns',
+                        help="Include *only* files/directories matching this pattern. May be supplied multiple times.")
     ]),
+    'auto-setup': (
+        (cmd_auto_setup, []), Arg(
+            description='Setup a basic version of sltx (this requires docker to be setup).'),
+        [
+            Arg('-d', '--dependencies', dest='auto_deps', action='store_true',
+                help='This will install the recommended dependencies on your host system. This is helpful if you have '
+                'texlive installed and want your editor to recognize the libraries as well.')
+        ]),
     'version': ((cmd_version, []), Arg(description='Show the version-info for sltx.'), [])
 })
 
@@ -129,8 +132,9 @@ parser.add_argument('--log', dest='log',
 
 # TODO: Format support with mlatexformat?
 cmd_parser = parser.add_subparsers(title='command', description="Select the command for sltx", metavar=set(sub_parser.cmds.keys()),
-    help="Help for the specific command. You may use shortcuts for them: " +
-         str([k[1] for k in sub_parser.helper_values() if len(k[1]) != 0]),
-    dest='command')
+                                   help="Help for the specific command. You may use shortcuts for them: " +
+                                   str([k[1] for k in sub_parser.helper_values() if len(
+                                       k[1]) != 0]),
+                                   dest='command')
 
 sub_parser.generate(cmd_parser)
