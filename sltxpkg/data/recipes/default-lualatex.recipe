@@ -1,0 +1,22 @@
+name: Default lualatex recipe (latexmk!)
+author: Florian Sihler
+
+args: '--file-line-error --halt-on-error -interaction=nonstopmode --output-directory="{out_dir}"'
+extra_args:
+  - "-shell-escape"
+  - "-recorder"
+  - "{do_quiet}"
+
+tools:
+  - glossary
+  - index
+
+wanted_files:
+  - "{out_dir}/{file_base_noext}.pdf"
+
+executable: lualatex
+
+quiet: "--quiet"
+
+run:
+  - "{executable} {args} {extra_args} {file}"
