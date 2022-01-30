@@ -12,7 +12,7 @@ test:
 install_local: test build install_local_raw version
 
 install_local_raw:
-	pip3 install --upgrade "dist/sltx-${VERSION}-py3-none-any.whl"
+	pip3 install --force-reinstall --upgrade "dist/sltx-${VERSION}-py3-none-any.whl"
 	@echo Please make sure to go back to the normal sltx whenever possible
 
 

@@ -67,22 +67,22 @@ class DockerCtrl:
                 'mount': 'rw'
             }
         run = self.client.containers.run(
-            target, command=command, detach=True, remove=False, working_dir='/root/data', tty=True,
-            network_mode='bridge', user='root' if root else 'lithie-user',
-            volumes=volumes)
+            target, command = command, detach = True, remove = False, working_dir = '/root/data', tty = True,
+            network_mode = 'bridge', user = 'root' if root else 'lithie-user',
+            volumes = volumes)
         # We need a buffer in case a multibyte unicode sequence
         # will be broken at line end
-        buffer = b''
-        for l in run.logs(stdout=True, stderr=True, stream=True, timestamps=True):
+        buffer=b''
+        for l in run.logs(stdout = True, stderr = True, stream = True, timestamps = True):
             try:
                 LOGGER.info('\u0001' + (buffer + l).decode('utf-8'))
-                buffer = b''
+                buffer=b''
             except UnicodeDecodeError as ex:
                 buffer += l
         LOGGER.info("Container completed.")
-        feedback = run.wait()
+        feedback=run.wait()
         run.remove()
         if 'StatusCode' in feedback and feedback['StatusCode'] != 0:
-            code = feedback['StatusCode']
+            code=feedback['StatusCode']
             LOGGER.error("Command failed with: " + str(code))
             sys.exit(code)
