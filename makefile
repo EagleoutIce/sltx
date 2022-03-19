@@ -12,7 +12,7 @@ test:
 install_local: test build install_local_raw version
 
 install_local_raw:
-	pip3 install --upgrade "dist/sltx-${VERSION}-py3-none-any.whl"
+	pip3 install --force-reinstall --upgrade "dist/sltx-${VERSION}-py3-none-any.whl"
 	@echo Please make sure to go back to the normal sltx whenever possible
 
 
@@ -20,9 +20,9 @@ build: $(SOURCES)
 	python3 setup.py sdist bdist_wheel
 
 version:
-	@echo "\033[34mBuild with version: ${VERSION}\033[m"
+	@echo -e "\033[34mBuild with version: ${VERSION}\033[m"
 	@sltx version
-	@echo "\033[34m==========================\033[m"
+	@echo -e "\033[34m==========================\033[m"
 
 publish: test build version
 	@if [ $(VERSION) = $(shell cat sltxpkg/data/version.info) ]; then\
