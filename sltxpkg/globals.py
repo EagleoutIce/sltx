@@ -1,4 +1,5 @@
 from sltxpkg.log_control import LOGGER
+from sltxpkg.types import SltxDependencies
 
 DEFAULT_CONFIG = "~/.sltx-config.yml"
 LOCAL_CONFIG = "./sltx-config.yml"
@@ -31,7 +32,7 @@ C_DOCKER_PROFILE = "docker_profile"
 
 DOCKER_URL = "eagleoutice/lithie-{profile}"
 
-configuration = {
+configuration: dict = {
     C_TEX_HOME: "{os_default_texmf}/tex/latex/sltx",
     C_WORKING_DIR: "~/.sltx",
     C_DOWNLOAD_DIR: "~/.sltx/download",
@@ -71,10 +72,11 @@ configuration = {
     }
 }
 
-dependencies = {}
+
+dependencies: SltxDependencies = {}
 
 
-def print_idx(idx: str, message: str, pre: str = ''):
+def print_idx(idx: str, message: str, pre: str = '') -> None:
     LOGGER.info("%s[ID %s] %s", pre, str(idx), message)
 
 
