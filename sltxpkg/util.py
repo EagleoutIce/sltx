@@ -23,6 +23,8 @@ def default_texmf() -> str:
         return "~/Library/texmf"
     elif platform == "win32":
         return "~/texmf"
+    else:
+        return "~/texmf"
 
 
 def get_version() -> str:
@@ -40,7 +42,7 @@ def load_yaml(file_path: str):
         if float(yaml.__version__[:yaml.__version__.rfind('.')]) >= 5.1:
             return yaml.load(yaml_file, Loader=yaml.FullLoader)
         else:
-            return yaml.load(yaml_file)
+            return yaml.load(yaml_file)  # type: ignore
 
 
 def file_contains(path: str, txt: str):
