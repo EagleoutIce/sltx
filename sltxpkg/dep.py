@@ -6,7 +6,7 @@ import sys
 from concurrent import futures
 from pathlib import Path
 from subprocess import PIPE, Popen
-from typing import Tuple  # execution
+from typing import Tuple, List
 
 import sltxpkg.globals as sg
 import sltxpkg.util as su
@@ -14,6 +14,7 @@ from sltxpkg.config import load_dependencies_config, write_to_log
 from sltxpkg.globals import (C_AUTODETECT_DRIVERS, C_CLEANUP, C_DOWNLOAD_DIR, C_DRIVER_PATTERNS,
                              C_DRIVERS, C_RECURSIVE, print_idx)
 from sltxpkg.log_control import LOGGER
+from sltxpkg.types import SltxDependencies
 
 loaded = []
 
@@ -83,7 +84,7 @@ def extend_grab_from_local(idx: str, driver_target_dir: str, data: dict) -> Tupl
 
     # load file and check for default
     # TODO: avoid reloading if recursive?
-    file_profiles = {}
+    file_profiles: dict = {}
     for dep_file in dep_files:
         file_profiles = load_dependencies_config(dep_file, file_profiles)
 
@@ -122,7 +123,7 @@ def grab_from(idx: str, path: str, data: dict, target: str, key: str, grabber, e
     else:
         data[key].extend(extras)
 
-    grabs = []
+    grabs: List[str] = []
     for grab_pattern in set(data[key]):
         cur_grab_pattern = split_grab_pattern(grab_pattern, target)
         # maybe forbid level up?
@@ -201,7 +202,7 @@ def recursive_dependencies(idx: str, driver_target_dir: str, data: dict, dep_nam
     if len(dep_files) <= 0:
         return
 
-    new_dependencies = {}
+    new_dependencies: SltxDependencies = {}
     for dep_file in dep_files:
         new_dependencies = load_dependencies_config(dep_file, new_dependencies)
 

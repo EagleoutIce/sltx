@@ -10,3 +10,4 @@ import sltxpkg.command_config
 import sltxpkg.cmd_line_args
 import sltxpkg.log_control
 import sltxpkg.heart
+import sltxpkg.types

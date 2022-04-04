@@ -7,6 +7,7 @@ from sltxpkg import util as su
 from sltxpkg.globals import (C_CACHE_DIR, C_CREATE_DIRS, C_DOWNLOAD_DIR, C_DRIVER_LOG,
                              C_TEX_HOME, C_WORKING_DIR)
 from sltxpkg.log_control import LOGGER
+from sltxpkg.types import SltxDependencies
 
 
 def write_to_log(data: str):
@@ -31,7 +32,7 @@ def expand_url(path: str, cwd: Path) -> str:
     return "" if path is None else path.format(cwd=str(cwd.parent))
 
 
-def load_dependencies_config(file: str, target: dict) -> dict:
+def load_dependencies_config(file: str, target: dict) -> SltxDependencies:
     """Apply given dependency file to the sltx dep list
 
     Args:
