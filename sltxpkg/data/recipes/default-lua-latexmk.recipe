@@ -5,6 +5,7 @@ args: '-pdflua -file-line-error -halt-on-error -interaction=nonstopmode -outdir=
 extra_args:
   - "-shell-escape"
   - "-recorder"
+  - "-usepretex='\\def\\sltxoutputdirector{{{out_dir}}}'"
   - "{do_quiet}"
 
 tools:

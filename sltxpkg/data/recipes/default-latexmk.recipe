@@ -13,6 +13,7 @@ args: '-pdf -file-line-error -halt-on-error -interaction=nonstopmode -outdir="{o
 extra_args:
   - "-shell-escape"
   - "-recorder"
+  - "-usepretex='\\def\\sltxoutputdirectory:braceo:{out_dir}:bracee:'"
   - "{do_quiet}"
 
 # Tools will be used to generate files if needed or to require intermediate steps
