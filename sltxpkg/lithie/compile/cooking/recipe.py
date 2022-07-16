@@ -51,10 +51,11 @@ class Recipe():
     def __init__(self, recipe_path: str, file: str, idx: str):
         super().__init__()
         self.file = file
+        self.idx = idx
         for file_end_pattern, file_end_replacer in sg.configuration[sg.C_FILE_END_REPLACERS].items():
             if file.endswith(file_end_pattern):
+                print_idx(self.idx, "Applying file name replace: " + file_end_pattern + " => " + file_end_replacer)
                 self.file = file[:-len(file_end_replacer)] + file_end_replacer
-        self.idx = idx
         recipe_full_path = recipe_path
         if not os.path.isfile(recipe_full_path):
             recipe_full_path = str(
