@@ -3,7 +3,6 @@ SOURCES := sltx $(wildcard sltxpkg/*.py) $(wildcard sltxpkg/data/recipes/*.recip
 
 .PHONY: all install_local build test version publish
 
-
 all: test build version
 
 test:
