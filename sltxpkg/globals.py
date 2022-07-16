@@ -26,6 +26,7 @@ C_DEFAULT_THREADS = 'default_threads'
 C_DEFAULT_RECIPE = 'default_recipe'
 C_WANTED_FILES = 'extra_wanted_files'
 C_BASE_ARGS = 'base_args'
+C_FILE_END_REPLACERS = 'file_name_end_replacers'
 
 C_USE_DOCKER = "docker_use"
 C_DOCKER_PROFILE = "docker_profile"
@@ -69,6 +70,10 @@ configuration: dict = {
     },
     C_DRIVER_PATTERNS: {
         "git": ["github", "gitlab"]
+    },
+    C_FILE_END_REPLACERS: {
+        ".pdf": "",
+        ".": ""
     }
 }
 
