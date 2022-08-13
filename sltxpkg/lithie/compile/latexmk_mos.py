@@ -12,6 +12,10 @@ from sltxpkg.globals import LOGGER
 # NOTE: no cygwin support
 
 
+class UnknownPlatformException(Exception):
+    pass
+
+
 def get_root() -> str:
     """Return the root folder of the current platform
 
@@ -23,7 +27,9 @@ def get_root() -> str:
     elif platform == "darwin":
         return os.path.expandvars("$HOME/.latexmkrc")
     elif platform == "win32":
-        return "C:\latexmk\LatexMk"
+        return "C:\\latexmk\\LatexMk"
+    else:
+        raise UnknownPlatformException("Unknown platform")
 
 
 def get_config(name: str) -> str:
