@@ -6,7 +6,7 @@ import tempfile
 
 ANALYZER_PATTERN = re.compile(
     '^! |Error:|pdf[Tt]e[Xx] error|Undefined control sequence|improper alph|Incomplete \\\\if|Runaway preamble\\?|has an extra|Permission denied|not loadable: Metric|Extra alignment tab has been|Can\'t create output|too long|Runaway argument|al parameter number|Misplaced (alignment)?|doesn\'t match|Invalid UTF-8|forgotten \\\\end|ERROR|Parameters must be (numbered consecutively)?|Improper alph|Illegal unit of|Incompatible glue|TeX capacity exceeded|\(ext4\)|extra ., or|[Tt]oo many|Dimension too')
-ARCHIVE_PATTERN = re.compile('.*(\.tar(\.gz)?$|\.zip|\.7z)')
+ARCHIVE_PATTERN = re.compile(r'.*(\.tar(\.gz)?$|\.zip|\.7z)')
 
 ANALYZE_DIVIDER = "\033[38;5;247m    # -------------------------------------\033[m"
 
